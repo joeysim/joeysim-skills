@@ -1,0 +1,6 @@
+interface:
+  display_name: "Decision Matrix"
+  short_description: "Compare options, evidence, trade-offs, and unknowns"
+  default_prompt: "Use $decision-matrix to create a decision matrix from the current goal and context. Generate options when needed."
+policy:
+  allow_implicit_invocation: true

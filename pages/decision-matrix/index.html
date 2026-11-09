@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A standalone decision matrix skill with shared criteria, evidence, trade-offs, explicit unknowns, and a worked example.">
+<title>Decision Matrix: The method and skill</title>
+<style>
+:root { color-scheme: light; --ink: #111; --paper: #faf9f6; --line: #d9d8d2; --accent: #2448d8; --positive: #b6e3a3; --mixed: #ffe066; --negative: #f5a4a4; --unknown: #e0e0e0; }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 30px; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+a { color: inherit; text-underline-offset: .2em; }
+a:hover { color: var(--accent); }
+a:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
+.skip { position: absolute; left: 16px; top: -90px; padding: 10px 18px; background: #fff; z-index: 10; }
+.skip:focus { top: 16px; }
+.shell { max-width: 1300px; padding: 0 56px; margin: auto; }
+.topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 25px 0; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 650; }
+.symbol { display: grid; grid-template-columns: repeat(2, 7px); gap: 4px; }
+.symbol i { width: 7px; height: 7px; background: var(--ink); }
+.symbol i:last-child { background: var(--accent); }
+.tag, .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
+.tag { border: 1px solid var(--line); padding: 4px 10px; border-radius: 4px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: end; gap: 60px; padding: 64px 0 58px; border-bottom: 1px solid var(--line); }
+.eyebrow { margin: 0 0 18px; }
+h1 { font-size: clamp(46px, 6vw, 82px); line-height: 1.04; letter-spacing: -.055em; font-weight: 600; margin: 0 0 25px; }
+.lead { max-width: 620px; font-size: clamp(19px, 2vw, 23px); line-height: 1.5; margin: 0; }
+.use { padding-left: 24px; border-left: 2px solid var(--accent); }
+.use p { margin: 0 0 15px; }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em; }
+.use code { display: block; margin: 10px 0 20px; overflow-wrap: anywhere; }
+.download { display: inline-flex; align-items: center; gap: 14px; min-height: 46px; padding: 8px 17px; border: 1px solid var(--ink); border-radius: 5px; text-decoration: none; background: var(--ink); color: #fff; font-size: 14px; font-weight: 600; }
+.download:hover { background: #fff; color: var(--ink); }
+.layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 68px; padding: 48px 0 80px; }
+aside { position: sticky; top: 30px; align-self: start; }
+nav .eyebrow { margin-bottom: 15px; }
+nav ol { list-style: none; padding: 0; counter-reset: section; margin: 0; }
+nav li { counter-increment: section; }
+nav li a { display: flex; align-items: baseline; gap: 12px; padding: 9px 0; text-decoration: none; font-size: 14px; line-height: 1.5; }
+nav li a::before { content: counter(section, decimal-leading-zero); font: 11px ui-monospace, monospace; }
+.example-link { display: block; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; }
+.content { min-width: 0; }
+.method > p:first-child { font-size: 19px; margin-top: 0; }
+h2 { font-size: clamp(25px, 3vw, 32px); letter-spacing: -.025em; line-height: 1.25; margin: 52px 0 21px; padding-top: 25px; border-top: 1px solid var(--line); }
+h3 { font-size: 22px; line-height: 1.3; letter-spacing: -.02em; margin: 32px 0 16px; }
+p { margin: 0 0 20px; }
+.content ul, .content ol { padding-left: 23px; margin: 0 0 24px; }
+.content li { padding-left: 5px; margin-bottom: 7px; }
+.content li::marker { color: var(--accent); }
+.table-scroll { overflow-x: auto; margin: 25px 0; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.55; text-align: left; }
+.option-table { table-layout: fixed; min-width: 820px; }
+.option-table th:first-child { width: 160px; }
+th { background: #eeede8; font-weight: 650; }
+.example th strong { display: flex; width: fit-content; align-items: center; padding: 3px 10px; margin: 0 0 8px; border: 1px solid #b5c9ec; border-radius: 999px; background: #dce7ff; color: var(--ink); font-size: 12px; font-weight: 700; line-height: 1.4; white-space: nowrap; vertical-align: middle; }
+.option-description { position: relative; margin-top: 8px; font-size: 12px; font-weight: 400; line-height: 1.5; }
+.option-description summary { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 0; cursor: pointer; list-style: none; }
+.option-description summary::-webkit-details-marker { display: none; }
+.description-arrow { width: 12px; height: 12px; flex: none; }
+.option-description summary:hover { color: var(--accent); }
+.option-description[open] { min-height: 32px; border-left: 2px solid #c7c6bf; padding: 2px 36px 2px 10px; }
+.option-description[open] summary { position: absolute; top: 0; right: 0; justify-content: center; width: 32px; }
+.option-description[open] .description-arrow { transform: rotate(90deg); }
+.option-description[open] .description-label { display: none; }
+.option-description p { margin: 0; }
+@media (max-width: 700px) { .option-description { font-size: 13px; } .option-description summary { min-height: 44px; } .option-description[open] { min-height: 44px; padding-right: 48px; } .option-description[open] summary { width: 44px; } }
+th, td { padding: 14px 16px; vertical-align: top; min-width: 120px; }
+tr:not(:last-child) > * { border-bottom: 1px solid var(--line); }
+th { border-bottom: 1px solid var(--line); }
+th:not(:last-child), td:not(:last-child) { border-right: 1px solid var(--line); }
+td[data-rating="positive"] { background: var(--positive); }
+td[data-rating="negative"] { background: var(--negative); }
+td[data-rating="mixed"], td[data-rating="simulated"] { background: var(--mixed); }
+td[data-rating="unknown"] { background: var(--unknown); }
+.rating-legend { line-height: 2; }
+.rating-legend strong { padding: 3px 7px; border-radius: 4px; }
+.rating-legend strong:nth-of-type(1) { background: var(--positive); }
+.rating-legend strong:nth-of-type(2) { background: var(--mixed); }
+.rating-legend strong:nth-of-type(3) { background: var(--negative); }
+.rating-legend strong:nth-of-type(4) { background: var(--unknown); }
+.example { border-top: 3px solid var(--ink); margin-top: 65px; padding-top: 12px; }
+.example h2 { border: 0; margin-top: 12px; font-size: 38px; }
+.example > p:first-of-type { padding: 15px 18px; border-left: 3px solid #b88d24; background: #fbf3d9; }
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 25px 0 35px; border-top: 1px solid var(--line); font-size: 13px; }
+@media (max-width: 1000px) { .shell { padding: 0 30px; } .layout { gap: 35px; grid-template-columns: 180px minmax(0, 1fr); } .hero { gap: 25px; grid-template-columns: minmax(0, 1fr) 245px; } }
+@media (max-width: 700px) { .shell { padding: 0 21px; } .hero { grid-template-columns: 1fr; padding: 40px 0; gap: 30px; } .use { padding-left: 18px; } .layout { grid-template-columns: 1fr; gap: 30px; padding-top: 30px; } aside { position: static; } nav ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; } nav li a { min-height: 44px; } .example-link { margin-top: 12px; } body { font-size: 16px; } h2 { margin-top: 38px; } .tag { font-size: 10px; } table { min-width: 580px; } }
+@media print { body { background: #fff; font-size: 11pt; } .shell { max-width: none; padding: 0; } aside, .use, .topline, footer, .skip { display: none; } .hero, .layout { display: block; padding: 15px 0; } h1 { font-size: 36pt; } h2, h3 { break-after: avoid; } tr { break-inside: avoid; } .table-scroll { overflow: visible; } table, .option-table { min-width: 0; font-size: 9pt; } th, td { min-width: 0; padding: 8px; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#method">Skip to the method</a>
+<div class="shell">
+<header class="topline"><a class="brand" href="#top"><span class="symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Decision Matrix</a><span class="tag">Standalone skill</span></header>
+<main id="top">
+<section class="hero" aria-labelledby="title"><div><p class="eyebrow">Evidence · Alternatives · Action</p><h1 id="title">Decision Matrix</h1><p class="lead">Compare options with shared criteria. Make the evidence, trade-offs, and next action clear.</p></div><div class="use"><p><strong>Use the skill</strong></p><code>Create a decision matrix.</code><p>Options are optional.</p><a class="download" href="decision-matrix.zip" download>Download skill <span aria-hidden="true">↓</span></a></div></section>
+<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li></ol><a class="example-link" href="#example">Read the worked example ↗</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
+This standalone method requires no specific application, service, or database.</p>
+<p>Use this method when alternatives could materially change the result.
+For routine choices, give a direct answer unless the user requests a matrix.
+Keep generated files in the local workspace.
+External publication requires an explicit user request for that destination.</p>
+<h2 id="start-from-the-available-context">Start from the available context</h2>
+<p>The user does not need to supply options, criteria, or an invocation format.
+A request such as &quot;Create a decision matrix&quot; is sufficient when the conversation identifies the decision.
+Infer the decision question, candidate options, and criteria from the user&#x27;s goal and available evidence.
+State material assumptions explicitly.
+If the decision subject is missing or ambiguous, ask one focused question about the goal.
+Do not require the user to invent options before proceeding.</p>
+<p>Use supplied options as the starting set.
+Generate credible alternatives when the user supplies no options.
+Add alternatives when they materially improve an open comparison.
+Respect an explicit request to compare only the named options.
+Keep option generation separate from evidence collection. A generated option has no observed results until evidence supports them.</p>
+<p>Apply this method when a consequential comparison helps the current task, even without an explicit skill request.
+The agent can use options already under consideration or generate them from context.
+Keep autonomous use within the existing task and authority.</p>
+<p>Example requests:</p>
+<ul>
+<li>&quot;Create a decision matrix.&quot; Use the decision already under discussion.</li>
+<li>&quot;Use $decision-matrix for this goal.&quot; Generate suitable options and criteria.</li>
+<li>&quot;Compare option A and option B with $decision-matrix.&quot; Use the supplied options.</li>
+</ul>
+<h2 id="frame-the-decision">Frame the decision</h2>
+<ol>
+<li>State the decision question and the intended outcome.</li>
+<li>Describe one representative task that all options must address.</li>
+<li>Identify the current workflow or another justified baseline.</li>
+<li>Record required capabilities, resource limits, available evidence, and material uncertainty.</li>
+</ol>
+<p>Separate the delivery format from the approach to the problem.
+For example, a website is a format, while guided steps and direct editing are different approaches.
+Use available context before requesting missing information.
+Ask about a preference only when its answer materially changes the next action.
+Continue authorized, reversible work when an explicit assumption is sufficient.
+A comparison request alone does not authorize implementation, spending, or publication.</p>
+<h2 id="establish-shared-criteria">Establish shared criteria</h2>
+<p>Use observable outcomes that distinguish useful options.
+Assign each criterion a stable identifier, a clear label, a required flag, and a source.
+Express ambiguous criteria as answerable questions.
+For example, replace &quot;Speed&quot; with &quot;Can this meet the agreed deadline?&quot;
+Define what better means for each criterion, including direction, relevant thresholds, and the comparison baseline.
+Use existing limits or evidence for thresholds.
+Label any proposed threshold as an assumption.</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>Source</th><th>Required explanation</th></tr></thead><tbody><tr><td>User</td><td>An exact quotation and a reference to the original request or later user input.</td></tr><tr><td>Inference</td><td>The reasoning that connects the criterion to the intended outcome.</td></tr><tr><td>Assumption</td><td>The revisable agent choice and its basis.</td></tr></tbody></table></div>
+<p>Check that each quotation actually supports its criterion.
+A matching quotation establishes provenance, not a valid interpretation.
+Keep required constraints separate from preferences.
+Do not present an inferred preference or implementation choice as a user requirement.
+Check whether a criterion unfairly favors one approach before evidence exists.
+Preserve required user criteria unless the user authorizes their change or withdraws the underlying direction.
+Record reasons for changed inferences or assumptions.</p>
+<p>Include material concerns from affected people when the available context identifies them.
+Consolidate overlapping criteria without losing distinct requirements.
+Record known priorities among optional criteria without inventing weights.
+Label inferred priorities as assumptions.</p>
+<p>Check whether an option meeting every criterion would justify proceeding.
+Investigate remaining objections for missing constraints, unclear criteria, or disputed evidence.
+Run this check yourself.
+Ask only when unavailable user information materially changes the decision.</p>
+<h2 id="define-credible-options">Define credible options</h2>
+<p>Compare different mechanisms or explanations of the problem.
+When only one approach is apparent, consider its opposite or a smaller trial.
+Use these prompts only to generate credible alternatives.
+Do not invent a compromise or a fixed number of options.
+Include the current approach when it remains a credible option.
+Otherwise, explain its exclusion or use another justified baseline.
+For change decisions, consider a no-change or no-action option, including the benefits forgone by not acting.
+Use the current approach for this option when it already represents no change.
+Use the fewest options and criteria that cover the decision.
+Two to four options and three to six criteria usually fit one view.
+Retain additional options or criteria when the decision requires them.</p>
+<p>For each option, record:</p>
+<ul>
+<li>A stable identifier, title, and brief description of what the option is and how it works.</li>
+<li>A hypothesis that explains why the approach could address the problem.</li>
+<li>A falsifier: an observation that would weaken that hypothesis.</li>
+<li>Its build status: built, unbuilt, or unknown, when implementation matters.</li>
+<li>A local artifact or preview link for each built variant, when available.</li>
+<li>Its exploration status and supporting evidence.</li>
+</ul>
+<p>Use exploration status Observed, Simulated, Ruled out, or Untested.
+Use Ruled out only when evidence establishes a constraint violation or weakens the hypothesis enough to reject it.
+An unbuilt option can still have useful research or simulation evidence.
+Do not treat an implementation assumption as evidence against an alternative.
+Check relevant precedents before claiming novelty.
+Keep novelty unknown when no comparison supports the claim.</p>
+<h2 id="investigate-the-uncertainty">Investigate the uncertainty</h2>
+<p>Use existing evidence when it adequately answers the decision.
+Otherwise, choose the smallest comparison that could change the next action.
+Research, sketches, a technical check, or one interaction can be sufficient.
+Do not build complete products merely to populate the matrix.</p>
+<p>Before an experiment, save its plan with:</p>
+<ul>
+<li>The question and method.</li>
+<li>The baseline and included options.</li>
+<li>The shared task, inputs, and measures.</li>
+<li>Measures that require actual human observations.</li>
+<li>The decision rule, including an inconclusive outcome.</li>
+<li>The resource limit and stopping condition.</li>
+</ul>
+<p>Explore every listed option before presenting a final comparative recommendation.
+Use the same task and measures for comparable tests.
+Preserve inspectable variants when implementation affects the result.
+Keep the recommendation provisional when an option remains untested or a planned result remains unavailable.
+When execution exceeds the request, provide the provisional matrix and the experiment plan.
+Do not run that experiment without the necessary authorization.</p>
+<h2 id="rate-every-option">Rate every option</h2>
+<p>Rate every option against every shared criterion exactly once.
+Explain the scale before the matrix.
+Use qualitative ratings unless measurements justify numbers.
+Define what each applicable rating means for each criterion.
+Binary constraints need no artificial middle rating.</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>Rating</th><th>Meaning</th></tr></thead><tbody><tr><td>Supported</td><td>Cited evidence supports the criterion within the stated limits.</td></tr><tr><td>Partial</td><td>Cited evidence supports only part of the criterion or includes material limitations.</td></tr><tr><td>Not supported</td><td>Cited evidence shows a failure against the criterion.</td></tr><tr><td>Unknown</td><td>The available evidence does not establish the outcome.</td></tr><tr><td>Simulated</td><td>A model simulation supplies a provisional judgment, not a human observation.</td></tr></tbody></table></div>
+<p>Adapt these labels when the task needs another clearly defined scale.
+Keep Unknown and Simulated explicit.
+For each cell, provide the rating, a concise basis, and evidence references for known claims.
+Use local paths, source links, test records, or identifiable user input as evidence references.
+Record each observation&#x27;s method, date, and relevant scope.
+Explain the missing evidence for Unknown cells.
+Do not cite an assumption as proof of an unmeasured outcome.
+Separate observations, interpretations, assumptions, and unknowns.
+Limit human evidence to the experience actually reported or observed.
+Browser checks and model simulations cannot establish human effort, preference, or general usability.</p>
+<p>Do not invent weights, measurements, or confidence percentages.
+If the user requests numeric scoring, define its anchors, direction, units, and evidence basis.
+Keep ordinal judgments distinct from measured quantities.
+Use weights only when the user supplies or accepts their meaning.
+Do not calculate a total by default.
+Never hide a failed required constraint inside an average.
+Do not select an option by counting favorable cells.
+An unknown required outcome remains unresolved, even when other ratings are favorable.</p>
+<h2 id="recommend-the-next-action">Recommend the next action</h2>
+<p>Start with the recommendation and its main reason.
+Use the recommendation and its accepted trade-off as the report or matrix headline.
+Choose exactly one recommended option for the current decision.
+Specify whether to test, build, or retain that option.
+For other decision domains, use an equivalent concrete action.
+When evidence cannot support a final choice, recommend one provisional next action.
+Use other options as alternatives or test baselines without labeling them Recommended.
+State the main trade-off, material unknowns, and the condition for reconsideration.
+State which plausible assumptions or preferences could change the recommendation.
+Check that numerical trade-offs in the headline and recommendation match the matrix.
+Name the baseline, units, and relevant time period for each numerical comparison.
+Flag any unexplained differences before presenting those comparisons as established.
+Preserve documented disagreement about facts, priorities, or recommendations.
+Identify what evidence or user choice could resolve that disagreement.
+Do not infer consensus from silence.
+Preserve the distinction between the agent&#x27;s recommendation and the user&#x27;s actual selection.
+Recommendations do not authorize scope changes or override resource limits.</p>
+<p>After an experiment, report every planned measure, including unknown results.
+Apply the saved decision rule to the observed evidence.
+Classify the result as supports, challenges, or inconclusive.
+Update the affected ratings before presenting the revised recommendation.
+Preserve earlier decisions and contradictory evidence.
+Link each revision to its predecessor, new evidence, and reason for change.
+Do not remove compared options merely because they performed poorly.</p>
+<h2 id="present-the-matrix">Present the matrix</h2>
+<p>Use Markdown unless the user requests another format or an existing destination requires one.
+Place criteria in rows and options in columns.
+Keep this orientation across matrices, including narrow layouts.
+Give option columns equal widths across all visual tables.
+Keep those widths stable when descriptions expand or collapse.
+Number criterion rows 1, 2, 3, and so on.
+Label option columns A, B, C, and so on.
+Keep these labels consistent within each decision and its supporting explanation.
+These labels do not replace stable identifiers.
+Place <strong>Recommended</strong> at the top of the chosen option header, above its letter and title.
+Use a compact, rounded chip for this label in visual output.
+Use a neutral or blue chip style that differs from the rating colors.
+Use only <strong>Recommended</strong> as the chip text.
+Keep bold text as the fallback for plain Markdown.
+Keep the option letter and title in that header.
+State the recommendation action in the explanation above the matrix.
+Keep provisional recommendations explicitly provisional.
+Place each description inside its option header, beneath the title.
+Explain what each option is and how it works in one short sentence.
+For visual output, show descriptions expanded by default with a left border and a downward arrow.
+Collapse the sentence when the user activates the arrow.
+Show Description beside a right-pointing arrow only when collapsed.
+Expand the sentence when the user activates that control.
+Use smaller, regular-weight text with readable contrast.
+Keep description controls usable with a keyboard and on touch screens.
+If collapsible content is unavailable, show the sentence in italic text within the option header.
+Mark required criteria beside their labels.
+Place the rating, basis, and evidence reference together in each cell.
+Keep criterion sources and option hypotheses close to the table.
+Show exploration status, build status, and recommendation labels separately.
+State whether the comparison is provisional or complete.
+A complete comparison does not prove that every required outcome passed.</p>
+<p>For a visual interface, keep descriptions aligned with their option columns.
+Show previews only when they represent the compared variants.
+Keep text readable at narrow widths.
+Use black text on light surfaces and responsive font sizes.
+Use clear traffic-light colors in visual output.
+Use green for Supported, yellow for Partial, and red for Not supported.
+Keep color fills distinct from the page background.
+Show a color key above the matrix.
+Use text labels alongside any rating colors.
+Keep Unknown gray or uncolored.
+Use yellow for Simulated with an explicit provisional label.
+Do not represent missing evidence as an observed middle outcome.
+Use a border as an optional secondary marker for the recommended column.
+Colors and layout do not establish evidence quality.</p>
+<p>Use one instruction per sentence.
+Limit instructions to 20 words and descriptions to 25 words.
+Use periods, commas, colons, or parentheses instead of em dashes.
+Preserve necessary precision, exact quotations, identifiers, and uncertainty.
+Explain any necessary length exception.</p>
+<p>Read <a href="#example">the worked example</a> when distinguishing evidence, simulations, unknowns, or required constraints is difficult.</p>
+<p>Before delivery, check criterion coverage, source support, evidence limits, constraint failures, and recommendation consistency.
+Check that exactly one option header contains <strong>Recommended</strong>.
+Check whether new results require revised ratings.
+State skipped checks and material risks.</p>
+</article><article class="example" aria-label="Fictional worked example"><h2 id="example">Worked example</h2>
+<p>This example is fictional. Its evidence labels represent supplied records, not sources to cite in real decisions.
+Real matrices must link to actual evidence.</p>
+<h3 id="example-supplied-request-and-evidence">Supplied request and evidence</h3>
+<p>User request U1: &quot;The tool must run offline and cost no more than $5 per month. I want fewer corrections.&quot;</p>
+<p>The user supplied no options. The agent proposed alternatives from the goal and current workflow before collecting the evidence below.</p>
+<ul>
+<li>E1: A browser test completed the editing task offline in the current form. Its recorded monthly cost is $0.</li>
+<li>E2: A browser test completed the same task offline in a guided prototype. Its recorded monthly cost is $2.</li>
+<li>E3: A model simulation predicted fewer corrections with the guided prototype. No person tested that prediction.</li>
+<li>E4: The hosted assistant requires a network connection and costs $8 per month under the supplied terms.</li>
+</ul>
+<h3 id="example-recommend-testing-b-delay-adoption-to-check-the-predicted-benefit">Recommend testing B: delay adoption to check the predicted benefit</h3>
+<p>Test the guided prototype (B) against the current form (A) with people before adopting it.
+B meets the recorded technical and cost constraints and has a predicted benefit worth testing. E2–E3.
+Use A as the comparison baseline.
+The hosted assistant fails both required constraints.
+The guided prototype has functional evidence, but its predicted human benefit remains provisional.</p>
+<p>Decision question: Which approach merits the next test?
+Shared task: Correct one erroneous value in the same sample record.
+Baseline: The current form.
+Trade-off: B may reduce corrections but costs $2 more per month than A. E1–E3.
+Comparison status: Provisional for human outcomes.</p>
+<h3 id="example-criteria-and-sources">Criteria and sources</h3>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>No.</th><th>ID</th><th>Criterion question</th><th>Required</th><th>Source</th></tr></thead><tbody><tr><td>1</td><td>offline</td><td>Can the task finish without a network connection?</td><td>Yes</td><td>User, U1: &quot;The tool must run offline&quot;.</td></tr><tr><td>2</td><td>cost</td><td>Does monthly cost stay at or below $5?</td><td>Yes</td><td>User, U1: &quot;cost no more than $5 per month&quot;.</td></tr><tr><td>3</td><td>corrections</td><td>Does this require fewer corrections than the current form?</td><td>No</td><td>Inference from U1: &quot;I want fewer corrections.&quot; The baseline defines the comparison.</td></tr></tbody></table></div>
+<p>Rating definitions:</p>
+<ul>
+<li>Offline: Supported requires completion without a network connection. A required network connection means Not supported.</li>
+<li>Cost: Supported means at most $5 per month. A cost above $5 means Not supported.</li>
+<li>Corrections: Supported requires fewer human correction attempts without reducing successful completion. This comparison rule is an assumption.</li>
+<li>Equal or greater correction attempts mean Not supported for improvement. Conflicting human results can justify Partial with an explanation.</li>
+<li>Missing human observations mean Unknown. A model prediction remains Simulated.</li>
+</ul>
+<p>Priority: The required constraints apply before the preference for fewer corrections.
+The user supplied no preference between cheaper options that satisfy the monthly limit.
+The agent must not invent that preference or agreement among stakeholders.</p>
+<p>Sufficiency check: Meeting the constraints and reducing corrections supports proceeding only if people can still complete the task.
+The comparison rule includes successful completion. Human evidence for that outcome remains missing.</p>
+<p>Assumption: The sample editing task represents the work that needs improvement.
+This assumption remains revisable. It does not create a new user requirement.</p>
+<h3 id="example-options">Options</h3>
+<p>Option A keeps the current workflow unchanged.</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Detail</th><th>A. Current form</th><th>B. Guided prototype</th><th>C. Hosted assistant</th></tr></thead><tbody><tr><td>Description</td><td>Edit values directly in the existing form.</td><td>Follow guided prompts to correct one value at a time.</td><td>Ask an online assistant to correct a value.</td></tr><tr><td>Hypothesis</td><td>Direct access limits unnecessary interaction.</td><td>Sequential prompts reduce correction errors.</td><td>Natural language helps people identify the intended correction.</td></tr><tr><td>What would weaken it?</td><td>People repeatedly correct the wrong field.</td><td>People make as many corrections as with the current form.</td><td>People repeatedly correct the assistant&#x27;s interpretation.</td></tr><tr><td>Build and exploration status</td><td>Built. Observed technical behavior, E1.</td><td>Built. Observed technical behavior, E2. Simulated human benefit, E3.</td><td>Unbuilt locally. Ruled out by documented constraints, E4.</td></tr></tbody></table></div>
+<h3 id="example-matrix">Matrix</h3>
+<p>Scale: Supported means evidence meets the criterion. Not supported means evidence shows a failure.
+Unknown means the outcome lacks evidence. Simulated means a model supplied the judgment.</p>
+<p class="rating-legend">Color key: <strong>Green</strong>: Supported. <strong>Yellow</strong>: Partial or Simulated. <strong>Red</strong>: Not supported. <strong>Gray</strong>: Unknown.</p>
+<p>Recommendation action: Test B against baseline A. The recommendation remains provisional.</p>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Criterion</th><th class="option-header">A. Current form <details class="option-description" open><summary aria-label="Toggle description for option A"><svg class="description-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg><span class="description-label">Description</span></summary><p>Edit values directly in the existing form.</p></details></th><th class="option-header"><strong>Recommended</strong>B. Guided prototype <details class="option-description" open><summary aria-label="Toggle description for option B"><svg class="description-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg><span class="description-label">Description</span></summary><p>Follow guided prompts to correct one value at a time.</p></details></th><th class="option-header">C. Hosted assistant <details class="option-description" open><summary aria-label="Toggle description for option C"><svg class="description-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg><span class="description-label">Description</span></summary><p>Ask an online assistant to correct a value.</p></details></th></tr></thead><tbody><tr><td>1. Offline task (Required)</td><td data-rating="positive">Supported. The browser completed the task offline. E1.</td><td data-rating="positive">Supported. The browser completed the same task offline. E2.</td><td data-rating="negative">Not supported. The service requires a network connection. E4.</td></tr><tr><td>2. Monthly cost (Required)</td><td data-rating="positive">Supported. $0 per month. E1.</td><td data-rating="positive">Supported. $2 per month. E2.</td><td data-rating="negative">Not supported. $8 exceeds the $5 limit. E4.</td></tr><tr><td>3. Fewer corrections</td><td data-rating="unknown">Unknown. No human baseline exists.</td><td data-rating="simulated">Simulated. The model predicted improvement. The actual human outcome remains unknown. E3.</td><td data-rating="unknown">Unknown. No person tested this option.</td></tr></tbody></table></div>
+<p>There is no total score.
+A favorable prediction cannot compensate for a failed required constraint.
+Exploration evidence for an option does not establish every outcome for that option.</p>
+<h3 id="example-next-experiment">Next experiment</h3>
+<p>Question: Does the guided prototype reduce correction errors on the representative task?
+Method: Compare both local variants with people using the same task and equivalent records.
+Baseline: The current form.
+Measures: Additional correction attempts, successful completion, and failures against required constraints.
+Human measures: Correction attempts and successful completion by people.
+Decision rule: Prefer the guided prototype if it reduces corrections without reducing successful completion or violating either required constraint.
+Otherwise, retain the current form or classify conflicting results as inconclusive.
+Stopping condition: Stop at the agreed session limit or when a required constraint fails.
+Resource boundary: Participant access and the session limit remain unspecified. This example authorizes no recruitment or spending.</p>
+<p>Reconsideration condition: Relevant human observations contradict the prediction or either option fails a required constraint.
+A later decision must retain this record and explain any changed recommendation.</p>
+<p>Skipped checks: No human sessions or production cost checks occurred in this fictional example.
+Risk: Simulated improvement may not transfer to actual use.</p></article></div></div>
+</main>
+<footer><span>A standalone method for comparing options.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Return to the top ↑</a></footer>
+</div>
+</body>
+</html>

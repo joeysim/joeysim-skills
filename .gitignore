@@ -1,0 +1,4 @@
+.DS_Store
+.local/
+/pages/*/skill
+/pages/*/*.zip
