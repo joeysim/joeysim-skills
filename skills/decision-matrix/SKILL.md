@@ -1,6 +1,8 @@
 ---
 name: decision-matrix
 description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options.
+metadata:
+  version: "1.0.0"
 ---
 
 # Decision Matrix

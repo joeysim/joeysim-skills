@@ -27,6 +27,7 @@ templates/
 - Start `description` with "Use when". Tell when to use the skill, not the steps it follows.
 - Keep `SKILL.md` under 500 lines. Move long reference text to `references/`.
 - Run bundled scripts through their interpreter, such as `python3 scripts/tool.py`. Some installers remove the executable bit.
+- When you change a file in a skill folder, increase the skill's version in the same commit. Follow the rules in "Versions".
 - When you change a skill, update `pages/<name>/index.html` to match. Then refresh the ZIP, as in the "Webpages" section of `README.md`.
 
 ## Add a skill
@@ -37,6 +38,8 @@ templates/
    ---
    name: <name>
    description: Use when <the situations that call for this skill>.
+   metadata:
+     version: "1.0.0"
    ---
    ```
 
@@ -50,4 +53,30 @@ templates/
 3. Test the skill on a real task. Compare the result with the same task without the skill. The `superpowers:writing-skills` skill gives a full test process.
 4. Add a row for the skill to the table in `README.md`.
 5. Make a page for the skill. Follow the "Webpages" section of `README.md`.
-6. Commit the skill and its page.
+6. Commit the skill and its page. Then tag the commit, as in "Versions".
+
+## Versions
+
+Each skill has its own version in [Semantic Versioning](https://semver.org) format: MAJOR.MINOR.PATCH.
+Put the version in `metadata.version` in the frontmatter, as a quoted string. The Agent Skills format has no top-level `version` field.
+Start a new skill at 1.0.0.
+
+Increase one part of the version for each change to the skill folder:
+
+| Change | Part | Examples |
+|--------|------|----------|
+| Users must change how they use the skill, or output that they rely on changes. | MAJOR | Rename the skill. Remove a capability. Change the output format. Make the skill trigger in fewer situations. |
+| The skill does something new or different, and old requests still work. | MINOR | Add or change a rule. Add a reference file. Make the skill trigger in more situations. |
+| The behavior stays the same. | PATCH | Fix wording, a typo, or an example. |
+
+When you increase a part, set the parts after it to 0. For example, 1.4.2 becomes 1.5.0 or 2.0.0.
+Changes outside the skill folder, such as its page or the README, do not change the version.
+
+After you push the change, tag the commit and push the tag:
+
+```sh
+git tag decision-matrix/v1.1.0
+git push origin decision-matrix/v1.1.0
+```
+
+Do not move or delete a tag after you push it.
