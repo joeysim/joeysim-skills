@@ -70,15 +70,15 @@ Option A keeps the current workflow unchanged.
 Scale: Supported means evidence meets the criterion. Not supported means evidence shows a failure.
 Unknown means the outcome lacks evidence. Simulated means a model supplied the judgment.
 
-Color key: **Green**: Supported. **Yellow**: Partial or Simulated. **Red**: Not supported. **Gray**: Unknown.
+Color key: 🟢 Supported. 🟡 Partial or Simulated. 🔴 Not supported. ⚪ Unknown.
 
 Recommendation action: Test B against baseline A. The recommendation remains provisional.
 
 | Criterion | A. Current form *Edit values directly in the existing form.* | **Recommended** B. Guided prototype *Follow guided prompts to correct one value at a time.* | C. Hosted assistant *Ask an online assistant to correct a value.* |
 | --- | --- | --- | --- |
-| 1. Offline task (Required) | Supported. The browser completed the task offline. E1. | Supported. The browser completed the same task offline. E2. | Not supported. The service requires a network connection. E4. |
-| 2. Monthly cost (Required) | Supported. $0 per month. E1. | Supported. $2 per month. E2. | Not supported. $8 exceeds the $5 limit. E4. |
-| 3. Fewer corrections | Unknown. No human baseline exists. | Simulated. The model predicted improvement. The actual human outcome remains unknown. E3. | Unknown. No person tested this option. |
+| 1. Offline task (Required) | 🟢 Supported. The browser completed the task offline. E1. | 🟢 Supported. The browser completed the same task offline. E2. | 🔴 Not supported. The service requires a network connection. E4. |
+| 2. Monthly cost (Required) | 🟢 Supported. $0 per month. E1. | 🟢 Supported. $2 per month. E2. | 🔴 Not supported. $8 exceeds the $5 limit. E4. |
+| 3. Fewer corrections | ⚪ Unknown. No human baseline exists. | 🟡 Simulated. The model predicted improvement. The actual human outcome remains unknown. E3. | ⚪ Unknown. No person tested this option. |
 
 There is no total score.
 A favorable prediction cannot compensate for a failed required constraint.

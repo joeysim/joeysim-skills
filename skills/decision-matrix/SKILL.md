@@ -1,6 +1,6 @@
 ---
 name: decision-matrix
-description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis. The skill generates options from context when needed and compares evidence, requirements, trade-offs, and unknowns to recommend the next action.
+description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options.
 ---
 
 # Decision Matrix
@@ -22,10 +22,10 @@ State material assumptions explicitly.
 If the decision subject is missing or ambiguous, ask one focused question about the goal.
 Do not require the user to invent options before proceeding.
 
-Use supplied options as the starting set.
-Generate credible alternatives when the user supplies no options.
-Add alternatives when they materially improve an open comparison.
-Respect an explicit request to compare only the named options.
+When the user names options, compare only those options.
+When the named options exclude the current approach, add it as the no-change option.
+Mention another credible option in one line outside the matrix when it could change the decision.
+When the user names no options, generate credible alternatives.
 Keep option generation separate from evidence collection. A generated option has no observed results until evidence supports them.
 
 Apply this method when a consequential comparison helps the current task, even without an explicit skill request.
@@ -105,11 +105,12 @@ For each option, record:
 - A stable identifier, title, and brief description of what the option is and how it works.
 - A hypothesis that explains why the approach could address the problem.
 - A falsifier: an observation that would weaken that hypothesis.
-- Its build status: built, unbuilt, or unknown, when implementation matters.
+- Its build status (built, unbuilt, or unknown), only when the option is something to build.
 - A local artifact or preview link for each built variant, when available.
 - Its exploration status and supporting evidence.
 
-Use exploration status Observed, Simulated, Ruled out, or Untested.
+Use exploration status Observed, Researched, Simulated, Ruled out, or Untested.
+Use Researched when cited sources describe the option, but nobody observed it on the shared task.
 Use Ruled out only when evidence establishes a constraint violation or weakens the hypothesis enough to reject it.
 An unbuilt option can still have useful research or simulation evidence.
 Do not treat an implementation assumption as evidence against an alternative.
@@ -123,7 +124,9 @@ Otherwise, choose the smallest comparison that could change the next action.
 Research, sketches, a technical check, or one interaction can be sufficient.
 Do not build complete products merely to populate the matrix.
 
-Before an experiment, save its plan with:
+Before an experiment, save its plan.
+If you cannot write files, put the plan in the answer.
+The plan contains:
 
 - The question and method.
 - The baseline and included options.
@@ -205,6 +208,10 @@ Do not remove compared options merely because they performed poorly.
 
 ## Present the matrix
 
+For a personal decision that is easy to reverse, keep the answer short.
+Give the recommendation, the criteria with sources, the matrix, what could change the answer, and the evidence.
+Leave out option hypotheses, statuses, and the experiment plan unless the user asks for them.
+
 Use Markdown unless the user requests another format or an existing destination requires one.
 Place criteria in rows and options in columns.
 Keep this orientation across matrices, including narrow layouts.
@@ -232,9 +239,21 @@ Use smaller, regular-weight text with readable contrast.
 Keep description controls usable with a keyboard and on touch screens.
 If collapsible content is unavailable, show the sentence in italic text within the option header.
 Mark required criteria beside their labels.
+Leave out a criterion row that every option passes equally, unless the user stated that criterion.
+Mention each left-out criterion in one line below the matrix.
 Place the rating, basis, and evidence reference together in each cell.
-Keep criterion sources and option hypotheses close to the table.
-Show exploration status, build status, and recommendation labels separately.
+Show each rating's color in one way only. The output format sets the way:
+
+| Output | Rating cell | Color key above the matrix |
+| --- | --- | --- |
+| Plain Markdown | Start the rating with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown. | The same markers. |
+| Visual, such as HTML | Fill the cell with its background color. Start the cell with the rating text. | Color swatches. |
+
+Never combine color markers and background fills.
+When you convert Markdown output to HTML, replace each marker with its background fill.
+
+Keep criterion sources, and any option hypotheses you show, close to the table.
+When you show statuses, keep exploration status and build status separate from the recommendation label.
 State whether the comparison is provisional or complete.
 A complete comparison does not prove that every required outcome passed.
 
