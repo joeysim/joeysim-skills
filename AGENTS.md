@@ -11,6 +11,12 @@ skills/
     references/   optional: long reference text that SKILL.md links to
     scripts/      optional: helper scripts
     assets/       optional: templates and other files
+    agents/       optional: agent metadata, such as openai.yaml for Codex
+pages/
+  <name>/
+    index.html    required: the web page for the skill
+templates/
+  skill-page.html the starting point for a new page
 ```
 
 ## Rules for a skill
@@ -21,6 +27,7 @@ skills/
 - Start `description` with "Use when". Tell when to use the skill, not the steps it follows.
 - Keep `SKILL.md` under 500 lines. Move long reference text to `references/`.
 - Run bundled scripts through their interpreter, such as `python3 scripts/tool.py`. Some installers remove the executable bit.
+- When you change a skill, update `pages/<name>/index.html` to match. Then refresh the ZIP, as in the "Webpages" section of `README.md`.
 
 ## Add a skill
 
@@ -42,4 +49,5 @@ skills/
 
 3. Test the skill on a real task. Compare the result with the same task without the skill. The `superpowers:writing-skills` skill gives a full test process.
 4. Add a row for the skill to the table in `README.md`.
-5. Commit the skill.
+5. Make a page for the skill. Follow the "Webpages" section of `README.md`.
+6. Commit the skill and its page.
