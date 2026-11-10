@@ -62,4 +62,7 @@ python3 -m http.server 4316 --bind 0.0.0.0 --directory pages/decision-matrix
 ```
 
 For another skill, replace `decision-matrix` with its folder name.
+
+On each push to `main`, [the Pages workflow](.github/workflows/pages.yml) builds the downloads and publishes `pages/`.
+The Decision Matrix page is at https://joeysim.github.io/joeysim-skills/decision-matrix/.
 Git ignores generated downloads and local runtime files.
