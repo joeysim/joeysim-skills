@@ -33,6 +33,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .use code { display: block; margin: 10px 0 20px; overflow-wrap: anywhere; }
 .download { display: inline-flex; align-items: center; gap: 14px; min-height: 46px; padding: 8px 17px; border: 1px solid var(--ink); border-radius: 5px; text-decoration: none; background: var(--ink); color: #fff; font-size: 14px; font-weight: 600; }
 .download:hover { background: #fff; color: var(--ink); }
+.version { margin: 12px 0 0; font-size: 14px; }
 .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 68px; padding: 48px 0 80px; }
 aside { position: sticky; top: 30px; align-self: start; }
 nav .eyebrow { margin-bottom: 15px; }
@@ -94,7 +95,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <div class="shell">
 <header class="topline"><a class="brand" href="#top"><span class="symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Skill name</a><span class="tag">Standalone skill</span></header>
 <main id="top">
-<section class="hero" aria-labelledby="title"><div><p class="eyebrow">Purpose · Method · Example</p><h1 id="title">Skill name</h1><p class="lead">Describe the outcome this skill helps people achieve.</p></div><div class="use"><p><strong>Use the skill</strong></p><code>Use $skill-name for this task.</code><p>State any required context here.</p><a class="download" href="skill-name.zip" download>Download skill <span aria-hidden="true">↓</span></a></div></section>
+<section class="hero" aria-labelledby="title"><div><p class="eyebrow">Purpose · Method · Example</p><h1 id="title">Skill name</h1><p class="lead">Describe the outcome this skill helps people achieve.</p></div><div class="use"><p><strong>Use the skill</strong></p><code>Use $skill-name for this task.</code><p>State any required context here.</p><a class="download" href="skill-name.zip" download>Download skill <span aria-hidden="true">↓</span></a><p class="version">Version 1.0.0</p></div></section>
 <div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#when-to-use">When to use it</a></li><li><a href="#how-it-works">How it works</a></li><li><a href="#what-to-expect">What to expect</a></li></ol><a class="example-link" href="#example">Read the worked example ↗</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><!-- Replace these sample sections with the skill instructions. Keep navigation targets in sync. -->
 <p>Explain the skill's purpose and the useful result it produces.</p>
 <h2 id="when-to-use">When to use it</h2>

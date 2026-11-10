@@ -28,7 +28,7 @@ templates/
 - Keep `SKILL.md` under 500 lines. Move long reference text to `references/`.
 - Run bundled scripts through their interpreter, such as `python3 scripts/tool.py`. Some installers remove the executable bit.
 - When you change a file in a skill folder, increase the skill's version in the same commit. Follow the rules in "Versions".
-- When you change a skill, update `pages/<name>/index.html` to match. Then refresh the ZIP, as in the "Webpages" section of `README.md`.
+- When you change a skill, update `pages/<name>/index.html` to match, including the version. Then refresh the ZIP, as in the "Webpages" section of `README.md`.
 
 ## Add a skill
 
