@@ -6,7 +6,7 @@ A collection of agent skills. Each skill is a folder with a `SKILL.md` file in t
 
 | Skill | Use it when |
 |-------|-------------|
-| [Decision Matrix](skills/decision-matrix/SKILL.md) | Compare options, evidence, trade-offs, and unknowns to choose the next action. |
+| [Decision Matrix](skills/decision-matrix/SKILL.md) | Compare options, evidence, trade-offs, and unknowns to choose the next action. Keep a decision log in Markdown and HTML. |
 
 ## Install
 

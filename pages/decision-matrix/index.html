@@ -95,8 +95,8 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <div class="shell">
 <header class="topline"><a class="brand" href="#top"><span class="symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Decision Matrix</a><span class="tag">Standalone skill</span></header>
 <main id="top">
-<section class="hero" aria-labelledby="title"><div><p class="eyebrow">Evidence · Alternatives · Action</p><h1 id="title">Decision Matrix</h1><p class="lead">Compare options with shared criteria. Make the evidence, trade-offs, and next action clear.</p></div><div class="use"><p><strong>Use the skill</strong></p><code>Create a decision matrix.</code><p>Options are optional.</p><a class="download" href="decision-matrix.zip" download>Download skill <span aria-hidden="true">↓</span></a><p class="version">Version 1.0.0</p></div></section>
-<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li></ol><a class="example-link" href="#example">Read the worked example ↗</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
+<section class="hero" aria-labelledby="title"><div><p class="eyebrow">Evidence · Alternatives · Action</p><h1 id="title">Decision Matrix</h1><p class="lead">Compare options with shared criteria. Make the evidence, trade-offs, and next action clear.</p></div><div class="use"><p><strong>Use the skill</strong></p><code>Create a decision matrix.</code><p>Options are optional.</p><a class="download" href="decision-matrix.zip" download>Download skill <span aria-hidden="true">↓</span></a><p class="version">Version 1.1.0</p></div></section>
+<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#example">Read the worked example ↗</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
 This standalone method requires no specific application, service, or database.</p>
 <p>Use this method when alternatives could materially change the result.
 For routine choices, give a direct answer unless the user requests a matrix.
@@ -273,10 +273,11 @@ Number criterion rows 1, 2, 3, and so on.
 Label option columns A, B, C, and so on.
 Keep these labels consistent within each decision and its supporting explanation.
 These labels do not replace stable identifiers.
-Place <strong>Recommended</strong> at the top of the chosen option header, above its letter and title.
+Place <strong>Recommended</strong> at the top of the recommended option&#39;s header, above its letter and title.
 Use a compact, rounded chip for this label in visual output.
 Use a neutral or blue chip style that differs from the rating colors.
-Use only <strong>Recommended</strong> as the chip text.
+Use only <strong>Recommended</strong> or <strong>Chosen</strong> as the chip text.
+Use a solid blue chip with white text for <strong>Chosen</strong>.
 Keep bold text as the fallback for plain Markdown.
 Keep the option letter and title in that header.
 State the recommendation action in the explanation above the matrix.
@@ -323,9 +324,34 @@ Preserve necessary precision, exact quotations, identifiers, and uncertainty.
 Explain any necessary length exception.</p>
 <p>Read <a href="#example">the worked example</a> when distinguishing evidence, simulations, unknowns, or required constraints is difficult.</p>
 <p>Before delivery, check criterion coverage, source support, evidence limits, constraint failures, and recommendation consistency.
-Check that exactly one option header contains <strong>Recommended</strong>.
+Check that exactly one option header has a chip: <strong>Recommended</strong>, or <strong>Chosen</strong> in a Locked decision.
 Check whether new results require revised ratings.
 State skipped checks and material risks.</p>
+<h2 id="keep-a-decision-log">Keep a decision log</h2>
+<p>Save each decision matrix that you make in a project folder to the project&#39;s decision log.
+Keep a decision without a project folder, such as a personal choice, in the answer only.
+Use the project&#39;s existing decisions folder, if it has one. Otherwise, use <code>docs/decisions/</code>.</p>
+<p>Save each decision in its own file, named <code>NNN-short-title.md</code>.
+Number the files in order: 001, 002, and so on.
+Start each file with its number and title as a heading, such as <code># 001. Speech-out voice</code>.
+On the next line, give the date and status, such as <code>Date: 2026-11-10 · Status: Provisional</code>.
+Use Provisional, Complete, or Locked as the status.
+Set the status to Locked only when the user chooses an option.
+Then remove <strong>Recommended</strong>, and put <strong>Chosen</strong> at the top of the chosen option&#39;s header.
+Add a revision entry with the date, the user&#39;s words, and your earlier recommendation.
+Change a Locked decision only when the user reopens it.</p>
+<p>When new evidence changes a decision, update its file. Do not make a new file.
+Add a <code>## Revisions</code> section at the end of the file, with the newest revision first.
+For each revision, give the date, the new evidence, and what changed.</p>
+<p>After each change to the log, run the bundled script. Give the full path of the script and of the decisions folder:</p>
+<p><code>python3 &lt;skill folder&gt;/scripts/render_html.py &lt;project&gt;/docs/decisions</code></p>
+<p>The script writes an HTML page beside each decision file, and an index as <code>README.md</code> and <code>index.html</code>.
+The pages follow the visual rules in &quot;Present the matrix&quot; and link to their Markdown files.
+Make all HTML versions of a decision matrix with this script.
+Do not edit the files that the script writes.
+When the user asks for HTML of a matrix outside the log, add the matrix to the log first.
+If the script stops because of a chip, correct the Markdown and run the script again.
+For any other stop, give its message to the user and ask how to continue.</p>
 </article><article class="example" aria-label="Fictional worked example"><h2 id="example">Worked example</h2>
 <p>This example is fictional. Its evidence labels represent supplied records, not sources to cite in real decisions.
 Real matrices must link to actual evidence.</p>
