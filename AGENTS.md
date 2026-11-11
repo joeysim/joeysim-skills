@@ -30,6 +30,8 @@ templates/
 - When you change a file in a skill folder, increase the skill's version in the same commit. Follow the rules in "Versions".
 - When you change a skill, update `pages/<name>/index.html` to match. Put every line of `SKILL.md` in the page's full skill section.
 - Show the skill's version in the page's hero and footer.
+- Keep the styles and the script of each page the same as in `templates/skill-page.html`. When you change one, change the template and every page.
+- The decision-log pages get their styles and theme switch from `skills/decision-matrix/scripts/render_html.py`. When you change the theme colors or the switch, change that script too.
 
 ## Add a skill
 
