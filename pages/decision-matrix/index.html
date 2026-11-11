@@ -3,100 +3,254 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A standalone decision matrix skill with shared criteria, evidence, trade-offs, explicit unknowns, and a worked example.">
-<title>Decision Matrix: The method and skill</title>
+<meta name="description" content="A skill for coding agents. Ask for a decision matrix, and your agent rates every option against the same criteria, cites evidence for each rating, and recommends one next step.">
+<title>Decision Matrix: make your agent show its work</title>
 <style>
-:root { color-scheme: light; --ink: #111; --paper: #faf9f6; --line: #d9d8d2; --accent: #2448d8; --positive: #b6e3a3; --mixed: #ffe066; --negative: #f5a4a4; --unknown: #e0e0e0; }
+:root { color-scheme: light; --paper: #faf9f6; --sheet: #fff; --ink: #14171f; --muted: #4d5260; --line: #dcdbd4; --head: #f1f0eb;
+  --accent: #2448d8; --chip: #dfe6ff; --chip-ink: #1b2f8a; --pos: #b6e3a3; --mix: #ffe066; --neg: #f5a4a4; --unk: #e0e0e0; }
 * { box-sizing: border-box; }
-html { scroll-padding-top: 30px; }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+html { scroll-padding-top: 24px; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-variant-numeric: tabular-nums; }
 a { color: inherit; text-underline-offset: .2em; }
 a:hover { color: var(--accent); }
-a:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
+a:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86em; background: #eeede8; padding: 2px 6px; border-radius: 4px; }
 .skip { position: absolute; left: 16px; top: -90px; padding: 10px 18px; background: #fff; z-index: 10; }
 .skip:focus { top: 16px; }
-.shell { max-width: 1300px; padding: 0 56px; margin: auto; }
-.topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 25px 0; border-bottom: 1px solid var(--line); }
+.shell { max-width: 1240px; margin: auto; padding: 0 clamp(18px, 4.5vw, 56px); }
+
+.topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 0; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 650; }
-.symbol { display: grid; grid-template-columns: repeat(2, 7px); gap: 4px; }
-.symbol i { width: 7px; height: 7px; background: var(--ink); }
-.symbol i:last-child { background: var(--accent); }
-.tag, .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
-.tag { border: 1px solid var(--line); padding: 4px 10px; border-radius: 4px; }
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: end; gap: 60px; padding: 64px 0 58px; border-bottom: 1px solid var(--line); }
-.eyebrow { margin: 0 0 18px; }
-h1 { font-size: clamp(46px, 6vw, 82px); line-height: 1.04; letter-spacing: -.055em; font-weight: 600; margin: 0 0 25px; }
-.lead { max-width: 620px; font-size: clamp(19px, 2vw, 23px); line-height: 1.5; margin: 0; }
-.use { padding-left: 24px; border-left: 2px solid var(--accent); }
-.use p { margin: 0 0 15px; }
-code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em; }
-.use code { display: block; margin: 10px 0 20px; overflow-wrap: anywhere; }
-.download { display: inline-flex; align-items: center; gap: 14px; min-height: 46px; padding: 8px 17px; border: 1px solid var(--ink); border-radius: 5px; text-decoration: none; background: var(--ink); color: #fff; font-size: 14px; font-weight: 600; }
-.download:hover { background: #fff; color: var(--ink); }
-.version { margin: 12px 0 0; font-size: 14px; }
-.layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 68px; padding: 48px 0 80px; }
-aside { position: sticky; top: 30px; align-self: start; }
-nav .eyebrow { margin-bottom: 15px; }
-nav ol { list-style: none; padding: 0; counter-reset: section; margin: 0; }
-nav li { counter-increment: section; }
-nav li a { display: flex; align-items: baseline; gap: 12px; padding: 9px 0; text-decoration: none; font-size: 14px; line-height: 1.5; }
-nav li a::before { content: counter(section, decimal-leading-zero); font: 11px ui-monospace, monospace; }
-.example-link { display: block; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; }
-.content { min-width: 0; }
-.method > p:first-child { font-size: 19px; margin-top: 0; }
-h2 { font-size: clamp(25px, 3vw, 32px); letter-spacing: -.025em; line-height: 1.25; margin: 52px 0 21px; padding-top: 25px; border-top: 1px solid var(--line); }
-h3 { font-size: 22px; line-height: 1.3; letter-spacing: -.02em; margin: 32px 0 16px; }
-p { margin: 0 0 20px; }
-.content ul, .content ol { padding-left: 23px; margin: 0 0 24px; }
-.content li { padding-left: 5px; margin-bottom: 7px; }
-.content li::marker { color: var(--accent); }
-.table-scroll { overflow-x: auto; margin: 25px 0; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.55; text-align: left; }
-.option-table { table-layout: fixed; min-width: 820px; }
-.option-table th:first-child { width: 160px; }
-th { background: #eeede8; font-weight: 650; }
-.example th strong { display: flex; width: fit-content; align-items: center; padding: 3px 10px; margin: 0 0 8px; border: 1px solid #b5c9ec; border-radius: 999px; background: #dce7ff; color: var(--ink); font-size: 12px; font-weight: 700; line-height: 1.4; white-space: nowrap; vertical-align: middle; }
-.option-description { position: relative; margin-top: 8px; font-size: 12px; font-weight: 400; line-height: 1.5; }
-.option-description summary { display: flex; align-items: center; gap: 6px; min-height: 32px; padding: 0; cursor: pointer; list-style: none; }
-.option-description summary::-webkit-details-marker { display: none; }
-.description-arrow { width: 12px; height: 12px; flex: none; }
-.option-description summary:hover { color: var(--accent); }
-.option-description[open] { min-height: 32px; border-left: 2px solid #c7c6bf; padding: 2px 36px 2px 10px; }
-.option-description[open] summary { position: absolute; top: 0; right: 0; justify-content: center; width: 32px; }
-.option-description[open] .description-arrow { transform: rotate(90deg); }
-.option-description[open] .description-label { display: none; }
-.option-description p { margin: 0; }
-@media (max-width: 700px) { .option-description { font-size: 13px; } .option-description summary { min-height: 44px; } .option-description[open] { min-height: 44px; padding-right: 48px; } .option-description[open] summary { width: 44px; } }
-th, td { padding: 14px 16px; vertical-align: top; min-width: 120px; }
-tr:not(:last-child) > * { border-bottom: 1px solid var(--line); }
-th { border-bottom: 1px solid var(--line); }
-th:not(:last-child), td:not(:last-child) { border-right: 1px solid var(--line); }
-td[data-rating="positive"] { background: var(--positive); }
-td[data-rating="negative"] { background: var(--negative); }
-td[data-rating="mixed"], td[data-rating="simulated"] { background: var(--mixed); }
-td[data-rating="unknown"] { background: var(--unknown); }
+.symbol { display: grid; grid-template-columns: repeat(2, 8px); gap: 3px; }
+.symbol i { width: 8px; height: 8px; border-radius: 2px; background: var(--pos); }
+.symbol i:nth-child(2) { background: var(--mix); } .symbol i:nth-child(3) { background: var(--unk); } .symbol i:nth-child(4) { background: var(--accent); }
+.links { display: flex; gap: 22px; font-size: 15px; }
+.links a { text-decoration: none; padding: 10px 0; }
+
+.hero { padding: clamp(24px, 3.6vw, 48px) 0 clamp(28px, 3.4vw, 40px); }
+.hero-copy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px 56px; align-items: start; margin-top: clamp(22px, 2.8vw, 36px); }
+h1 { margin: 0; font-size: clamp(40px, 5.6vw, 80px); line-height: .96; letter-spacing: -.05em; font-weight: 700; }
+h1 span { white-space: nowrap; }
+.lead { max-width: 36rem; margin: 0; font-size: clamp(18px, 1.6vw, 20px); line-height: 1.5; color: var(--muted); }
+.command { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; max-width: 34rem; margin: 0 0 16px; padding: 8px 8px 8px 16px; border-radius: 10px; background: var(--ink); color: #fff; }
+.command code { flex: 1 1 15rem; min-width: 0; padding: 0; background: none; color: #fff; font-size: 14.5px; line-height: 1.5; }
+.command code span { white-space: nowrap; }
+.command code::before { content: "$ "; color: #8f97ab; }
+.command button { flex: none; min-width: 76px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 7px; background: var(--accent); color: #fff; font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; }
+.command button:hover { background: #3a5cf0; }
+.command button:focus-visible { outline: 3px solid #9fb1ff; outline-offset: 2px; }
+.ask { margin: 0; font-size: 16px; }
+.ask code { white-space: nowrap; }
+.version { margin: 18px 0 0; font-size: 14px; color: var(--muted); }
+
+.specimen { margin: 0 0 clamp(56px, 8vw, 104px); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: clamp(16px, 2.6vw, 30px); }
+.sheet-q { margin: 0 0 4px; font-size: clamp(18px, 2vw, 22px); font-weight: 650; letter-spacing: -.01em; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 14px; font-size: 14px; }
+.sw { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 3px; border: 1px solid rgba(0,0,0,.22); }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; text-align: left; }
+.matrix { table-layout: fixed; min-width: 700px; font-size: 14.5px; line-height: 1.5; }
+.matrix col.criterion { width: 22%; }
+.matrix th, .matrix td { position: relative; border: 1px solid var(--line); padding: 12px 14px; vertical-align: top; }
+.matrix thead th, .matrix tbody th { background: var(--head); font-weight: 650; }
+.matrix tbody th em { font-style: normal; font-weight: 400; color: var(--muted); }
+[data-r="pos"] { background: var(--pos); } [data-r="mix"] { background: var(--mix); } [data-r="neg"] { background: var(--neg); } [data-r="unk"] { background: var(--unk); }
+.matrix .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.chip { display: inline-block; margin-bottom: 4px; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: 12px; font-weight: 700; line-height: 1.6; }
+.chip.selected { background: var(--chip-ink); color: var(--chip); }
+details.desc { margin-top: 6px; font-weight: 400; font-size: 13px; }
+details.desc summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; gap: 6px; }
+details.desc[open] summary { align-items: flex-start; }
+details.desc summary::-webkit-details-marker { display: none; }
+details.desc summary::before { content: "\25B8"; flex: none; font-size: 1.25em; line-height: 1.28; }
+details.desc[open] summary::before { content: "\25BE"; }
+details.desc[open] .closed, details.desc:not([open]) .text { display: none; }
+details.desc .text { padding-left: 8px; border-left: 2px solid var(--line); }
+details.desc summary:hover { color: var(--accent); }
+.pin { display: inline-grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; line-height: 1; }
+.pin.on-cell, .pin.on-head { position: absolute; top: 10px; right: 10px; }
+.matrix td:has(.pin), .matrix th:has(.pin) { padding-right: 40px; }
+.notes { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 28px; font-size: 15px; line-height: 1.5; }
+.notes li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start; }
+.notes strong { display: block; margin-bottom: 2px; }
+.fine { margin: 18px 0 0; font-size: 13px; color: var(--muted); }
+
+h2 { margin: 0 0 18px; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; letter-spacing: -.035em; font-weight: 700; }
+.feature { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); align-items: center; margin-bottom: clamp(64px, 9vw, 120px); }
+.feature p { margin: 0 0 18px; max-width: 34rem; }
+.feature ul { margin: 0; padding-left: 20px; max-width: 34rem; }
+.feature li { margin-bottom: 8px; }
+.feature li::marker { color: var(--accent); }
+.shot-path { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.shot-path code { background: none; padding: 0; }
+.feature-table { font-size: 14.5px; min-width: 520px; }
+.feature-table th, .feature-table td { border: 1px solid var(--line); padding: 10px 12px; vertical-align: top; }
+.feature-table th { background: var(--head); font-weight: 650; }
+.row-name { display: block; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: .2em; }
+.row-note { display: block; color: var(--muted); font-size: 13.5px; }
+
+.steps { margin-bottom: clamp(64px, 9vw, 120px); }
+.steps ol { list-style: none; counter-reset: step; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; }
+.steps li { counter-increment: step; padding-top: 16px; border-top: 2px solid var(--ink); font-size: 15.5px; line-height: 1.5; }
+.steps li::before { content: counter(step); display: block; margin-bottom: 10px; font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -.04em; color: var(--accent); }
+.steps strong { display: block; margin-bottom: 4px; font-size: 17px; }
+.steps a { text-decoration: none; }
+.steps a:hover strong { text-decoration: underline; }
+
+.install { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 5vw, 72px); padding: clamp(28px, 4vw, 48px); margin-bottom: clamp(48px, 7vw, 88px); border-radius: 12px; background: var(--ink); color: #fff; }
+.install h2 { margin: 0; }
+.install ol { margin: 0; padding-left: 22px; }
+.install li { margin-bottom: 14px; padding-left: 4px; }
+.install li::marker { font-weight: 700; color: #9fb1ff; }
+.install a { color: #fff; }
+.install code { background: rgba(255,255,255,.12); color: #fff; white-space: nowrap; }
+.install .command { margin: 10px 0 4px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.2); }
+.install .command code { background: none; white-space: normal; }
+.install .alt { margin: 18px 0 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.18); color: #c9cedb; font-size: 15px; }
+
+details.full { border-top: 2px solid var(--ink); margin-bottom: 40px; }
+details.full > summary { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 20px; padding: 26px 0; cursor: pointer; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::after { content: "Open"; grid-row: 1 / span 2; grid-column: 2; padding: 10px 18px; border: 1px solid var(--ink); border-radius: 8px; font-size: 15px; font-weight: 600; }
+details.full[open] > summary::after { content: "Close"; }
+.full-title { font-size: clamp(24px, 3vw, 32px); font-weight: 700; letter-spacing: -.025em; }
+.full-sub { color: var(--muted); }
+.full .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 64px; padding: 24px 0 64px; }
+.full aside { position: sticky; top: 24px; align-self: start; }
+.full .eyebrow { margin: 0 0 12px; font-size: 14px; font-weight: 650; }
+.full nav ol { list-style: none; padding: 0; counter-reset: section; margin: 0; }
+.full nav li { counter-increment: section; }
+.full nav li a { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; text-decoration: none; font-size: 14px; line-height: 1.45; }
+.full nav li a::before { content: counter(section) "."; min-width: 1.4em; color: var(--muted); font-size: 13px; }
+.full .example-link { display: block; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; }
+.full .content { min-width: 0; max-width: 46rem; }
+.full .method > p:first-child { font-size: 19px; margin-top: 0; }
+.full h2 { font-size: clamp(23px, 2.6vw, 28px); letter-spacing: -.02em; line-height: 1.25; margin: 48px 0 18px; padding-top: 22px; border-top: 1px solid var(--line); }
+.full h3 { font-size: 20px; line-height: 1.3; letter-spacing: -.015em; margin: 30px 0 14px; }
+.full p { margin: 0 0 18px; }
+.full .content ul, .full .content ol { padding-left: 23px; margin: 0 0 22px; }
+.full .content li { padding-left: 5px; margin-bottom: 7px; }
+.full .content li::marker { color: var(--accent); }
+.full .table-scroll { margin: 22px 0; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.full table { font-size: 14px; line-height: 1.55; }
+.full .option-table { table-layout: fixed; min-width: 760px; }
+.full .option-table th:first-child { width: 160px; }
+.full th { background: var(--head); font-weight: 650; }
+.full th, .full td { padding: 12px 14px; vertical-align: top; min-width: 110px; }
+.full tr:not(:last-child) > *, .full th { border-bottom: 1px solid var(--line); }
+.full th:not(:last-child), .full td:not(:last-child) { border-right: 1px solid var(--line); }
+td[data-rating="positive"] { background: var(--pos); } td[data-rating="negative"] { background: var(--neg); }
+td[data-rating="mixed"], td[data-rating="simulated"] { background: var(--mix); } td[data-rating="unknown"] { background: var(--unk); }
 .rating-legend { line-height: 2; }
 .rating-legend strong { padding: 3px 7px; border-radius: 4px; }
-.rating-legend strong:nth-of-type(1) { background: var(--positive); }
-.rating-legend strong:nth-of-type(2) { background: var(--mixed); }
-.rating-legend strong:nth-of-type(3) { background: var(--negative); }
-.rating-legend strong:nth-of-type(4) { background: var(--unknown); }
-.example { border-top: 3px solid var(--ink); margin-top: 65px; padding-top: 12px; }
-.example h2 { border: 0; margin-top: 12px; font-size: 38px; }
-.example > p:first-of-type { padding: 15px 18px; border-left: 3px solid #b88d24; background: #fbf3d9; }
-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 25px 0 35px; border-top: 1px solid var(--line); font-size: 13px; }
-@media (max-width: 1000px) { .shell { padding: 0 30px; } .layout { gap: 35px; grid-template-columns: 180px minmax(0, 1fr); } .hero { gap: 25px; grid-template-columns: minmax(0, 1fr) 245px; } }
-@media (max-width: 700px) { .shell { padding: 0 21px; } .hero { grid-template-columns: 1fr; padding: 40px 0; gap: 30px; } .use { padding-left: 18px; } .layout { grid-template-columns: 1fr; gap: 30px; padding-top: 30px; } aside { position: static; } nav ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; } nav li a { min-height: 44px; } .example-link { margin-top: 12px; } body { font-size: 16px; } h2 { margin-top: 38px; } .tag { font-size: 10px; } table { min-width: 580px; } }
-@media print { body { background: #fff; font-size: 11pt; } .shell { max-width: none; padding: 0; } aside, .use, .topline, footer, .skip { display: none; } .hero, .layout { display: block; padding: 15px 0; } h1 { font-size: 36pt; } h2, h3 { break-after: avoid; } tr { break-inside: avoid; } .table-scroll { overflow: visible; } table, .option-table { min-width: 0; font-size: 9pt; } th, td { min-width: 0; padding: 8px; } }
+.rating-legend strong:nth-of-type(1) { background: var(--pos); } .rating-legend strong:nth-of-type(2) { background: var(--mix); }
+.rating-legend strong:nth-of-type(3) { background: var(--neg); } .rating-legend strong:nth-of-type(4) { background: var(--unk); }
+.full .example { margin-top: 64px; padding-top: 8px; border-top: 3px solid var(--ink); }
+.full .example h2 { border: 0; margin-top: 10px; font-size: 34px; }
+.full .example > p:first-of-type { padding: 14px 18px; border-left: 3px solid #b88d24; background: #fbf3d9; }
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 24px 0 36px; border-top: 1px solid var(--line); font-size: 14px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .matrix td[data-r] { animation: fill .45s ease-out both; animation-delay: calc(var(--i) * 70ms + 250ms); }
+  @keyframes fill { from { background-color: var(--sheet); } }
+}
+@media (max-width: 1000px) {
+  .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .feature, .install { grid-template-columns: minmax(0, 1fr); }
+  .full .layout { grid-template-columns: 180px minmax(0, 1fr); gap: 36px; }
+}
+@media (max-width: 860px) { .hero-copy { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  .notes, .steps ol { grid-template-columns: 1fr; }
+  .steps ol { gap: 22px; }
+  .steps li { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 10px; }
+  .steps li::before { grid-row: span 2; margin: 0; font-size: 32px; }
+  .full .layout { grid-template-columns: 1fr; gap: 24px; }
+  .full aside { position: static; }
+  .full nav ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .full nav li a { min-height: 44px; }
+  .links { gap: 16px; }
+}
+@media print {
+  body { background: #fff; font-size: 11pt; }
+  .topline, .command, .install, .skip, footer { display: none; }
+  details.full > summary::after { display: none; }
+  .table-scroll { overflow: visible; }
+  .matrix, .feature-table, .full .option-table { min-width: 0; }
+}
 </style>
 </head>
 <body>
-<a class="skip" href="#method">Skip to the method</a>
+<a class="skip" href="#top">Skip to the content</a>
 <div class="shell">
-<header class="topline"><a class="brand" href="#top"><span class="symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Decision Matrix</a><span class="tag">Standalone skill</span></header>
+<header class="topline"><a class="brand" href="#top"><span class="symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Decision Matrix</a><nav class="links" aria-label="Site"><a href="#install">Install</a><a href="#skill">Full skill</a><a href="https://github.com/joeysim/joeysim-skills">GitHub</a></nav></header>
 <main id="top">
-<section class="hero" aria-labelledby="title"><div><p class="eyebrow">Evidence · Alternatives · Action</p><h1 id="title">Decision Matrix</h1><p class="lead">Compare options with shared criteria. Make the evidence, trade-offs, and next action clear.</p></div><div class="use"><p><strong>Use the skill</strong></p><code>Create a decision matrix.</code><p>Options are optional.</p><a class="download" href="decision-matrix.zip" download>Download skill <span aria-hidden="true">↓</span></a><p class="version">Version 1.2.0</p></div></section>
-<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#example">Read the worked example ↗</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
+<section class="hero" aria-labelledby="title">
+<h1 id="title"><span>Make your agent</span> <span>show its work.</span></h1>
+<div class="hero-copy"><p class="lead">A skill for coding agents. Ask your agent to compare options, and it rates each one against the same criteria. Every rating cites its evidence. Unknowns stay unknown. You get one clear next step.</p>
+<div class="get"><div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill decision-matrix</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill decision-matrix">Copy</button></div>
+<p class="ask">Then ask your agent: <code>Create a decision matrix.</code></p>
+<p class="version">Version 1.2.0. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
+</section>
+<figure class="specimen" aria-labelledby="specimen-title">
+<div class="sheet">
+<p class="sheet-q" id="specimen-title">Which approach merits the next test?</p>
+<p class="key" aria-label="Color key"><span><i class="sw" data-r="pos"></i>Supported</span><span><i class="sw" data-r="mix"></i>Partial or Simulated</span><span><i class="sw" data-r="neg"></i>Not supported</span><span><i class="sw" data-r="unk"></i>Unknown</span></p>
+<div class="table-scroll" role="region" aria-label="Example decision matrix" tabindex="0"><table class="matrix"><colgroup><col class="criterion"><col><col><col></colgroup><thead><tr><th scope="col">Criterion</th><th scope="col">A. Current form<details class="desc" open><summary><span class="text">Edit values directly in the existing form.</span><span class="closed">Description</span></summary></details></th><th scope="col" class="rec"><span class="pin on-head" aria-hidden="true">1</span><span class="chip">Recommended</span><br>B. Guided prototype<details class="desc" open><summary><span class="text">Guided prompts correct one value at a time.</span><span class="closed">Description</span></summary></details></th><th scope="col">C. Hosted assistant<details class="desc" open><summary><span class="text">An online assistant corrects the value for you.</span><span class="closed">Description</span></summary></details></th></tr></thead><tbody><tr><th scope="row">1. Offline task <em>(Required)</em></th><td data-r="pos" style="--i:0">Supported. Finished the task offline. E1.</td><td data-r="pos" class="rec" style="--i:1"><span class="pin on-cell" aria-hidden="true">4</span>Supported. Finished the same task offline. E2.</td><td data-r="neg" style="--i:2"><span class="pin on-cell" aria-hidden="true">2</span>Not supported. Needs a network connection. E4.</td></tr><tr><th scope="row">2. Monthly cost <em>(Required)</em></th><td data-r="pos" style="--i:3">Supported. $0 per month. E1.</td><td data-r="pos" class="rec" style="--i:4">Supported. $2 per month. E2.</td><td data-r="neg" style="--i:5">Not supported. $8 is over the $5 limit. E4.</td></tr><tr><th scope="row">3. Fewer corrections</th><td data-r="unk" style="--i:6"><span class="pin on-cell" aria-hidden="true">3</span>Unknown. No person has tested the current form.</td><td data-r="mix" class="rec" style="--i:7">Simulated. A model predicts fewer corrections. No person tested it. E3.</td><td data-r="unk" style="--i:8">Unknown. No person tested this option.</td></tr></tbody></table></div>
+</div>
+<figcaption>
+<ol class="notes">
+<li><span class="pin" aria-hidden="true">1</span><span><strong>One pick, with a reason.</strong> The agent marks one option Recommended and names the next step. When you choose, your pick shows as Selected.</span></li>
+<li><span class="pin" aria-hidden="true">2</span><span><strong>Hard limits fail loudly.</strong> A required criterion that fails shows red. No total score can hide it.</span></li>
+<li><span class="pin" aria-hidden="true">3</span><span><strong>Unknown stays gray.</strong> Missing evidence is never a middle score. A model's guess is marked Simulated.</span></li>
+<li><span class="pin" aria-hidden="true">4</span><span><strong>Every rating cites evidence.</strong> Each cell names its source: a test run, a document, or your own words.</span></li>
+</ol>
+<p class="fine">This example is fictional. The <a href="#example">worked example</a> shows the full decision behind it.</p>
+</figcaption>
+</figure>
+<section class="feature" aria-labelledby="log-title">
+<div>
+<h2 id="log-title">Every decision, on the record.</h2>
+<p>In a project, the agent saves each decision to <code>docs/decisions/</code> as Markdown. A bundled script builds a matching HTML page for each one, and an index that links them all.</p>
+<ul>
+<li>Each page opens with the decision. The matrix comes next, and the method comes last.</li>
+<li>When you choose an option, the decision is Locked and your pick shows as Selected.</li>
+<li>New evidence updates the decision and adds a revision. The history stays.</li>
+<li>Options, tools, and models link to their real pages.</li>
+</ul>
+</div>
+<div>
+<p class="shot-path"><code>docs/decisions/index.html</code></p>
+<div class="sheet"><div class="table-scroll" role="region" aria-label="Example decision log" tabindex="0"><table class="feature-table"><thead><tr><th>No.</th><th>Decision</th><th>Outcome</th><th>Status</th></tr></thead><tbody><tr><td>001</td><td><span class="row-name">Offline storage</span><span class="row-note">Where do edits wait while the device is offline?</span></td><td><span class="chip selected">Selected</span> A. Local database</td><td>Locked</td></tr><tr><td>002</td><td><span class="row-name">Editing flow</span><span class="row-note">Which approach merits the next test?</span></td><td><span class="chip">Recommended</span> B. Guided prototype</td><td>Provisional</td></tr><tr><td>003</td><td><span class="row-name">Crash reports</span><span class="row-note">Where do crash reports go?</span></td><td><span class="chip">Recommended</span> A. Self-hosted collector</td><td>Complete</td></tr></tbody></table></div></div>
+</div>
+</section>
+<section class="steps" aria-labelledby="steps-title">
+<h2 id="steps-title">How your agent works through a decision</h2>
+<ol>
+<li><a href="#frame-the-decision"><strong>Frame the decision</strong></a>It states the question, the baseline, and what a good outcome is.</li>
+<li><a href="#establish-shared-criteria"><strong>Set shared criteria</strong></a>Each criterion is a question with a source: your words, an inference, or a labeled assumption.</li>
+<li><a href="#rate-every-option"><strong>Rate every option</strong></a>One rating per criterion, with the evidence beside it. No invented weights.</li>
+<li><a href="#recommend-the-next-action"><strong>Recommend a next step</strong></a>One option, the main trade-off, and what would change the answer.</li>
+<li><a href="#keep-a-decision-log"><strong>Log it</strong></a>In a project, the decision goes to the log as Markdown and HTML.</li>
+</ol>
+</section>
+<section class="install" id="install" aria-labelledby="install-title">
+<h2 id="install-title">Install</h2>
+<div>
+<ol>
+<li>Run this in your project folder:<div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill decision-matrix</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill decision-matrix">Copy</button></div></li>
+<li>To add the skill for your user account instead, so that every project has it, add <code>-g</code>.</li>
+<li>Ask your agent: <code>Create a decision matrix.</code> Name your options, or let the agent find them.</li>
+</ol>
+<p class="alt">No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>, and move the <code>decision-matrix</code> folder into <code>~/.claude/skills/</code> for Claude Code, or into <code>~/.agents/skills/</code> for Codex and other agents.</p>
+</div>
+</section>
+<details class="full" id="skill">
+<summary><span class="full-title">Read the full skill</span><span class="full-sub">The complete instructions that your agent follows, and a worked example.</span></summary>
+<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#example">Worked example</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
 This standalone method requires no specific application, service, or database.</p>
 <p>Use this method when alternatives could materially change the result.
 For routine choices, give a direct answer unless the user requests a matrix.
@@ -421,7 +575,7 @@ This assumption remains revisable. It does not create a new user requirement.</p
 Unknown means the outcome lacks evidence. Simulated means a model supplied the judgment.</p>
 <p class="rating-legend">Color key: <strong>Green</strong>: Supported. <strong>Yellow</strong>: Partial or Simulated. <strong>Red</strong>: Not supported. <strong>Gray</strong>: Unknown.</p>
 <p>Recommendation action: Test B against baseline A. The recommendation remains provisional.</p>
-<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Criterion</th><th class="option-header">A. Current form <details class="option-description" open><summary aria-label="Toggle description for option A"><svg class="description-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg><span class="description-label">Description</span></summary><p>Edit values directly in the existing form.</p></details></th><th class="option-header"><strong>Recommended</strong>B. Guided prototype <details class="option-description" open><summary aria-label="Toggle description for option B"><svg class="description-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg><span class="description-label">Description</span></summary><p>Follow guided prompts to correct one value at a time.</p></details></th><th class="option-header">C. Hosted assistant <details class="option-description" open><summary aria-label="Toggle description for option C"><svg class="description-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg><span class="description-label">Description</span></summary><p>Ask an online assistant to correct a value.</p></details></th></tr></thead><tbody><tr><td>1. Offline task (Required)</td><td data-rating="positive">Supported. The browser completed the task offline. E1.</td><td data-rating="positive">Supported. The browser completed the same task offline. E2.</td><td data-rating="negative">Not supported. The service requires a network connection. E4.</td></tr><tr><td>2. Monthly cost (Required)</td><td data-rating="positive">Supported. $0 per month. E1.</td><td data-rating="positive">Supported. $2 per month. E2.</td><td data-rating="negative">Not supported. $8 exceeds the $5 limit. E4.</td></tr><tr><td>3. Fewer corrections</td><td data-rating="unknown">Unknown. No human baseline exists.</td><td data-rating="simulated">Simulated. The model predicted improvement. The actual human outcome remains unknown. E3.</td><td data-rating="unknown">Unknown. No person tested this option.</td></tr></tbody></table></div>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Criterion</th><th class="option-header">A. Current form <details class="desc" open><summary><span class="text">Edit values directly in the existing form.</span><span class="closed">Description</span></summary></details></th><th class="option-header"><span class="chip">Recommended</span><br>B. Guided prototype <details class="desc" open><summary><span class="text">Follow guided prompts to correct one value at a time.</span><span class="closed">Description</span></summary></details></th><th class="option-header">C. Hosted assistant <details class="desc" open><summary><span class="text">Ask an online assistant to correct a value.</span><span class="closed">Description</span></summary></details></th></tr></thead><tbody><tr><td>1. Offline task (Required)</td><td data-rating="positive">Supported. The browser completed the task offline. E1.</td><td data-rating="positive">Supported. The browser completed the same task offline. E2.</td><td data-rating="negative">Not supported. The service requires a network connection. E4.</td></tr><tr><td>2. Monthly cost (Required)</td><td data-rating="positive">Supported. $0 per month. E1.</td><td data-rating="positive">Supported. $2 per month. E2.</td><td data-rating="negative">Not supported. $8 exceeds the $5 limit. E4.</td></tr><tr><td>3. Fewer corrections</td><td data-rating="unknown">Unknown. No human baseline exists.</td><td data-rating="simulated">Simulated. The model predicted improvement. The actual human outcome remains unknown. E3.</td><td data-rating="unknown">Unknown. No person tested this option.</td></tr></tbody></table></div>
 <p>There is no total score.
 A favorable prediction cannot compensate for a failed required constraint.
 Exploration evidence for an option does not establish every outcome for that option.</p>
@@ -439,8 +593,25 @@ Resource boundary: Participant access and the session limit remain unspecified. 
 A later decision must retain this record and explain any changed recommendation.</p>
 <p>Skipped checks: No human sessions or production cost checks occurred in this fictional example.
 Risk: Simulated improvement may not transfer to actual use.</p></article></div></div>
+</details>
 </main>
-<footer><span>A standalone method for comparing options.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Return to the top ↑</a></footer>
+<footer><span>Decision Matrix, version 1.2.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
 </div>
+<script>
+// Open the full skill when a link or the address points into it.
+function openTarget() {
+  const target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  const full = target && target.closest("details.full");
+  if (full && !full.open) { full.open = true; target.scrollIntoView(); }
+}
+addEventListener("hashchange", openTarget);
+openTarget();
+// Copy the install command. The command stays selectable when the clipboard is not available.
+document.querySelectorAll("[data-copy]").forEach(button => button.addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = "Copied"; }
+  catch { button.textContent = "Select it"; }
+  setTimeout(() => { button.textContent = "Copy"; }, 2000);
+}));
+</script>
 </body>
 </html>

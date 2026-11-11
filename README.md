@@ -22,6 +22,8 @@ Install one skill:
 npx skills add joeysim/joeysim-skills --skill <name>
 ```
 
+These commands use the [skills CLI](https://github.com/vercel-labs/skills). They add the skills to the project in the current folder. Add `-g` to add them for your user account.
+
 ## Add a skill
 
 Follow the steps in [AGENTS.md](AGENTS.md).
@@ -32,13 +34,14 @@ MIT. See [LICENSE](LICENSE).
 
 ## Webpages
 
-The [webpage template](templates/skill-page.html) preserves the layout, navigation, responsive styles, and optional comparison components.
-It uses plain HTML and CSS without external dependencies.
+The [webpage template](templates/skill-page.html) holds the layout, the responsive styles, and these sections: a hero with the install command, a sample output with numbered notes, a second feature, steps, the install panel, and the full skill.
+It uses plain HTML and CSS, and a short script for the Copy button and the collapsed full skill. It has no external dependencies.
 
 Copy the template to `pages/<name>/index.html` for another skill.
-Replace the sample title, description, invocation, download filename, sections, and example.
+Replace the sample headline, description, install command, ZIP filename, sample output, sections, and example.
+Put every line of the skill's `SKILL.md` in the full skill section.
 Keep navigation links consistent with section IDs.
-Remove the comparison table if the skill does not need one.
+Remove an optional section if the skill does not need it.
 
 The [Decision Matrix page](pages/decision-matrix/index.html) contains the finished design.
 The page uses static HTML. Update it when the skill instructions change.
@@ -58,7 +61,7 @@ python3 -m zipfile -c pages/decision-matrix/decision-matrix.zip skills/decision-
 Preview the page:
 
 ```sh
-python3 -m http.server 4316 --bind 0.0.0.0 --directory pages/decision-matrix
+python3 -m http.server 4316 --bind 127.0.0.1 --directory pages/decision-matrix
 ```
 
 For another skill, replace `decision-matrix` with its folder name.
