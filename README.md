@@ -35,7 +35,8 @@ MIT. See [LICENSE](LICENSE).
 ## Webpages
 
 The [webpage template](templates/skill-page.html) holds the layout, the responsive styles, and these sections: a hero with the install command, a sample output with numbered notes, a second feature, steps, the install panel, and the full skill.
-It uses plain HTML and CSS, and a short script for the Copy button and the collapsed full skill. It has no external dependencies.
+It uses plain HTML and CSS, and a short script for the Copy button, the theme switch, and the collapsed full skill. It has no external dependencies.
+The page follows the system light or dark setting until the reader picks Light or Dark. The browser saves that choice.
 
 Copy the template to `pages/<name>/index.html` for another skill.
 Replace the sample headline, description, install command, ZIP filename, sample output, sections, and example.

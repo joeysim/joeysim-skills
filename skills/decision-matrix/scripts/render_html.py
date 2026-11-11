@@ -24,43 +24,53 @@ KEY_LABEL = {"pos": "Supported", "mix": "Partial or Simulated", "neg": "Not supp
 RATINGS = [("Not supported", "neg"), ("Supported", "pos"), ("Partial", "mix"), ("Simulated", "mix"), ("Unknown", "unk")]
 
 CSS = """
-:root { color-scheme: light; --ink: #111; --paper: #faf9f6; --line: #d9d8d2; --accent: #2448d8;
-  --pos: #b6e3a3; --mix: #ffe066; --neg: #f5a4a4; --unk: #e0e0e0; }
+/* Each color has a light and a dark value. The system setting picks one, unless the reader picks a theme (data-theme on <html>). */
+:root { color-scheme: light dark;
+  --ink: light-dark(#111, #e9ebf0); --paper: light-dark(#faf9f6, #121419); --sheet: light-dark(#fff, #1a1d24); --line: light-dark(#d9d8d2, #2e323c);
+  --head: light-dark(#efeee9, #22252d); --muted: light-dark(#4b4b47, #b3b8c4); --panel: light-dark(#f0efea, #1d2028); --accent: light-dark(#2448d8, #8ea6ff);
+  --chip: light-dark(#dfe6ff, #263264); --chip-ink: light-dark(#1b2f8a, #cdd7ff); --sw-line: light-dark(rgba(0,0,0,.25), rgba(255,255,255,.3));
+  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #111; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: clamp(15px, 0.4vw + 13.5px, 17px)/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 header, main { max-width: 1200px; margin: auto; padding: 0 clamp(16px, 4vw, 40px); }
-header { padding-block: 18px; border-bottom: 1px solid var(--line); font-size: .9em; }
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: .9em; }
 main { padding-block: 8px 48px; }
 a { color: var(--accent); }
 h1 { font-size: clamp(1.6em, 3vw, 2.2em); line-height: 1.2; }
 h2 { margin-top: 2em; }
 .meta { margin-top: -.4em; font-size: .9em; }
 .lead { font-size: 1.15em; }
-section.decision { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 2px clamp(14px, 3vw, 24px) 6px; margin-top: 1.5em; }
+section.decision { background: var(--sheet); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 2px clamp(14px, 3vw, 24px) 6px; margin-top: 1.5em; }
 section.decision h2 { margin-top: .9em; }
-section.scale { margin: 1.5em 0; padding: 2px clamp(14px, 3vw, 20px) 8px; background: #f0efea; border-radius: 8px; color: #4b4b47; font-size: .88em; }
+section.scale { margin: 1.5em 0; padding: 2px clamp(14px, 3vw, 20px) 8px; background: var(--panel); border-radius: 8px; color: var(--muted); font-size: .88em; }
 section.scale h3 { margin: .9em 0 .3em; font-size: .85em; letter-spacing: .06em; text-transform: uppercase; }
 section.scale p { margin: .5em 0; }
 section.scale ul { columns: 2 18rem; column-gap: 2rem; margin: .5em 0; padding-left: 1.2em; }
 section.scale li { break-inside: avoid; }
-code { background: #efeee9; padding: 1px 4px; border-radius: 4px; font-size: .9em; }
-pre { background: #efeee9; padding: 12px; overflow-x: auto; }
+code { background: var(--head); padding: 1px 4px; border-radius: 4px; font-size: .9em; }
+pre { background: var(--head); padding: 12px; overflow-x: auto; }
 pre code { background: none; padding: 0; }
 blockquote { margin: 0; padding-left: 16px; border-left: 3px solid var(--line); }
 .table-scroll { overflow-x: auto; margin: 1em 0; }
 table { border-collapse: collapse; font-size: .9em; }
 th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; overflow-wrap: break-word; }
-th { background: #efeee9; }
+th { background: var(--head); }
 table.matrix { table-layout: fixed; width: 100%; min-width: calc(11rem + var(--n) * 11rem); }
 table.matrix col.criterion { width: 11rem; }
 td.r-pos { background: var(--pos); } td.r-mix { background: var(--mix); }
 td.r-neg { background: var(--neg); } td.r-unk { background: var(--unk); }
+/* Rating fills stay light in both themes, so their text, links, and code stay dark. */
+td:is(.r-pos, .r-mix, .r-neg, .r-unk) { color: var(--rated-ink); }
+td:is(.r-pos, .r-mix, .r-neg, .r-unk) a { color: #1d3bb8; }
+td:is(.r-pos, .r-mix, .r-neg, .r-unk) code { background: rgba(0,0,0,.08); }
 .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
-.chip { display: inline-block; padding: 1px 10px; border-radius: 999px; background: #dfe6ff; color: #1b2f8a; font-size: .8em; font-weight: 600; }
-.chip.selected { background: #1b2f8a; color: #dfe6ff; } /* the inverse of .chip */
+.chip { display: inline-block; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: .8em; font-weight: 600; }
+.chip.selected { background: var(--chip-ink); color: var(--chip); } /* the inverse of .chip */
 .key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .9em; }
 .nowrap { white-space: nowrap; }
-.sw { display: inline-block; width: .85em; height: .85em; margin-right: 6px; vertical-align: -1px; border-radius: 3px; border: 1px solid rgba(0,0,0,.25); }
+.sw { display: inline-block; width: .85em; height: .85em; margin-right: 6px; vertical-align: -1px; border-radius: 3px; border: 1px solid var(--sw-line); }
 .sw.r-pos { background: var(--pos); } .sw.r-mix { background: var(--mix); } .sw.r-neg { background: var(--neg); } .sw.r-unk { background: var(--unk); }
 details.desc { margin-top: 6px; font-weight: 400; font-size: .9em; }
 details.desc summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; gap: 6px; }
@@ -70,7 +80,42 @@ details.desc summary::before { content: "\\25B8"; flex: none; font-size: 1.25em;
 details.desc[open] summary::before { content: "\\25BE"; }
 details.desc[open] .closed, details.desc:not([open]) .text { display: none; }
 details.desc .text { padding-left: 8px; border-left: 2px solid var(--line); }
+.theme { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
+.theme[hidden] { display: none; }
+.theme button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.theme button:hover { color: var(--ink); }
+.theme button[aria-pressed="true"] { background: var(--head); color: var(--ink); }
+.theme button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.theme svg { width: 18px; height: 18px; }
+@media print { :root { color-scheme: light; } .theme { display: none; } }
 """
+
+ICON = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"'
+# The switch stays hidden until its script runs. Without the script, the page follows the system setting.
+THEME_SWITCH = (
+    '<div class="theme" role="group" aria-label="Color theme" hidden>'
+    f'<button type="button" data-theme-choice="system" aria-label="System theme" title="System"><svg {ICON}><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>'
+    f'<button type="button" data-theme-choice="light" aria-label="Light theme" title="Light"><svg {ICON}><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg></button>'
+    f'<button type="button" data-theme-choice="dark" aria-label="Dark theme" title="Dark"><svg {ICON}><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button></div>')
+# Apply a saved theme before the page paints.
+THEME_EARLY = '<script>try { const t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}</script>'
+THEME_SCRIPT = """<script>
+// Theme switch. System follows the device setting. Light and Dark are saved in this browser.
+const themeGroup = document.querySelector(".theme");
+function showTheme() {
+  const current = document.documentElement.dataset.theme || "system";
+  themeGroup.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeChoice === current)));
+}
+themeGroup.addEventListener("click", event => {
+  const choice = event.target.closest("button")?.dataset.themeChoice;
+  if (!choice) return;
+  if (choice === "system") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = choice;
+  try { if (choice === "system") localStorage.removeItem("theme"); else localStorage.setItem("theme", choice); } catch {}
+  showTheme();
+});
+themeGroup.hidden = false;
+showTheme();
+</script>"""
 
 # Headings whose sections get their own style: the Decision callout, and the rating scale in muted, smaller text.
 SECTIONS = {(2, "decision"): "decision", (3, "rating-scale"): "scale"}
@@ -273,9 +318,9 @@ def render(md):
 
 def page(title, nav, body):
     return (f"<!doctype html>\n{GENERATED}\n<html lang=\"en\"><head><meta charset=\"utf-8\">"
-            f"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+            f"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">{THEME_EARLY}"
             f"<title>{html.escape(title)}</title><style>{CSS}</style></head>\n"
-            f"<body><header><nav aria-label=\"Decision log\">{nav}</nav></header>\n<main>\n{body}\n</main></body></html>\n")
+            f"<body><header><nav aria-label=\"Decision log\">{nav}</nav>{THEME_SWITCH}</header>\n<main>\n{body}\n</main>\n{THEME_SCRIPT}</body></html>\n")
 
 
 def check_chips(name, status, body):
@@ -380,6 +425,8 @@ def self_test():
         assert '<summary><span class="text">Fast local model.</span>' in out, "the description sits beside its arrow"
         assert out.index("<table") < out.index('<section class="scale">') < out.index('id="criteria"'), "scale below the matrix"
         assert out.count("<section") == out.count("</section>") == 2
+        assert out.index("<style>") > out.index('localStorage.getItem("theme")'), "a saved theme applies before the styles"
+        assert 'data-theme-choice="system"' in out and "themeGroup.hidden = false" in out, "the theme switch"
         cells = re.findall(r'<td class="([^"]*)">(.*?)</td>', out)
         rated = [(c, t) for c, t in cells if "r-" in c]
         assert [c.split()[0] for c, _ in rated] == ["r-pos", "r-neg", "r-mix", "r-unk"], rated

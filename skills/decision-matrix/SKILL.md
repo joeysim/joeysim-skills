@@ -2,7 +2,7 @@
 name: decision-matrix
 description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Decision Matrix
@@ -338,6 +338,7 @@ The script writes an HTML page beside each decision file, and an index as `READM
 The index shows the description, outcome, status, and date of each decision.
 The script gives a note for each file that does not use the layout.
 The pages follow the visual rules in "Present the matrix" and link to their Markdown files.
+Each page follows the reader's light or dark system setting, and has a switch for System, Light, and Dark.
 Make all HTML versions of a decision matrix with this script.
 Do not edit the files that the script writes.
 When the user asks for HTML of a matrix outside the log, add the matrix to the log first.
