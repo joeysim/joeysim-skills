@@ -1,8 +1,8 @@
 ---
 name: decision-matrix
-description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, or revisit an existing decision matrix, such as an HTML version of each decision.
+description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. The skill rates each option against sourced criteria with cited evidence, keeps unknowns explicit, and recommends one next action. It keeps a numbered decision log in Markdown with generated HTML pages. Also use when a user asks to convert, restyle, export, log, lock, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 # Decision Matrix
@@ -218,31 +218,18 @@ Leave out option hypotheses, statuses, and the experiment plan unless the user a
 Use Markdown unless the user requests another format or an existing destination requires one.
 Place criteria in rows and options in columns.
 Keep this orientation across matrices, including narrow layouts.
-Give option columns equal widths across all visual tables.
-Keep those widths stable when descriptions expand or collapse.
 Number criterion rows 1, 2, 3, and so on.
 Label option columns A, B, C, and so on.
 Keep these labels consistent within each decision and its supporting explanation.
 These labels do not replace stable identifiers.
 Place **Recommended** at the top of the recommended option's header, above its letter and title.
-Use a compact, rounded chip for this label in visual output.
-Use a neutral or blue chip style that differs from the rating colors.
 Use only **Recommended** or **Selected** as the chip text.
-For **Selected**, invert the **Recommended** chip: use its text color as the fill, and its fill color as the text.
 Keep bold text as the fallback for plain Markdown.
 Keep the option letter and title in that header.
 State the recommendation action in the explanation above the matrix.
 Keep provisional recommendations explicitly provisional.
 Place each description inside its option header, beneath the title.
 Explain what each option is and how it works in one short sentence.
-For visual output, show descriptions expanded by default, with a downward arrow at the left of the sentence.
-Put a left border between the arrow and the sentence.
-Do not put the arrow on a line of its own.
-Collapse the sentence when the user activates the arrow or the sentence.
-Show Description beside a right-pointing arrow only when collapsed.
-Expand the sentence when the user activates that control.
-Use smaller, regular-weight text with readable contrast.
-Keep description controls usable with a keyboard and on touch screens.
 If collapsible content is unavailable, show the sentence in italic text within the option header.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
@@ -267,20 +254,7 @@ When you show statuses, keep exploration status and build status separate from t
 State whether the comparison is provisional or complete.
 A complete comparison does not prove that every required outcome passed.
 
-For a visual interface, keep descriptions aligned with their option columns.
-Show previews only when they represent the compared variants.
-Keep text readable at narrow widths.
-Use black text on light surfaces and responsive font sizes.
-Use clear traffic-light colors in visual output.
-Use green for Supported, yellow for Partial, and red for Not supported.
-Keep color fills distinct from the page background.
-Show a color key above the matrix.
-Use text labels alongside any rating colors.
-Keep Unknown gray or uncolored.
-Use yellow for Simulated with an explicit provisional label.
-Do not represent missing evidence as an observed middle outcome.
-Use a border as an optional secondary marker for the recommended column.
-Colors and layout do not establish evidence quality.
+Before you make visual output without the bundled script, read [the visual rules](references/visual-output.md).
 
 Use one instruction per sentence.
 Limit instructions to 20 words and descriptions to 25 words.
@@ -337,7 +311,7 @@ python3 <skill folder>/scripts/render_html.py <project>/docs/decisions
 The script writes an HTML page beside each decision file, and an index as `README.md` and `index.html`.
 The index shows the description, outcome, status, and date of each decision.
 The script gives a note for each file that does not use the layout.
-The pages follow the visual rules in "Present the matrix" and link to their Markdown files.
+The pages follow "Present the matrix" and [the visual rules](references/visual-output.md), and link to their Markdown files.
 Each page follows the reader's light or dark system setting, and has a switch for System, Light, and Dark.
 Make all HTML versions of a decision matrix with this script.
 Do not edit the files that the script writes.

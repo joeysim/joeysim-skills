@@ -217,7 +217,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <div class="hero-copy"><p class="lead">A skill for coding agents. Ask your agent to compare options, and it rates each one against the same criteria. Every rating cites its evidence. Unknowns stay unknown. You get one clear next step.</p>
 <div class="get"><div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill decision-matrix</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill decision-matrix">Copy</button></div>
 <p class="ask">Then ask your agent: <code>Create a decision matrix.</code></p>
-<p class="version">Version 1.3.0. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
+<p class="version">Version 1.4.0. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
 </section>
 <figure class="specimen" aria-labelledby="specimen-title">
 <div class="sheet">
@@ -274,7 +274,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 </section>
 <details class="full" id="skill">
 <summary><span class="full-title">Read the full skill</span><span class="full-sub">The complete instructions that your agent follows, and a worked example.</span></summary>
-<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#example">Worked example</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
+<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#visual-output">Visual output rules</a><a class="example-link" href="#example">Worked example</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
 This standalone method requires no specific application, service, or database.</p>
 <p>Use this method when alternatives could materially change the result.
 For routine choices, give a direct answer unless the user requests a matrix.
@@ -446,31 +446,18 @@ Leave out option hypotheses, statuses, and the experiment plan unless the user a
 <p>Use Markdown unless the user requests another format or an existing destination requires one.
 Place criteria in rows and options in columns.
 Keep this orientation across matrices, including narrow layouts.
-Give option columns equal widths across all visual tables.
-Keep those widths stable when descriptions expand or collapse.
 Number criterion rows 1, 2, 3, and so on.
 Label option columns A, B, C, and so on.
 Keep these labels consistent within each decision and its supporting explanation.
 These labels do not replace stable identifiers.
 Place <strong>Recommended</strong> at the top of the recommended option&#39;s header, above its letter and title.
-Use a compact, rounded chip for this label in visual output.
-Use a neutral or blue chip style that differs from the rating colors.
 Use only <strong>Recommended</strong> or <strong>Selected</strong> as the chip text.
-For <strong>Selected</strong>, invert the <strong>Recommended</strong> chip: use its text color as the fill, and its fill color as the text.
 Keep bold text as the fallback for plain Markdown.
 Keep the option letter and title in that header.
 State the recommendation action in the explanation above the matrix.
 Keep provisional recommendations explicitly provisional.
 Place each description inside its option header, beneath the title.
 Explain what each option is and how it works in one short sentence.
-For visual output, show descriptions expanded by default, with a downward arrow at the left of the sentence.
-Put a left border between the arrow and the sentence.
-Do not put the arrow on a line of its own.
-Collapse the sentence when the user activates the arrow or the sentence.
-Show Description beside a right-pointing arrow only when collapsed.
-Expand the sentence when the user activates that control.
-Use smaller, regular-weight text with readable contrast.
-Keep description controls usable with a keyboard and on touch screens.
 If collapsible content is unavailable, show the sentence in italic text within the option header.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
@@ -488,20 +475,7 @@ When you convert Markdown output to HTML, replace each marker with its backgroun
 When you show statuses, keep exploration status and build status separate from the recommendation label.
 State whether the comparison is provisional or complete.
 A complete comparison does not prove that every required outcome passed.</p>
-<p>For a visual interface, keep descriptions aligned with their option columns.
-Show previews only when they represent the compared variants.
-Keep text readable at narrow widths.
-Use black text on light surfaces and responsive font sizes.
-Use clear traffic-light colors in visual output.
-Use green for Supported, yellow for Partial, and red for Not supported.
-Keep color fills distinct from the page background.
-Show a color key above the matrix.
-Use text labels alongside any rating colors.
-Keep Unknown gray or uncolored.
-Use yellow for Simulated with an explicit provisional label.
-Do not represent missing evidence as an observed middle outcome.
-Use a border as an optional secondary marker for the recommended column.
-Colors and layout do not establish evidence quality.</p>
+<p>Before you make visual output without the bundled script, read <a href="#visual-output">the visual rules</a>.</p>
 <p>Use one instruction per sentence.
 Limit instructions to 20 words and descriptions to 25 words.
 Use periods, commas, colons, or parentheses instead of em dashes.
@@ -545,14 +519,47 @@ For each revision, give the date, the new evidence, and what changed.</p>
 <p>The script writes an HTML page beside each decision file, and an index as <code>README.md</code> and <code>index.html</code>.
 The index shows the description, outcome, status, and date of each decision.
 The script gives a note for each file that does not use the layout.
-The pages follow the visual rules in &quot;Present the matrix&quot; and link to their Markdown files.
+The pages follow &quot;Present the matrix&quot; and <a href="#visual-output">the visual rules</a>, and link to their Markdown files.
 Each page follows the reader&#39;s light or dark system setting, and has a switch for System, Light, and Dark.
 Make all HTML versions of a decision matrix with this script.
 Do not edit the files that the script writes.
 When the user asks for HTML of a matrix outside the log, add the matrix to the log first.
 If the script stops because of a chip, correct the Markdown and run the script again.
 For any other stop, give its message to the user and ask how to continue.</p>
-</article><article class="example" aria-label="Fictional worked example"><h2 id="example">Worked example</h2>
+</article><article class="example" aria-label="Visual output rules"><h2 id="visual-output">Visual output</h2>
+<p>These rules apply to visual output, such as HTML.
+They add to the rules in &quot;Present the matrix&quot; in <code>SKILL.md</code>.
+The bundled <code>scripts/render_html.py</code> already follows them for the decision log.</p>
+<h3 id="visual-output-columns-and-chips">Columns and chips</h3>
+<p>Give option columns equal widths across all visual tables.
+Keep those widths stable when descriptions expand or collapse.
+Use a compact, rounded chip for <strong>Recommended</strong> or <strong>Selected</strong>.
+Use a neutral or blue chip style that differs from the rating colors.
+For <strong>Selected</strong>, invert the <strong>Recommended</strong> chip: use its text color as the fill, and its fill color as the text.</p>
+<h3 id="visual-output-option-descriptions">Option descriptions</h3>
+<p>Show descriptions expanded by default, with a downward arrow at the left of the sentence.
+Put a left border between the arrow and the sentence.
+Do not put the arrow on a line of its own.
+Collapse the sentence when the user activates the arrow or the sentence.
+Show Description beside a right-pointing arrow only when collapsed.
+Expand the sentence when the user activates that control.
+Use smaller, regular-weight text with readable contrast.
+Keep description controls usable with a keyboard and on touch screens.
+Keep descriptions aligned with their option columns.</p>
+<h3 id="visual-output-layout-and-color">Layout and color</h3>
+<p>Show previews only when they represent the compared variants.
+Keep text readable at narrow widths.
+Use black text on light surfaces and responsive font sizes.
+Use clear traffic-light colors.
+Use green for Supported, yellow for Partial, and red for Not supported.
+Keep color fills distinct from the page background.
+Show a color key above the matrix.
+Use text labels alongside any rating colors.
+Keep Unknown gray or uncolored.
+Use yellow for Simulated with an explicit provisional label.
+Do not represent missing evidence as an observed middle outcome.
+Use a border as an optional secondary marker for the recommended column.
+Colors and layout do not establish evidence quality.</p></article><article class="example" aria-label="Fictional worked example"><h2 id="example">Worked example</h2>
 <p>This example is fictional. Its evidence labels represent supplied records, not sources to cite in real decisions.
 Real matrices must link to actual evidence.</p>
 <h3 id="example-supplied-request-and-evidence">Supplied request and evidence</h3>
@@ -620,7 +627,7 @@ A later decision must retain this record and explain any changed recommendation.
 Risk: Simulated improvement may not transfer to actual use.</p></article></div></div>
 </details>
 </main>
-<footer><span>Decision Matrix, version 1.3.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
+<footer><span>Decision Matrix, version 1.4.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
 </div>
 <script>
 // Open the full skill when a link or the address points into it.
