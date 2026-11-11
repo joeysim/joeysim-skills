@@ -2,7 +2,7 @@
 name: decision-matrix
 description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Decision Matrix
@@ -105,6 +105,7 @@ Retain additional options or criteria when the decision requires them.
 For each option, record:
 
 - A stable identifier, title, and brief description of what the option is and how it works.
+- A link to its main page, such as its home page, documentation, repository, or model card.
 - A hypothesis that explains why the approach could address the problem.
 - A falsifier: an observation that would weaken that hypothesis.
 - Its build status (built, unbuilt, or unknown), only when the option is something to build.
@@ -147,7 +148,7 @@ Do not run that experiment without the necessary authorization.
 ## Rate every option
 
 Rate every option against every shared criterion exactly once.
-Explain the scale before the matrix.
+Explain the scale directly above or below the matrix.
 Use qualitative ratings unless measurements justify numbers.
 Define what each applicable rating means for each criterion.
 Binary constraints need no artificial middle rating.
@@ -226,16 +227,18 @@ These labels do not replace stable identifiers.
 Place **Recommended** at the top of the recommended option's header, above its letter and title.
 Use a compact, rounded chip for this label in visual output.
 Use a neutral or blue chip style that differs from the rating colors.
-Use only **Recommended** or **Chosen** as the chip text.
-Use a solid blue chip with white text for **Chosen**.
+Use only **Recommended** or **Selected** as the chip text.
+For **Selected**, invert the **Recommended** chip: use its text color as the fill, and its fill color as the text.
 Keep bold text as the fallback for plain Markdown.
 Keep the option letter and title in that header.
 State the recommendation action in the explanation above the matrix.
 Keep provisional recommendations explicitly provisional.
 Place each description inside its option header, beneath the title.
 Explain what each option is and how it works in one short sentence.
-For visual output, show descriptions expanded by default with a left border and a downward arrow.
-Collapse the sentence when the user activates the arrow.
+For visual output, show descriptions expanded by default, with a downward arrow at the left of the sentence.
+Put a left border between the arrow and the sentence.
+Do not put the arrow on a line of its own.
+Collapse the sentence when the user activates the arrow or the sentence.
 Show Description beside a right-pointing arrow only when collapsed.
 Expand the sentence when the user activates that control.
 Use smaller, regular-weight text with readable contrast.
@@ -245,6 +248,10 @@ Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
 Mention each left-out criterion in one line below the matrix.
 Place the rating, basis, and evidence reference together in each cell.
+Link each tool, framework, model, service, or standard at its first mention.
+Link each option title in the matrix header to the option's main page.
+Give only links that you opened or that a cited source gives. Do not guess an address.
+Link local files with paths relative to the output file.
 Show each rating's color in one way only. The output format sets the way:
 
 | Output | Rating cell | Color key above the matrix |
@@ -284,7 +291,7 @@ Explain any necessary length exception.
 Read [the worked example](references/worked-example.md) when distinguishing evidence, simulations, unknowns, or required constraints is difficult.
 
 Before delivery, check criterion coverage, source support, evidence limits, constraint failures, and recommendation consistency.
-Check that exactly one option header has a chip: **Recommended**, or **Chosen** in a Locked decision.
+Check that exactly one option header has a chip: **Recommended**, or **Selected** in a Locked decision.
 Check whether new results require revised ratings.
 State skipped checks and material risks.
 
@@ -296,11 +303,24 @@ Use the project's existing decisions folder, if it has one. Otherwise, use `docs
 
 Save each decision in its own file, named `NNN-short-title.md`.
 Number the files in order: 001, 002, and so on.
-Start each file with its number and title as a heading, such as `# 001. Speech-out voice`.
-On the next line, give the date and status, such as `Date: 2026-11-10 · Status: Provisional`.
+Use this layout for each decision file, in this order:
+
+1. The number and title as a heading, such as `# 001. Speech-out voice`.
+2. The date and status, such as `Date: 2026-11-10 · Status: Provisional`.
+3. The decision question, in one sentence. The log index shows this sentence as the description.
+4. `## Decision`: start with the recommended or selected option and the main reason. Then give the accepted trade-off, the next action, and what could change the decision.
+5. `## Matrix`: the color key, the matrix, and the criteria that you left out. Then explain the rating scale and any weights in a `### Rating scale` subsection.
+6. `## Criteria`: the intended outcome, the shared task, and each criterion with its source.
+7. `## Options`: the baseline, then each option with its link, description, hypothesis, falsifier, and status. Then the options that you ruled out.
+8. `## Evidence`: the evidence limits, and the checks that you ran and did not run.
+9. `## References`: each page that the decision links to, with its title, link, and the date that you read it.
+10. `## Revisions`, when the decision has revisions.
+
+When you change a decision file that has another layout, change it to this layout.
+
 Use Provisional, Complete, or Locked as the status.
 Set the status to Locked only when the user chooses an option.
-Then remove **Recommended**, and put **Chosen** at the top of the chosen option's header.
+Then remove **Recommended**, and put **Selected** at the top of the selected option's header.
 Add a revision entry with the date, the user's words, and your earlier recommendation.
 Change a Locked decision only when the user reopens it.
 
@@ -315,6 +335,8 @@ python3 <skill folder>/scripts/render_html.py <project>/docs/decisions
 ```
 
 The script writes an HTML page beside each decision file, and an index as `README.md` and `index.html`.
+The index shows the description, outcome, status, and date of each decision.
+The script gives a note for each file that does not use the layout.
 The pages follow the visual rules in "Present the matrix" and link to their Markdown files.
 Make all HTML versions of a decision matrix with this script.
 Do not edit the files that the script writes.

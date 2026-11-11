@@ -7,7 +7,9 @@ Usage:
 
 The script uses only the Python standard library. It refuses to overwrite files that it did not make.
 """
+import contextlib
 import html
+import io
 import re
 import sys
 import tempfile
@@ -32,6 +34,15 @@ main { padding-block: 8px 48px; }
 a { color: var(--accent); }
 h1 { font-size: clamp(1.6em, 3vw, 2.2em); line-height: 1.2; }
 h2 { margin-top: 2em; }
+.meta { margin-top: -.4em; font-size: .9em; }
+.lead { font-size: 1.15em; }
+section.decision { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 2px clamp(14px, 3vw, 24px) 6px; margin-top: 1.5em; }
+section.decision h2 { margin-top: .9em; }
+section.scale { margin: 1.5em 0; padding: 2px clamp(14px, 3vw, 20px) 8px; background: #f0efea; border-radius: 8px; color: #4b4b47; font-size: .88em; }
+section.scale h3 { margin: .9em 0 .3em; font-size: .85em; letter-spacing: .06em; text-transform: uppercase; }
+section.scale p { margin: .5em 0; }
+section.scale ul { columns: 2 18rem; column-gap: 2rem; margin: .5em 0; padding-left: 1.2em; }
+section.scale li { break-inside: avoid; }
 code { background: #efeee9; padding: 1px 4px; border-radius: 4px; font-size: .9em; }
 pre { background: #efeee9; padding: 12px; overflow-x: auto; }
 pre code { background: none; padding: 0; }
@@ -46,19 +57,23 @@ td.r-pos { background: var(--pos); } td.r-mix { background: var(--mix); }
 td.r-neg { background: var(--neg); } td.r-unk { background: var(--unk); }
 .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 .chip { display: inline-block; padding: 1px 10px; border-radius: 999px; background: #dfe6ff; color: #1b2f8a; font-size: .8em; font-weight: 600; }
-.chip.chosen { background: var(--accent); color: #fff; }
+.chip.selected { background: #1b2f8a; color: #dfe6ff; } /* the inverse of .chip */
 .key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .9em; }
+.nowrap { white-space: nowrap; }
 .sw { display: inline-block; width: .85em; height: .85em; margin-right: 6px; vertical-align: -1px; border-radius: 3px; border: 1px solid rgba(0,0,0,.25); }
 .sw.r-pos { background: var(--pos); } .sw.r-mix { background: var(--mix); } .sw.r-neg { background: var(--neg); } .sw.r-unk { background: var(--unk); }
-details.desc { margin-top: 6px; font-weight: 400; }
+details.desc { margin-top: 6px; font-weight: 400; font-size: .9em; }
 details.desc summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; gap: 6px; }
+details.desc[open] summary { align-items: flex-start; }
 details.desc summary::-webkit-details-marker { display: none; }
-details.desc summary::before { content: "\\25B8"; }
+details.desc summary::before { content: "\\25B8"; flex: none; font-size: 1.25em; line-height: 1.28; }
 details.desc[open] summary::before { content: "\\25BE"; }
-details.desc[open] summary .closed, details.desc:not([open]) summary .open { display: none; }
-details.desc p { margin: 0; padding-left: 10px; border-left: 2px solid var(--line); font-size: .9em; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+details.desc[open] .closed, details.desc:not([open]) .text { display: none; }
+details.desc .text { padding-left: 8px; border-left: 2px solid var(--line); }
 """
+
+# Headings whose sections get their own style: the Decision callout, and the rating scale in muted, smaller text.
+SECTIONS = {(2, "decision"): "decision", (3, "rating-scale"): "scale"}
 
 KEY = ('<p class="key" aria-label="Color key">' + "".join(
     f'<span><span class="sw r-{c}" aria-hidden="true"></span>{KEY_LABEL[c]}</span>' for c in ("pos", "mix", "neg", "unk")) + "</p>")
@@ -119,10 +134,37 @@ def split_row(row):
 
 def header_cell(cell):
     s = inline(cell).replace("<strong>Recommended</strong>", '<span class="chip">Recommended</span>')
-    s = s.replace("<strong>Chosen</strong>", '<span class="chip chosen">Chosen</span>')
+    s = s.replace("<strong>Selected</strong>", '<span class="chip selected">Selected</span>')
+    # The sentence sits in the summary, beside its arrow, so it adds no line and the whole sentence is the control.
     return re.sub(r"<em>(.+?)</em>", lambda m: (
-        '<details class="desc" open><summary><span class="open sr">Hide description</span>'
-        f'<span class="closed">Description</span></summary><p>{m.group(1)}</p></details>'), s)
+        f'<details class="desc" open><summary><span class="text">{m.group(1)}</span>'
+        '<span class="closed">Description</span></summary></details>'), s)
+
+
+def outcome(md):
+    """Return the chip and the option from the first matrix header, such as ("Selected", "A. Phonon 31M")."""
+    for line in md.splitlines():
+        m = re.search(r"\*\*(Recommended|Selected)\*\*", line)
+        if m and line.lstrip().startswith("|"):
+            cell = next(c for c in split_row(line) if m.group(0) in c)
+            cell = re.sub(r"\*\*(Recommended|Selected)\*\*|<br\s*/?>", " ", cell)
+            cell = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", " ", cell)  # the description
+            return m.group(1), " ".join(re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", cell).split())
+    return "", ""
+
+
+def follows_layout(md):
+    """Check the parts of the decision file layout that the index and the page depend on."""
+    matrix = md.find("\n## Matrix")
+    table = md.find("\n|", matrix) if matrix >= 0 else -1
+    first_two = re.findall(r"^## (.+?)\s*$", md, re.M)[:2]
+    return bool(description(md)) and first_two == ["Decision", "Matrix"] and 0 <= table < md.find("\n### Rating scale")
+
+
+def description(md):
+    """Return the sentence on the line after the Date line, or an empty string."""
+    m = re.search(r"^Date:.*\n+((?:(?![#|]|Color key)[^\n]+\n?)+)", md, re.M)
+    return " ".join(m.group(1).split()) if m else ""
 
 
 def table(rows):
@@ -130,7 +172,7 @@ def table(rows):
     body = [split_row(r) for r in rows[1:] if not re.fullmatch(r"[\s|:-]+", r)]
     rated = [[rating(c) for c in r] for r in body]
     matrix = any(c for r in rated for c in r[1:])
-    rec = next((i for i, c in enumerate(head) if "**Recommended**" in c or "**Chosen**" in c), None)
+    rec = next((i for i, c in enumerate(head) if "**Recommended**" in c or "**Selected**" in c), None)
 
     def cls(i, extra=None):
         names = [n for n in (extra, "rec" if i == rec else None) if n]
@@ -156,7 +198,7 @@ def table(rows):
 def render(md):
     """Turn the Markdown subset that the skill writes into HTML. Return (title, body)."""
     lines = re.sub(r"<!--.*?-->", "", md, flags=re.S).splitlines()
-    out, title, key_shown, i = [], "", False, 0
+    out, title, key_shown, i, section = [], "", False, 0, 0  # section: the heading level of the open <section>, or 0
     block_start = re.compile(r"\s*(#{1,6}\s|\||```|>|[-*+]\s|\d+\.\s)")
     while i < len(lines):
         line = lines[i]
@@ -169,6 +211,12 @@ def render(md):
         elif m := re.match(r"(#{1,6})\s+(.*)", line):
             n, text = len(m.group(1)), inline(m.group(2).strip())
             title = title or re.sub(r"<[^>]+>", "", text)
+            if section and n <= section:
+                out.append("</section>")
+                section = 0
+            if name := SECTIONS.get((n, slug(text))):
+                out.append(f'<section class="{name}">')
+                section = n
             out.append(f'<h{n} id="{slug(text)}">{text}</h{n}>')
             key_shown = key_shown and n > 2
             i += 1
@@ -212,8 +260,14 @@ def render(md):
             if re.match(r"\**Color key", text):
                 out.append(KEY)
                 key_shown = True
+            elif text.startswith("Date:"):
+                out.append(f'<p class="meta">{inline(text)}</p>')
+            elif out and out[-1].startswith('<p class="meta">'):
+                out.append(f'<p class="lead">{inline(text)}</p>')
             else:
                 out.append(f"<p>{inline(text)}</p>")
+    if section:
+        out.append("</section>")
     return title, "\n".join(out)
 
 
@@ -225,12 +279,12 @@ def page(title, nav, body):
 
 
 def check_chips(name, status, body):
-    """A Locked decision shows the user's choice as Chosen. Other decisions show the agent's Recommended."""
-    chosen, recommended = body.count('class="chip chosen"'), body.count('class="chip"')
-    if status.lower() == "locked" and (not chosen or recommended):
-        sys.exit(f"Stopped: {name} has Status: Locked, so its matrix needs **Chosen** in place of **Recommended**. Nothing was written.")
-    if status.lower() != "locked" and chosen:
-        sys.exit(f"Stopped: {name} has a **Chosen** option, but its status is not Locked. Nothing was written.")
+    """A Locked decision shows the user's choice as Selected. Other decisions show the agent's Recommended."""
+    selected, recommended = body.count('class="chip selected"'), body.count('class="chip"')
+    if status.lower() == "locked" and (not selected or recommended):
+        sys.exit(f"Stopped: {name} has Status: Locked, so its matrix needs a **Selected** chip and no **Recommended** chip. Nothing was written.")
+    if status.lower() != "locked" and selected:
+        sys.exit(f"Stopped: {name} has a **Selected** option, but its status is not Locked. Nothing was written.")
 
 
 def check_ours(path):
@@ -257,20 +311,25 @@ def build(folder):
         status = re.search(r"Status:\s*([A-Za-z]+)", meta)
         status = status.group(1) if status else ""
         check_chips(p.name, status, body)
+        if not follows_layout(md):
+            print(f"Note: {p.name} does not use the decision file layout. Change it to that layout when you next change the file.")
         nav = f'<a href="index.html">Decision log</a> · <a href="{p.name}">Markdown</a>'
         pages.append((p.with_suffix(".html"), page(title, nav, body)))
-        rows.append((p.name[:3], re.sub(r"^\d+\.\s*", "", title), date.group(1) if date else "", status, p))
+        rows.append((p.name[:3], re.sub(r"^\d+\.\s*", "", title), description(md), *outcome(md), status, date.group(1) if date else "", p))
     # Write only after every decision passes its checks.
     for path, text in pages:
         path.write_text(text, encoding="utf-8")
-    readme = [GENERATED, "", "# Decision log", "", "| No. | Decision | Date | Status | Files |", "| --- | --- | --- | --- | --- |"]
-    readme += [f"| {n} | {t} | {d} | {s} | [Markdown]({p.name}) · [HTML]({p.with_suffix('.html').name}) |" for n, t, d, s, p in rows]
+    readme = [GENERATED, "", "# Decision log", "", "| No. | Decision | Description | Outcome | Status | Date | Files |",
+              "| --- | --- | --- | --- | --- | --- | --- |"]
+    readme += [f"| {n} | {t} | {desc.replace('|', chr(92) + '|')} | {f'**{chip}** {opt}' if chip else ''} | {s} | {d} | "
+               f"[Markdown]({p.name}) · [HTML]({p.with_suffix('.html').name}) |" for n, t, desc, chip, opt, s, d, p in rows]
     (folder / "README.md").write_text("\n".join(readme) + "\n", encoding="utf-8")
     trs = "".join(
-        f"<tr><td>{n}</td><td><a href=\"{p.with_suffix('.html').name}\">{html.escape(t)}</a></td><td>{d}</td><td>{s}</td>"
-        f"<td><a href=\"{p.name}\">Markdown</a></td></tr>" for n, t, d, s, p in rows)
+        f"<tr><td>{n}</td><td><a href=\"{p.with_suffix('.html').name}\">{html.escape(t)}</a></td><td>{inline(desc)}</td>"
+        f"<td>{header_cell(f'**{chip}** ' + opt) if chip else ''}</td><td>{s}</td><td class=\"nowrap\">{d}</td>"
+        f"<td><a href=\"{p.name}\">Markdown</a></td></tr>" for n, t, desc, chip, opt, s, d, p in rows)
     body = ("<h1>Decision log</h1><div class=\"table-scroll\" role=\"region\" aria-label=\"Decisions\" tabindex=\"0\"><table>"
-            "<thead><tr><th>No.</th><th>Decision</th><th>Date</th><th>Status</th><th>Source</th></tr></thead>"
+            "<thead><tr><th>No.</th><th>Decision</th><th>Description</th><th>Outcome</th><th>Status</th><th>Date</th><th>Source</th></tr></thead>"
             f"<tbody>{trs}</tbody></table></div>")
     (folder / "index.html").write_text(page("Decision log", '<a href="README.md">Markdown</a>', body), encoding="utf-8")
     print(f"Wrote {len(decisions)} decision pages, README.md, and index.html in {folder}.")
@@ -280,16 +339,30 @@ SAMPLE = """# 001. Pick a voice
 
 Date: 2026-11-10 · Status: Provisional
 
-Recommendation: **test A**. See [the next decision](002-next.md) and [notes](../notes.md).
+Which voice speaks the answers?
+
+## Decision
+
+**Recommended: test A.** See [the next decision](002-next.md) and [notes](../notes.md).
+
+## Matrix
 
 Color key: \U0001F7E2 Supported. \U0001F7E1 Partial or Simulated. \U0001F534 Not supported. ⚪ Unknown.
 
-| Criterion | **Recommended**<br>A. Alpha *Fast local model.* | B. Beta *Cloud API.* |
+| Criterion | **Recommended**<br>A. [Alpha](https://example.com/alpha) *Fast local model.* | B. Beta *Cloud API.* |
 | --- | --- | --- |
 | 1. Licence (Required) | \U0001F7E2 Supported. Apache-2.0. | \U0001F534 Not supported. Non-commercial. |
 | 2. Speed | \U0001F7E1 Simulated. Model run only. | Unknown. Not measured. |
 
+Left out of the matrix: nothing.
+
+### Rating scale
+
 - **⚪** means no evidence.
+
+## Criteria
+
+1. Licence, from the user.
 """
 
 
@@ -298,8 +371,15 @@ def self_test():
         log = Path(tmp)
         (log / "001-pick-a-voice.md").write_text(SAMPLE, encoding="utf-8")
         (log / "002-next.md").write_text("# 002. Next\n\nDate: 2026-11-11 · Status: Complete\n", encoding="utf-8")
-        build(log)
+        with contextlib.redirect_stdout(io.StringIO()) as printed:
+            build(log)
+        assert "Note: 002-next.md" in printed.getvalue() and "Note: 001" not in printed.getvalue(), printed.getvalue()
         out = (log / "001-pick-a-voice.html").read_text(encoding="utf-8")
+        assert '<p class="lead">Which voice speaks the answers?</p>' in out, "the description follows the Date line"
+        assert out.index('<section class="decision">') < out.index("</section>") < out.index('id="matrix"'), "Decision callout"
+        assert '<summary><span class="text">Fast local model.</span>' in out, "the description sits beside its arrow"
+        assert out.index("<table") < out.index('<section class="scale">') < out.index('id="criteria"'), "scale below the matrix"
+        assert out.count("<section") == out.count("</section>") == 2
         cells = re.findall(r'<td class="([^"]*)">(.*?)</td>', out)
         rated = [(c, t) for c, t in cells if "r-" in c]
         assert [c.split()[0] for c, _ in rated] == ["r-pos", "r-neg", "r-mix", "r-unk"], rated
@@ -311,22 +391,25 @@ def self_test():
         assert 'href="002-next.html"' in out and 'href="../notes.md"' in out, "log links change, other links stay"
         assert 'aria-label="Unknown"' in out, "a marker outside a rating cell becomes a labeled swatch"
         readme = (log / "README.md").read_text(encoding="utf-8")
-        assert "| 001 | Pick a voice | 2026-11-10 | Provisional | [Markdown](001-pick-a-voice.md) · [HTML](001-pick-a-voice.html) |" in readme
+        assert ("| 001 | Pick a voice | Which voice speaks the answers? | **Recommended** A. Alpha | Provisional | 2026-11-10 | "
+                "[Markdown](001-pick-a-voice.md) · [HTML](001-pick-a-voice.html) |") in readme, readme
+        assert "| 002 | Next |  |  | Complete | 2026-11-11 |" in readme, readme
         build(log)  # A second run overwrites its own files.
         locked = SAMPLE.replace("001. Pick a voice", "003. Locked voice").replace("Status: Provisional", "Status: Locked")
-        (log / "003-locked.md").write_text(locked.replace("**Recommended**", "**Chosen**"), encoding="utf-8")
+        (log / "003-locked.md").write_text(locked.replace("**Recommended**", "**Selected**"), encoding="utf-8")
         build(log)
         out = (log / "003-locked.html").read_text(encoding="utf-8")
-        assert '<span class="chip chosen">Chosen</span>' in out and 'class="chip"' not in out, "Chosen replaces Recommended"
-        assert "| 003 | Locked voice | 2026-11-10 | Locked |" in (log / "README.md").read_text(encoding="utf-8")
-        for bad, why in ((locked, "Locked"), (SAMPLE.replace("**Recommended**", "**Chosen**"), "not Locked")):
+        assert '<span class="chip selected">Selected</span>' in out and 'class="chip"' not in out, "Selected replaces Recommended"
+        assert "| 003 | Locked voice | Which voice speaks the answers? | **Selected** A. Alpha | Locked |" in (log / "README.md").read_text(encoding="utf-8")
+        assert '<span class="chip selected">Selected</span> A. Alpha' in (log / "index.html").read_text(encoding="utf-8")
+        for bad, why in ((locked, "Locked"), (SAMPLE.replace("**Recommended**", "**Selected**"), "not Locked")):
             (log / "003-locked.md" if why == "Locked" else log / "001-pick-a-voice.md").write_text(bad, encoding="utf-8")
             try:
                 build(log)
                 raise AssertionError("accepted chips that do not match the status")
             except SystemExit as e:
                 assert why in str(e), e
-            assert 'chip chosen' in (log / "003-locked.html").read_text(encoding="utf-8"), "a stopped run wrote a page"
+            assert 'chip selected' in (log / "003-locked.html").read_text(encoding="utf-8"), "a stopped run wrote a page"
             (log / "001-pick-a-voice.md").write_text(SAMPLE, encoding="utf-8")
         (log / "README.md").write_text("# Hand-written notes\n", encoding="utf-8")
         try:
