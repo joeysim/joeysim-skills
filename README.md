@@ -46,13 +46,15 @@ Remove an optional section if the skill does not need it.
 The [Decision Matrix page](pages/decision-matrix/index.html) contains the finished design.
 The page uses static HTML. Update it when the skill instructions change.
 
+The Pages workflow builds the download link and the ZIP for the live site. For a local preview, make them yourself. Git ignores both.
+
 Create the raw download link once, from the repository root:
 
 ```sh
 ln -s ../../skills/decision-matrix pages/decision-matrix/skill
 ```
 
-Refresh the ZIP after changing the skill:
+Refresh the ZIP after you change the skill:
 
 ```sh
 python3 -m zipfile -c pages/decision-matrix/decision-matrix.zip skills/decision-matrix

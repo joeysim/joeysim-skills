@@ -28,7 +28,8 @@ templates/
 - Keep `SKILL.md` under 500 lines. Move long reference text to `references/`.
 - Run bundled scripts through their interpreter, such as `python3 scripts/tool.py`. Some installers remove the executable bit.
 - When you change a file in a skill folder, increase the skill's version in the same commit. Follow the rules in "Versions".
-- When you change a skill, update `pages/<name>/index.html` to match, including the version. Then refresh the ZIP, as in the "Webpages" section of `README.md`.
+- When you change a skill, update `pages/<name>/index.html` to match. Put every line of `SKILL.md` in the page's full skill section.
+- Show the skill's version in the page's hero and footer.
 
 ## Add a skill
 
@@ -54,6 +55,15 @@ templates/
 4. Add a row for the skill to the table in `README.md`.
 5. Make a page for the skill. Follow the "Webpages" section of `README.md`.
 6. Commit the skill and its page. Then tag the commit, as in "Versions".
+
+## Test a skill change
+
+- Run each test agent in a new folder outside this repo, such as a scratch folder with `git init`. An agent that starts in this repo can read the skill files without loading the skill.
+- Give the test folder a neutral name. A folder named "baseline" made an agent skip the skill.
+- Check the agent's transcript for a call to the skill. A result without that call does not test the skill.
+- A test agent can get a copy of `SKILL.md` that is older than your latest edit. Check which rules the agent followed.
+- Keep test output in `.local/`. Git ignores that folder.
+- After a change to a bundled script, run its self-test, such as `python3 skills/decision-matrix/scripts/render_html.py --self-test`.
 
 ## Versions
 
