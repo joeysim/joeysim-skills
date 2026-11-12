@@ -67,6 +67,26 @@ templates/
 - A test agent can get a copy of `SKILL.md` that is older than your latest edit. Check which rules the agent followed.
 - Keep test output in `.local/`. Git ignores that folder.
 - After a change to a bundled script, run its self-test, such as `python3 skills/decision-matrix/scripts/render_html.py --self-test`.
+- Run each bundled script on bad input: an empty file, a file in the wrong format, a missing file, and a folder. Add each failure to the self-test.
+- To test a skill that reads the session history, fork a session: `claude -p "<phrase>" --resume <session-id> --fork-session`. The original session does not change. Delete the transcript of the fork after the test.
+
+### Optional checks with skill-creator-plus
+
+[skill-creator-plus](https://github.com/yaniv-golan/skill-creator-plus) has checks that this repo does not have. These steps were checked with its version 0.18.0.
+Clone it outside this repo. Run its scripts from its `skill-creator-plus/skills/skill-creator-plus/` folder:
+
+```sh
+python3 -m scripts.quick_validate <skill folder>
+python3 -m scripts.check_portability <skill folder> --target all --strict
+python3 -m scripts.run_eval --eval-set <queries.json> --skill-path <skill folder> --model <model ID> --timeout 60
+```
+
+- `quick_validate` checks the frontmatter and the folder name.
+- `check_portability` finds text that can fail in other runtimes. It matches words, so read each finding before you change the skill.
+- `run_eval` measures how often `description` triggers the skill. Run it after you change `description`. Write about 10 queries that must trigger the skill, and about 10 near misses that must not.
+- `run_eval` hides your installed skills only when `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` is set. Without one, a call to an installed skill stops the run with no score.
+- Without a credential, put a wrapper named `claude` first on `PATH`. The wrapper runs the real CLI with `--setting-sources project --strict-mcp-config --no-session-persistence`.
+- Each `run_eval` query leaves a `*-skill-trigger-eval-*` folder in `~/.claude/projects/`. Remove these folders after the run.
 
 ## Versions
 

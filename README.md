@@ -7,6 +7,7 @@ A collection of agent skills. Each skill is a folder with a `SKILL.md` file in t
 | Skill | Use it when |
 |-------|-------------|
 | [Decision Matrix](skills/decision-matrix/SKILL.md) | Compare options, evidence, trade-offs, and unknowns to choose the next action. Keep a decision log in Markdown and HTML. |
+| [I Lost the Plot](skills/i-lost-the-plot/SKILL.md) | Get a map of a long agent session when you lose track: the goal, the open loops, and the next step. |
 
 ## Install
 
@@ -71,4 +72,5 @@ For another skill, replace `decision-matrix` with its folder name.
 
 On each push to `main`, [the Pages workflow](.github/workflows/pages.yml) builds the downloads and publishes `pages/`.
 The Decision Matrix page is at https://joeysim.github.io/joeysim-skills/decision-matrix/.
+The I Lost the Plot page is at https://joeysim.github.io/joeysim-skills/i-lost-the-plot/.
 Git ignores generated downloads and local runtime files.
