@@ -1,6 +1,6 @@
 ---
 name: decision-matrix
-description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. The skill rates each option against sourced criteria with cited evidence, keeps unknowns explicit, and recommends one next action. It keeps a numbered decision log in Markdown with generated HTML pages. Also use when a user asks to convert, restyle, export, log, lock, or revisit an existing decision matrix, such as an HTML version of each decision.
+description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, log, lock, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
   version: "1.4.0"
 ---
