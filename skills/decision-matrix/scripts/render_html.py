@@ -22,6 +22,7 @@ MARK_CLASS = {"\U0001F7E2": "pos", "\U0001F7E1": "mix", "\U0001F534": "neg", "�
 KEY_LABEL = {"pos": "Supported", "mix": "Partial or Simulated", "neg": "Not supported", "unk": "Unknown"}
 # "Not supported" comes before "Supported", so the longer label matches first.
 RATINGS = [("Not supported", "neg"), ("Supported", "pos"), ("Partial", "mix"), ("Simulated", "mix"), ("Unknown", "unk")]
+REF_ITEM = re.compile(r"(E\d+)([.:])\s+(.*)")  # a list item that starts with an evidence ID, such as "E2. [Title](link)"
 
 CSS = """
 /* Each color has a light and a dark value. The system setting picks one, unless the reader picks a theme (data-theme on <html>). */
@@ -29,7 +30,8 @@ CSS = """
   --ink: light-dark(#111, #e9ebf0); --paper: light-dark(#faf9f6, #121419); --sheet: light-dark(#fff, #1a1d24); --line: light-dark(#d9d8d2, #2e323c);
   --head: light-dark(#efeee9, #22252d); --muted: light-dark(#4b4b47, #b3b8c4); --panel: light-dark(#f0efea, #1d2028); --accent: light-dark(#2448d8, #8ea6ff);
   --chip: light-dark(#dfe6ff, #263264); --chip-ink: light-dark(#1b2f8a, #cdd7ff); --sw-line: light-dark(rgba(0,0,0,.25), rgba(255,255,255,.3));
-  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #111; }
+  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #111;
+  --ctx-ink: rgb(0 0 0 / .63); /* faint text in the fill's own hue. It keeps 4.5:1 contrast on every rating fill. */ }
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 * { box-sizing: border-box; }
@@ -65,6 +67,17 @@ td.r-neg { background: var(--neg); } td.r-unk { background: var(--unk); }
 td:is(.r-pos, .r-mix, .r-neg, .r-unk) { color: var(--rated-ink); }
 td:is(.r-pos, .r-mix, .r-neg, .r-unk) a { color: #1d3bb8; }
 td:is(.r-pos, .r-mix, .r-neg, .r-unk) code { background: rgba(0,0,0,.08); }
+/* A rated cell: the key fact on its own line, then the basis and evidence IDs in smaller gray text. */
+td .v { display: block; }
+td .ctx { display: block; margin-top: 6px; font-size: .86em; line-height: 1.45; color: var(--ctx-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+a.ev { color: var(--muted); text-decoration-style: dotted; }
+td:is(.r-pos, .r-mix, .r-neg, .r-unk) a.ev { color: var(--ctx-ink); }
+section.secondary { color: var(--muted); font-size: .9em; }
+section.secondary h2 { font-size: 1.25em; }
+section.secondary li { margin: .2em 0; padding: 0 4px; }
+a.ref-id { color: inherit; text-decoration: none; font-variant-numeric: tabular-nums; }
+li:has(> a.ref-id:target) { background: var(--panel); border-radius: 4px; }
 .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 .chip { display: inline-block; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: .8em; font-weight: 600; }
 .chip.selected { background: var(--chip-ink); color: var(--chip); } /* the inverse of .chip */
@@ -118,7 +131,7 @@ showTheme();
 </script>"""
 
 # Headings whose sections get their own style: the Decision callout, and the rating scale in muted, smaller text.
-SECTIONS = {(2, "decision"): "decision", (3, "rating-scale"): "scale"}
+SECTIONS = {(2, "decision"): "decision", (3, "rating-scale"): "scale", (2, "evidence"): "secondary", (2, "references"): "secondary"}
 
 KEY = ('<p class="key" aria-label="Color key">' + "".join(
     f'<span><span class="sw r-{c}" aria-hidden="true"></span>{KEY_LABEL[c]}</span>' for c in ("pos", "mix", "neg", "unk")) + "</p>")
@@ -153,6 +166,7 @@ def inline(text):
         s = html.escape(part)
         s = re.sub(r"&lt;br\s*/?&gt;", "<br>", s)
         s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", link, s)
+        s = re.sub(r'(?<![">\w/])https?://[^\s<]*[^\s<.,;:)]', lambda m: f'<a href="{m[0]}">{m[0]}</a>', s)  # a bare address
         s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
         s = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<em>\1</em>", s)
         out.append(MARK.sub(swatch, s))
@@ -167,6 +181,35 @@ def rating(cell):
         if text == label or text.startswith(label + "."):
             return c
     return MARK_CLASS[m.group(1)] if m else None
+
+
+def cell(text, kind):
+    """A rated cell: a hidden rating label, the key fact (its first sentence) on its own line, then the rest as context."""
+    text = MARK.sub("", text, count=1)
+    head = f'<span class="sr">{KEY_LABEL[kind]}: </span>'
+    if any(text.startswith(label + ".") for label, _ in RATINGS):  # an older cell that starts with its rating word
+        return head + inline(text)
+    key, rest = re.match(r"(.+?)(?:\.(?=\s|$)|$)\s*(.*)", text, re.S).group(1, 2)
+    return head + f'<span class="v">{inline(key)}</span>' + (f'<span class="ctx">{inline(rest)}</span>' if rest else "")
+
+
+def cite(body, refs):
+    """Link each evidence ID, such as E2, to its reference item. Leave IDs in links and code alone."""
+    out, skip = [], 0
+    for part in re.split(r"(<[^>]+>)", body):
+        if part.startswith("<"):
+            skip += 1 if re.match(r"<(a|code)\b", part) else -1 if re.match(r"</(a|code)>", part) else 0
+        elif not skip:
+            part = re.sub(r"\bE\d+\b", lambda m: f'<a class="ev" href="#{m[0].lower()}">{m[0]}</a>' if m[0] in refs else m[0], part)
+        out.append(part)
+    return "".join(out)
+
+
+def list_item(text):
+    if m := REF_ITEM.match(text):
+        anchor = m[1].lower()
+        return f'<li><a class="ref-id" id="{anchor}" href="#{anchor}">{m[1]}</a>{m[2]} {inline(m[3])}</li>'
+    return f"<li>{inline(text)}</li>"
 
 
 def split_row(row):
@@ -198,12 +241,29 @@ def outcome(md):
     return "", ""
 
 
-def follows_layout(md):
-    """Check the parts of the decision file layout that the index and the page depend on."""
+def notes(md):
+    """Return a note for each part of the decision file layout, the cell order, or the references that the file does not follow."""
+    out = []
     matrix = md.find("\n## Matrix")
     table = md.find("\n|", matrix) if matrix >= 0 else -1
     first_two = re.findall(r"^## (.+?)\s*$", md, re.M)[:2]
-    return bool(description(md)) and first_two == ["Decision", "Matrix"] and 0 <= table < md.find("\n### Rating scale")
+    if not (description(md) and first_two == ["Decision", "Matrix"] and 0 <= table < md.find("\n### Rating scale")):
+        out.append("does not use the decision file layout. Change it to that layout")
+    if re.search(r"^\|.*\|\s*(?:" + MARK.pattern + r")?(?:Not supported|Supported|Partial|Simulated|Unknown)\.", md, re.M):
+        out.append("has rating cells that start with a rating word. Start each cell with its key fact")
+    refs = re.search(r"^## References\s*$(.*?)(?=^## |\Z)", md, re.M | re.S)
+    if refs and re.search(r"(?<!\()https?://", refs[1]):
+        out.append("has references without a title link. Give each reference a link with its title as the text")
+    if any(long_cell(c) for _, c in re.findall(r"(?<=\|)\s*" + MARK.pattern + r"([^|]*)", md)):  # (marker, cell text)
+        out.append("has rating cells with a key fact over four words, or more than one sentence of detail. Shorten them")
+    return out
+
+
+def long_cell(text):
+    """True when a rating cell has more than four words in its key fact, or more than one sentence after it."""
+    key, rest = re.match(r"(.+?)(?:\.(?=\s|$)|$)\s*(.*)", text.strip(), re.S).group(1, 2)
+    rest = re.sub(r"\bE\d+(?:,\s*E\d+)*\.?", "", rest)  # the evidence IDs are not a sentence
+    return len(key.split()) > 4 or len(re.findall(r"[.!?](?=\s|$)", rest)) > 1
 
 
 def description(md):
@@ -232,7 +292,7 @@ def table(rows):
         tds = []
         for i, (c, kind) in enumerate(zip(row, kinds)):
             if kind and i > 0:
-                tds.append(f"<td{cls(i, 'r-' + kind)}>{inline(MARK.sub('', c, count=1))}</td>")
+                tds.append(f"<td{cls(i, 'r-' + kind)}>{cell(c, kind)}</td>")
             else:
                 tds.append(f"<td{cls(i)}>{inline(c)}</td>")
         out.append("<tr>" + "".join(tds) + "</tr>")
@@ -288,7 +348,7 @@ def render(md):
                 else:
                     items[-1] += " " + lines[i].strip()
                 i += 1
-            out.append(f"<{tag}>" + "".join(f"<li>{inline(t)}</li>" for t in items) + f"</{tag}>")
+            out.append(f"<{tag}>" + "".join(list_item(t) for t in items) + f"</{tag}>")
         elif line.startswith(">"):
             quote = []
             while i < len(lines) and lines[i].startswith(">"):
@@ -313,7 +373,8 @@ def render(md):
                 out.append(f"<p>{inline(text)}</p>")
     if section:
         out.append("</section>")
-    return title, "\n".join(out)
+    refs = set(re.findall(r"^\s*[-*+]\s+(E\d+)[.:]\s", md, re.M))
+    return title, cite("\n".join(out), refs)
 
 
 def page(title, nav, body):
@@ -356,8 +417,8 @@ def build(folder):
         status = re.search(r"Status:\s*([A-Za-z]+)", meta)
         status = status.group(1) if status else ""
         check_chips(p.name, status, body)
-        if not follows_layout(md):
-            print(f"Note: {p.name} does not use the decision file layout. Change it to that layout when you next change the file.")
+        for note in notes(md):
+            print(f"Note: {p.name} {note} when you next change the file.")
         nav = f'<a href="index.html">Decision log</a> · <a href="{p.name}">Markdown</a>'
         pages.append((p.with_suffix(".html"), page(title, nav, body)))
         rows.append((p.name[:3], re.sub(r"^\d+\.\s*", "", title), description(md), *outcome(md), status, date.group(1) if date else "", p))
@@ -396,8 +457,8 @@ Color key: \U0001F7E2 Supported. \U0001F7E1 Partial or Simulated. \U0001F534 Not
 
 | Criterion | **Recommended**<br>A. [Alpha](https://example.com/alpha) *Fast local model.* | B. Beta *Cloud API.* |
 | --- | --- | --- |
-| 1. Licence (Required) | \U0001F7E2 Supported. Apache-2.0. | \U0001F534 Not supported. Non-commercial. |
-| 2. Speed | \U0001F7E1 Simulated. Model run only. | Unknown. Not measured. |
+| 1. License (Required) | \U0001F7E2 Apache-2.0. Permissive. E1. | \U0001F534 Non-commercial. Blocks a sale. E2. |
+| 2. Speed | \U0001F7E1 Simulated: 0.3 s. Model run only. | ⚪ Not measured. |
 
 Left out of the matrix: nothing.
 
@@ -407,7 +468,29 @@ Left out of the matrix: nothing.
 
 ## Criteria
 
-1. Licence, from the user.
+1. License, from the user.
+
+## Evidence
+
+One check ran. E2.
+
+## References
+
+- E1. [Alpha license](https://example.com/alpha/license), Example. Read 2026-11-10.
+- E2. [Beta terms](https://example.com/beta?a=1&b=2), Example. Read 2026-11-10.
+"""
+OLD_STYLE = """# 002. Next
+
+Date: 2026-11-11 · Status: Complete
+
+| Criterion | A. One |
+| --- | --- |
+| 1. Cost | \U0001F7E2 Supported. $5. E1. |
+| 2. Speed | \U0001F7E1 About 0.4 s on a slow laptop. Measured once. Not repeated. E1. |
+
+## References
+
+- E1. Terms, https://example.com/terms. Read 2026-11-11.
 """
 
 
@@ -415,22 +498,32 @@ def self_test():
     with tempfile.TemporaryDirectory() as tmp:
         log = Path(tmp)
         (log / "001-pick-a-voice.md").write_text(SAMPLE, encoding="utf-8")
-        (log / "002-next.md").write_text("# 002. Next\n\nDate: 2026-11-11 · Status: Complete\n", encoding="utf-8")
+        (log / "002-next.md").write_text(OLD_STYLE, encoding="utf-8")
         with contextlib.redirect_stdout(io.StringIO()) as printed:
             build(log)
-        assert "Note: 002-next.md" in printed.getvalue() and "Note: 001" not in printed.getvalue(), printed.getvalue()
+        said = printed.getvalue()
+        assert "Note: 001" not in said, said
+        for note in ("decision file layout", "start with a rating word", "references without a title link", "Shorten them"):
+            assert f"Note: 002-next.md" in said and note in said, (note, said)
         out = (log / "001-pick-a-voice.html").read_text(encoding="utf-8")
         assert '<p class="lead">Which voice speaks the answers?</p>' in out, "the description follows the Date line"
         assert out.index('<section class="decision">') < out.index("</section>") < out.index('id="matrix"'), "Decision callout"
         assert '<summary><span class="text">Fast local model.</span>' in out, "the description sits beside its arrow"
         assert out.index("<table") < out.index('<section class="scale">') < out.index('id="criteria"'), "scale below the matrix"
-        assert out.count("<section") == out.count("</section>") == 2
+        assert out.count("<section") == out.count("</section>") == 4
+        assert out.count('<section class="secondary">') == 2, "Evidence and References are secondary"
         assert out.index("<style>") > out.index('localStorage.getItem("theme")'), "a saved theme applies before the styles"
         assert 'data-theme-choice="system"' in out and "themeGroup.hidden = false" in out, "the theme switch"
         cells = re.findall(r'<td class="([^"]*)">(.*?)</td>', out)
         rated = [(c, t) for c, t in cells if "r-" in c]
         assert [c.split()[0] for c, _ in rated] == ["r-pos", "r-neg", "r-mix", "r-unk"], rated
-        assert all(t.startswith(("Supported", "Not supported", "Simulated", "Unknown")) for _, t in rated), rated
+        assert all('<span class="v">' in t and '<span class="sr">' in t and "<strong>" not in t for _, t in rated), rated
+        assert '<span class="v">Simulated: 0.3 s</span><span class="ctx">Model run only.</span>' in out, "a decimal does not end the key fact"
+        assert '<span class="v">Apache-2.0</span><span class="ctx">Permissive. <a class="ev" href="#e1">E1</a>.</span>' in out, "key fact, then context"
+        assert '<span class="v">Not measured</span></td>' in out, "a cell with no context"
+        assert '<p>One check ran. <a class="ev" href="#e2">E2</a>.</p>' in out, "an ID in the text links to its reference"
+        assert '<li><a class="ref-id" id="e1" href="#e1">E1</a>. <a href="https://example.com/alpha/license">Alpha license</a>' in out
+        assert 'href="https://example.com/beta?a=1&amp;b=2">Beta terms</a>' in out, "a title link is not linked twice"
         assert not MARK.search(out), "a color marker is left in the HTML"
         assert out.count('class="key"') == 1 and out.index('class="key"') < out.index("<table"), "one key above the matrix"
         assert '<span class="chip">Recommended</span>' in out and out.count("<details") == 2
@@ -441,6 +534,9 @@ def self_test():
         assert ("| 001 | Pick a voice | Which voice speaks the answers? | **Recommended** A. Alpha | Provisional | 2026-11-10 | "
                 "[Markdown](001-pick-a-voice.md) · [HTML](001-pick-a-voice.html) |") in readme, readme
         assert "| 002 | Next |  |  | Complete | 2026-11-11 |" in readme, readme
+        old = (log / "002-next.html").read_text(encoding="utf-8")
+        assert '<a href="https://example.com/terms">https://example.com/terms</a>. Read' in old, "a bare address becomes a link"
+        assert '<span class="sr">Supported: </span>Supported. $5. <a class="ev" href="#e1">E1</a>.' in old, "an older cell keeps its text"
         build(log)  # A second run overwrites its own files.
         locked = SAMPLE.replace("001. Pick a voice", "003. Locked voice").replace("Status: Provisional", "Status: Locked")
         (log / "003-locked.md").write_text(locked.replace("**Recommended**", "**Selected**"), encoding="utf-8")

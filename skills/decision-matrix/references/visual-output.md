@@ -28,12 +28,15 @@ Keep descriptions aligned with their option columns.
 
 Show previews only when they represent the compared variants.
 Keep text readable at narrow widths.
+Show the key fact of each cell on its own line, in regular weight.
+Show the basis and the evidence IDs below it, in smaller, fainter text.
+Link each evidence ID to its reference.
+Show the `## Evidence` and `## References` sections in smaller gray text.
 Use black text on light surfaces and responsive font sizes.
 Use clear traffic-light colors.
 Use green for Supported, yellow for Partial, and red for Not supported.
 Keep color fills distinct from the page background.
 Show a color key above the matrix.
-Use text labels alongside any rating colors.
 Keep Unknown gray or uncolored.
 Use yellow for Simulated with an explicit provisional label.
 Do not represent missing evidence as an observed middle outcome.

@@ -17,7 +17,8 @@
   --chip: light-dark(#dfe6ff, #263264); --chip-ink: light-dark(#1b2f8a, #cdd7ff);
   --cmd: light-dark(#14171f, #0c0e13); --panel: light-dark(#14171f, #1a1d24); --edge: light-dark(transparent, #2e323c);
   --note-bg: light-dark(#fbf3d9, #2c2615); --note-line: #b88d24; --sw-line: light-dark(rgba(0,0,0,.22), rgba(255,255,255,.3));
-  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #14171f; }
+  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #14171f;
+  --ctx-ink: rgb(0 0 0 / .63); /* faint text in the fill's own hue. It keeps 4.5:1 contrast on every rating fill. */ }
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 * { box-sizing: border-box; }
@@ -76,6 +77,10 @@ table { border-collapse: collapse; width: 100%; text-align: left; }
 .matrix tbody th em { font-style: normal; font-weight: 400; color: var(--muted); }
 [data-r="pos"] { background: var(--pos); } [data-r="mix"] { background: var(--mix); } [data-r="neg"] { background: var(--neg); } [data-r="unk"] { background: var(--unk); }
 td[data-r], td[data-rating], .rating-legend strong { color: var(--rated-ink); }
+/* A rated cell: the key fact on its own line, then the basis and evidence IDs in smaller gray text. */
+td .v { display: block; }
+td .ctx { display: block; margin-top: 6px; font-size: .86em; line-height: 1.45; color: var(--ctx-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .matrix .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 .chip { display: inline-block; margin-bottom: 4px; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: 12px; font-weight: 700; line-height: 1.6; }
 .chip.selected { background: var(--chip-ink); color: var(--chip); }

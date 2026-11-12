@@ -2,7 +2,7 @@
 name: decision-matrix
 description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, log, lock, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # Decision Matrix
@@ -99,23 +99,16 @@ Otherwise, explain its exclusion or use another justified baseline.
 For change decisions, consider a no-change or no-action option, including the benefits forgone by not acting.
 Use the current approach for this option when it already represents no change.
 Use the fewest options and criteria that cover the decision.
-Two to four options and three to six criteria usually fit one view.
-Retain additional options or criteria when the decision requires them.
+Use at most five criteria, unless the user names or asks for more.
+Two to four options usually fit one view. Retain more options when the decision requires them.
 
 For each option, record:
 
 - A stable identifier, title, and brief description of what the option is and how it works.
 - A link to its main page, such as its home page, documentation, repository, or model card.
-- A hypothesis that explains why the approach could address the problem.
-- A falsifier: an observation that would weaken that hypothesis.
-- Its build status (built, unbuilt, or unknown), only when the option is something to build.
-- A local artifact or preview link for each built variant, when available.
-- Its exploration status and supporting evidence.
 
-Use exploration status Observed, Researched, Simulated, Ruled out, or Untested.
-Use Researched when cited sources describe the option, but nobody observed it on the shared task.
-Use Ruled out only when evidence establishes a constraint violation or weakens the hypothesis enough to reject it.
-An unbuilt option can still have useful research or simulation evidence.
+When you test or build options, also record a hypothesis, a falsifier, and a status for each one, as in [the experiment rules](references/experiments.md).
+Rule out an option only when evidence shows that it fails a required constraint.
 Do not treat an implementation assumption as evidence against an alternative.
 Check relevant precedents before claiming novelty.
 Keep novelty unknown when no comparison supports the claim.
@@ -127,20 +120,9 @@ Otherwise, choose the smallest comparison that could change the next action.
 Research, sketches, a technical check, or one interaction can be sufficient.
 Do not build complete products merely to populate the matrix.
 
-Before an experiment, save its plan.
-If you cannot write files, put the plan in the answer.
-The plan contains:
-
-- The question and method.
-- The baseline and included options.
-- The shared task, inputs, and measures.
-- Measures that require actual human observations.
-- The decision rule, including an inconclusive outcome.
-- The resource limit and stopping condition.
-
+An experiment compares options on a shared task. A quote, a call, or a search is a next action, not an experiment.
+Before you plan, run, or report an experiment, read [the experiment rules](references/experiments.md).
 Explore every listed option before presenting a final comparative recommendation.
-Use the same task and measures for comparable tests.
-Preserve inspectable variants when implementation affects the result.
 Keep the recommendation provisional when an option remains untested or a planned result remains unavailable.
 When execution exceeds the request, provide the provisional matrix and the experiment plan.
 Do not run that experiment without the necessary authorization.
@@ -163,8 +145,8 @@ Binary constraints need no artificial middle rating.
 
 Adapt these labels when the task needs another clearly defined scale.
 Keep Unknown and Simulated explicit.
-For each cell, provide the rating, a concise basis, and evidence references for known claims.
 Use local paths, source links, test records, or identifiable user input as evidence references.
+Give each evidence reference an ID: E1, E2, and so on.
 Record each observation's method, date, and relevant scope.
 Explain the missing evidence for Unknown cells.
 Do not cite an assumption as proof of an unmeasured outcome.
@@ -201,14 +183,6 @@ Do not infer consensus from silence.
 Preserve the distinction between the agent's recommendation and the user's actual selection.
 Recommendations do not authorize scope changes or override resource limits.
 
-After an experiment, report every planned measure, including unknown results.
-Apply the saved decision rule to the observed evidence.
-Classify the result as supports, challenges, or inconclusive.
-Update the affected ratings before presenting the revised recommendation.
-Preserve earlier decisions and contradictory evidence.
-Link each revision to its predecessor, new evidence, and reason for change.
-Do not remove compared options merely because they performed poorly.
-
 ## Present the matrix
 
 For a personal decision that is easy to reverse, keep the answer short.
@@ -226,25 +200,37 @@ Place **Recommended** at the top of the recommended option's header, above its l
 Use only **Recommended** or **Selected** as the chip text.
 Keep bold text as the fallback for plain Markdown.
 Keep the option letter and title in that header.
-State the recommendation action in the explanation above the matrix.
 Keep provisional recommendations explicitly provisional.
 Place each description inside its option header, beneath the title.
-Explain what each option is and how it works in one short sentence.
+Explain what each option is and how it works in eight words or fewer.
 If collapsible content is unavailable, show the sentence in italic text within the option header.
+Keep each criterion label to four words or fewer, such as `Lease per month`. Give its terms with its source.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
 Mention each left-out criterion in one line below the matrix.
-Place the rating, basis, and evidence reference together in each cell.
+Write each rating cell in this order:
+
+1. The color marker, in Markdown only.
+2. The key fact, in four words or fewer, as the first sentence: the number or phrase that the criterion asks about, such as `$42,640.` or `IIHS Top Safety Pick.`
+3. The basis or the main limit, in one short sentence. Put calculations and other details in `## Evidence`.
+4. The evidence IDs, such as E2, E3.
+
+Do not write the rating word, such as Supported or Partial, in the cell. The color shows the rating.
+Do not use bold or italic text in rating cells. Give every option the same text style.
+For a Simulated rating, start the key fact with "Simulated:".
+For an Unknown rating, make the missing evidence the key fact, such as `Not tested.`
+When the matrix has scores, add the score to the key fact, such as `0.29 s, score 5.`
 Link each tool, framework, model, service, or standard at its first mention.
 Link each option title in the matrix header to the option's main page.
+Open the option's main page before you link it.
 Give only links that you opened or that a cited source gives. Do not guess an address.
 Link local files with paths relative to the output file.
 Show each rating's color in one way only. The output format sets the way:
 
 | Output | Rating cell | Color key above the matrix |
 | --- | --- | --- |
-| Plain Markdown | Start the rating with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown. | The same markers. |
-| Visual, such as HTML | Fill the cell with its background color. Start the cell with the rating text. | Color swatches. |
+| Plain Markdown | Start the cell with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown. | The markers and their labels. |
+| Visual, such as HTML | Fill the cell with its background color. | Color swatches and their labels. |
 
 Never combine color markers and background fills.
 When you convert Markdown output to HTML, replace each marker with its background fill.
@@ -256,6 +242,8 @@ A complete comparison does not prove that every required outcome passed.
 
 Before you make visual output without the bundled script, read [the visual rules](references/visual-output.md).
 
+Say each fact once, in the section that the layout gives it.
+Leave out lines that only say that nothing applies, such as no weights or no left-out criteria.
 Use one instruction per sentence.
 Limit instructions to 20 words and descriptions to 25 words.
 Use periods, commas, colons, or parentheses instead of em dashes.
@@ -273,6 +261,7 @@ State skipped checks and material risks.
 
 Save each decision matrix that you make in a project folder to the project's decision log.
 Keep a decision without a project folder, such as a personal choice, in the answer only.
+For a logged decision, give the decision and the next action in the reply, with links to the decision file and its page. Do not repeat the matrix.
 Use the project's existing decisions folder, if it has one. Otherwise, use `docs/decisions/`.
 
 Save each decision in its own file, named `NNN-short-title.md`.
@@ -282,15 +271,16 @@ Use this layout for each decision file, in this order:
 1. The number and title as a heading, such as `# 001. Speech-out voice`.
 2. The date and status, such as `Date: 2026-11-10 · Status: Provisional`.
 3. The decision question, in one sentence. The log index shows this sentence as the description.
-4. `## Decision`: start with the recommended or selected option and the main reason. Then give the accepted trade-off, the next action, and what could change the decision.
+4. `## Decision`: four paragraphs of one sentence each: the recommended or selected option and the main reason, then `Trade-off:`, `Next:`, and `Reconsider:`.
 5. `## Matrix`: the color key, the matrix, and the criteria that you left out. Then explain the rating scale and any weights in a `### Rating scale` subsection.
 6. `## Criteria`: the intended outcome, the shared task, and each criterion with its source.
-7. `## Options`: the baseline, then each option with its link, description, hypothesis, falsifier, and status. Then the options that you ruled out.
-8. `## Evidence`: the evidence limits, and the checks that you ran and did not run.
-9. `## References`: each page that the decision links to, with its title, link, and the date that you read it.
+7. `## Options`: the baseline and the options that you ruled out. When you test the options, add the hypothesis, falsifier, and status of each.
+8. `## Evidence`: the evidence limits, then the checks that you ran and did not run, one line each. When the next action is an experiment, put its plan in a `### Next experiment` subsection.
+9. `## References`: one list item for each page that the decision cites or links to. Give its ID, a link with the page's own title as the text, and the publisher, such as `E1. [Lease offers](https://example.com/offers), Example Motors.` Give the read date once above the list, or in each item when the dates differ. Do not write a bare address.
 10. `## Revisions`, when the decision has revisions.
 
 When you change a decision file that has another layout, change it to this layout.
+Also change its cells and references to the rules in this skill.
 
 Use Provisional, Complete, or Locked as the status.
 Set the status to Locked only when the user chooses an option.
@@ -300,7 +290,9 @@ Change a Locked decision only when the user reopens it.
 
 When new evidence changes a decision, update its file. Do not make a new file.
 Add a `## Revisions` section at the end of the file, with the newest revision first.
-For each revision, give the date, the new evidence, and what changed.
+For each revision, give the date and the new evidence or the user's words. Then give what changed, in three short bullets or fewer.
+Preserve earlier decisions and contradictory evidence.
+Do not remove compared options merely because they performed poorly.
 
 After each change to the log, run the bundled script. Give the full path of the script and of the decisions folder:
 
@@ -309,10 +301,8 @@ python3 <skill folder>/scripts/render_html.py <project>/docs/decisions
 ```
 
 The script writes an HTML page beside each decision file, and an index as `README.md` and `index.html`.
-The index shows the description, outcome, status, and date of each decision.
-The script gives a note for each file that does not use the layout.
+The script gives a note for each file that does not use the layout, the cell order, or reference links.
 The pages follow "Present the matrix" and [the visual rules](references/visual-output.md), and link to their Markdown files.
-Each page follows the reader's light or dark system setting, and has a switch for System, Light, and Dark.
 Make all HTML versions of a decision matrix with this script.
 Do not edit the files that the script writes.
 When the user asks for HTML of a matrix outside the log, add the matrix to the log first.

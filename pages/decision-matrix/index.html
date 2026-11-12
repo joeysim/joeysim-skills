@@ -15,7 +15,8 @@
   --chip: light-dark(#dfe6ff, #263264); --chip-ink: light-dark(#1b2f8a, #cdd7ff);
   --cmd: light-dark(#14171f, #0c0e13); --panel: light-dark(#14171f, #1a1d24); --edge: light-dark(transparent, #2e323c);
   --note-bg: light-dark(#fbf3d9, #2c2615); --note-line: #b88d24; --sw-line: light-dark(rgba(0,0,0,.22), rgba(255,255,255,.3));
-  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #14171f; }
+  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #14171f;
+  --ctx-ink: rgb(0 0 0 / .63); /* faint text in the fill's own hue. It keeps 4.5:1 contrast on every rating fill. */ }
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 * { box-sizing: border-box; }
@@ -74,6 +75,10 @@ table { border-collapse: collapse; width: 100%; text-align: left; }
 .matrix tbody th em { font-style: normal; font-weight: 400; color: var(--muted); }
 [data-r="pos"] { background: var(--pos); } [data-r="mix"] { background: var(--mix); } [data-r="neg"] { background: var(--neg); } [data-r="unk"] { background: var(--unk); }
 td[data-r], td[data-rating], .rating-legend strong { color: var(--rated-ink); }
+/* A rated cell: the key fact on its own line, then the basis and evidence IDs in smaller gray text. */
+td .v { display: block; }
+td .ctx { display: block; margin-top: 6px; font-size: .86em; line-height: 1.45; color: var(--ctx-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .matrix .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 .chip { display: inline-block; margin-bottom: 4px; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: 12px; font-weight: 700; line-height: 1.6; }
 .chip.selected { background: var(--chip-ink); color: var(--chip); }
@@ -217,13 +222,13 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <div class="hero-copy"><p class="lead">A skill for coding agents. Ask your agent to compare options, and it rates each one against the same criteria. Every rating cites its evidence. Unknowns stay unknown. You get one clear next step.</p>
 <div class="get"><div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill decision-matrix</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill decision-matrix">Copy</button></div>
 <p class="ask">Then ask your agent: <code>Create a decision matrix.</code></p>
-<p class="version">Version 1.4.0. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
+<p class="version">Version 1.5.0. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
 </section>
 <figure class="specimen" aria-labelledby="specimen-title">
 <div class="sheet">
 <p class="sheet-q" id="specimen-title">Which approach merits the next test?</p>
 <p class="key" aria-label="Color key"><span><i class="sw" data-r="pos"></i>Supported</span><span><i class="sw" data-r="mix"></i>Partial or Simulated</span><span><i class="sw" data-r="neg"></i>Not supported</span><span><i class="sw" data-r="unk"></i>Unknown</span></p>
-<div class="table-scroll" role="region" aria-label="Example decision matrix" tabindex="0"><table class="matrix"><colgroup><col class="criterion"><col><col><col></colgroup><thead><tr><th scope="col">Criterion</th><th scope="col">A. Current form<details class="desc" open><summary><span class="text">Edit values directly in the existing form.</span><span class="closed">Description</span></summary></details></th><th scope="col" class="rec"><span class="pin on-head" aria-hidden="true">1</span><span class="chip">Recommended</span><br>B. Guided prototype<details class="desc" open><summary><span class="text">Guided prompts correct one value at a time.</span><span class="closed">Description</span></summary></details></th><th scope="col">C. Hosted assistant<details class="desc" open><summary><span class="text">An online assistant corrects the value for you.</span><span class="closed">Description</span></summary></details></th></tr></thead><tbody><tr><th scope="row">1. Offline task <em>(Required)</em></th><td data-r="pos" style="--i:0">Supported. Finished the task offline. E1.</td><td data-r="pos" class="rec" style="--i:1"><span class="pin on-cell" aria-hidden="true">4</span>Supported. Finished the same task offline. E2.</td><td data-r="neg" style="--i:2"><span class="pin on-cell" aria-hidden="true">2</span>Not supported. Needs a network connection. E4.</td></tr><tr><th scope="row">2. Monthly cost <em>(Required)</em></th><td data-r="pos" style="--i:3">Supported. $0 per month. E1.</td><td data-r="pos" class="rec" style="--i:4">Supported. $2 per month. E2.</td><td data-r="neg" style="--i:5">Not supported. $8 is over the $5 limit. E4.</td></tr><tr><th scope="row">3. Fewer corrections</th><td data-r="unk" style="--i:6"><span class="pin on-cell" aria-hidden="true">3</span>Unknown. No person has tested the current form.</td><td data-r="mix" class="rec" style="--i:7">Simulated. A model predicts fewer corrections. No person tested it. E3.</td><td data-r="unk" style="--i:8">Unknown. No person tested this option.</td></tr></tbody></table></div>
+<div class="table-scroll" role="region" aria-label="Example decision matrix" tabindex="0"><table class="matrix"><colgroup><col class="criterion"><col><col><col></colgroup><thead><tr><th scope="col">Criterion</th><th scope="col">A. Current form<details class="desc" open><summary><span class="text">Edit values directly in the existing form.</span><span class="closed">Description</span></summary></details></th><th scope="col" class="rec"><span class="pin on-head" aria-hidden="true">1</span><span class="chip">Recommended</span><br>B. Guided prototype<details class="desc" open><summary><span class="text">Guided prompts correct one value at a time.</span><span class="closed">Description</span></summary></details></th><th scope="col">C. Hosted assistant<details class="desc" open><summary><span class="text">An online assistant corrects the value for you.</span><span class="closed">Description</span></summary></details></th></tr></thead><tbody><tr><th scope="row">1. Offline task <em>(Required)</em></th><td data-r="pos" style="--i:0"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the task offline. E1.</span></td><td data-r="pos" class="rec" style="--i:1"><span class="pin on-cell" aria-hidden="true">4</span><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the same task offline. E2.</span></td><td data-r="neg" style="--i:2"><span class="pin on-cell" aria-hidden="true">2</span><span class="sr">Not supported: </span><span class="v">Needs a network</span><span class="ctx">The service requires a network connection. E4.</span></td></tr><tr><th scope="row">2. Monthly cost <em>(Required)</em></th><td data-r="pos" style="--i:3"><span class="sr">Supported: </span><span class="v">$0 per month</span><span class="ctx">E1.</span></td><td data-r="pos" class="rec" style="--i:4"><span class="sr">Supported: </span><span class="v">$2 per month</span><span class="ctx">E2.</span></td><td data-r="neg" style="--i:5"><span class="sr">Not supported: </span><span class="v">$8 per month</span><span class="ctx">Over the $5 limit. E4.</span></td></tr><tr><th scope="row">3. Fewer corrections</th><td data-r="unk" style="--i:6"><span class="pin on-cell" aria-hidden="true">3</span><span class="sr">Unknown: </span><span class="v">No human baseline</span><span class="ctx">Nobody measured corrections in the current form.</span></td><td data-r="mix" class="rec" style="--i:7"><span class="sr">Partial or Simulated: </span><span class="v">Simulated: fewer corrections</span><span class="ctx">A model predicted it, but no person tested it. E3.</span></td><td data-r="unk" style="--i:8"><span class="sr">Unknown: </span><span class="v">Not tested</span><span class="ctx">No person tested this option.</span></td></tr></tbody></table></div>
 </div>
 <figcaption>
 <ol class="notes">
@@ -274,7 +279,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 </section>
 <details class="full" id="skill">
 <summary><span class="full-title">Read the full skill</span><span class="full-sub">The complete instructions that your agent follows, and a worked example.</span></summary>
-<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#visual-output">Visual output rules</a><a class="example-link" href="#example">Worked example</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
+<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#visual-output">Visual output rules</a><a class="example-link" href="#experiments">Experiment rules</a><a class="example-link" href="#example">Worked example</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
 This standalone method requires no specific application, service, or database.</p>
 <p>Use this method when alternatives could materially change the result.
 For routine choices, give a direct answer unless the user requests a matrix.
@@ -348,22 +353,15 @@ Otherwise, explain its exclusion or use another justified baseline.
 For change decisions, consider a no-change or no-action option, including the benefits forgone by not acting.
 Use the current approach for this option when it already represents no change.
 Use the fewest options and criteria that cover the decision.
-Two to four options and three to six criteria usually fit one view.
-Retain additional options or criteria when the decision requires them.</p>
+Use at most five criteria, unless the user names or asks for more.
+Two to four options usually fit one view. Retain more options when the decision requires them.</p>
 <p>For each option, record:</p>
 <ul>
 <li>A stable identifier, title, and brief description of what the option is and how it works.</li>
 <li>A link to its main page, such as its home page, documentation, repository, or model card.</li>
-<li>A hypothesis that explains why the approach could address the problem.</li>
-<li>A falsifier: an observation that would weaken that hypothesis.</li>
-<li>Its build status (built, unbuilt, or unknown), only when the option is something to build.</li>
-<li>A local artifact or preview link for each built variant, when available.</li>
-<li>Its exploration status and supporting evidence.</li>
 </ul>
-<p>Use exploration status Observed, Researched, Simulated, Ruled out, or Untested.
-Use Researched when cited sources describe the option, but nobody observed it on the shared task.
-Use Ruled out only when evidence establishes a constraint violation or weakens the hypothesis enough to reject it.
-An unbuilt option can still have useful research or simulation evidence.
+<p>When you test or build options, also record a hypothesis, a falsifier, and a status for each one, as in <a href="#experiments">the experiment rules</a>.
+Rule out an option only when evidence shows that it fails a required constraint.
 Do not treat an implementation assumption as evidence against an alternative.
 Check relevant precedents before claiming novelty.
 Keep novelty unknown when no comparison supports the claim.</p>
@@ -372,20 +370,9 @@ Keep novelty unknown when no comparison supports the claim.</p>
 Otherwise, choose the smallest comparison that could change the next action.
 Research, sketches, a technical check, or one interaction can be sufficient.
 Do not build complete products merely to populate the matrix.</p>
-<p>Before an experiment, save its plan.
-If you cannot write files, put the plan in the answer.
-The plan contains:</p>
-<ul>
-<li>The question and method.</li>
-<li>The baseline and included options.</li>
-<li>The shared task, inputs, and measures.</li>
-<li>Measures that require actual human observations.</li>
-<li>The decision rule, including an inconclusive outcome.</li>
-<li>The resource limit and stopping condition.</li>
-</ul>
-<p>Explore every listed option before presenting a final comparative recommendation.
-Use the same task and measures for comparable tests.
-Preserve inspectable variants when implementation affects the result.
+<p>An experiment compares options on a shared task. A quote, a call, or a search is a next action, not an experiment.
+Before you plan, run, or report an experiment, read <a href="#experiments">the experiment rules</a>.
+Explore every listed option before presenting a final comparative recommendation.
 Keep the recommendation provisional when an option remains untested or a planned result remains unavailable.
 When execution exceeds the request, provide the provisional matrix and the experiment plan.
 Do not run that experiment without the necessary authorization.</p>
@@ -398,7 +385,7 @@ Binary constraints need no artificial middle rating.</p>
 <div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>Rating</th><th>Meaning</th></tr></thead><tbody><tr><td>Supported</td><td>Cited evidence supports the criterion within the stated limits.</td></tr><tr><td>Partial</td><td>Cited evidence supports only part of the criterion or includes material limitations.</td></tr><tr><td>Not supported</td><td>Cited evidence shows a failure against the criterion.</td></tr><tr><td>Unknown</td><td>The available evidence does not establish the outcome.</td></tr><tr><td>Simulated</td><td>A model simulation supplies a provisional judgment, not a human observation.</td></tr></tbody></table></div>
 <p>Adapt these labels when the task needs another clearly defined scale.
 Keep Unknown and Simulated explicit.
-For each cell, provide the rating, a concise basis, and evidence references for known claims.
+Give each evidence reference an ID: E1, E2, and so on.
 Use local paths, source links, test records, or identifiable user input as evidence references.
 Record each observation&#x27;s method, date, and relevant scope.
 Explain the missing evidence for Unknown cells.
@@ -432,13 +419,6 @@ Identify what evidence or user choice could resolve that disagreement.
 Do not infer consensus from silence.
 Preserve the distinction between the agent&#x27;s recommendation and the user&#x27;s actual selection.
 Recommendations do not authorize scope changes or override resource limits.</p>
-<p>After an experiment, report every planned measure, including unknown results.
-Apply the saved decision rule to the observed evidence.
-Classify the result as supports, challenges, or inconclusive.
-Update the affected ratings before presenting the revised recommendation.
-Preserve earlier decisions and contradictory evidence.
-Link each revision to its predecessor, new evidence, and reason for change.
-Do not remove compared options merely because they performed poorly.</p>
 <h2 id="present-the-matrix">Present the matrix</h2>
 <p>For a personal decision that is easy to reverse, keep the answer short.
 Give the recommendation, the criteria with sources, the matrix, what could change the answer, and the evidence.
@@ -454,21 +434,33 @@ Place <strong>Recommended</strong> at the top of the recommended option&#39;s he
 Use only <strong>Recommended</strong> or <strong>Selected</strong> as the chip text.
 Keep bold text as the fallback for plain Markdown.
 Keep the option letter and title in that header.
-State the recommendation action in the explanation above the matrix.
 Keep provisional recommendations explicitly provisional.
 Place each description inside its option header, beneath the title.
-Explain what each option is and how it works in one short sentence.
+Explain what each option is and how it works in eight words or fewer.
 If collapsible content is unavailable, show the sentence in italic text within the option header.
+Keep each criterion label to four words or fewer, such as <code>Lease per month</code>. Give its terms with its source.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
 Mention each left-out criterion in one line below the matrix.
-Place the rating, basis, and evidence reference together in each cell.
+Write each rating cell in this order:</p>
+<ol>
+<li>The color marker, in Markdown only.</li>
+<li>The key fact, in four words or fewer, as the first sentence: the number or phrase that the criterion asks about, such as <code>$42,640.</code> or <code>IIHS Top Safety Pick.</code></li>
+<li>The basis or the main limit, in one short sentence. Put calculations and other details in <code>## Evidence</code>.</li>
+<li>The evidence IDs, such as E2, E3.</li>
+</ol>
+<p>Do not write the rating word, such as Supported or Partial, in the cell. The color shows the rating.
+Do not use bold or italic text in rating cells. Give every option the same text style.
+For a Simulated rating, start the key fact with &quot;Simulated:&quot;.
+For an Unknown rating, make the missing evidence the key fact, such as <code>Not tested.</code>
+When the matrix has scores, add the score to the key fact, such as <code>0.29 s, score 5.</code>
 Link each tool, framework, model, service, or standard at its first mention.
 Link each option title in the matrix header to the option&#39;s main page.
+Open the option&#39;s main page before you link it.
 Give only links that you opened or that a cited source gives. Do not guess an address.
 Link local files with paths relative to the output file.
 Show each rating&#x27;s color in one way only. The output format sets the way:</p>
-<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>Output</th><th>Rating cell</th><th>Color key above the matrix</th></tr></thead><tbody><tr><td>Plain Markdown</td><td>Start the rating with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown.</td><td>The same markers.</td></tr><tr><td>Visual, such as HTML</td><td>Fill the cell with its background color. Start the cell with the rating text.</td><td>Color swatches.</td></tr></tbody></table></div>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>Output</th><th>Rating cell</th><th>Color key above the matrix</th></tr></thead><tbody><tr><td>Plain Markdown</td><td>Start the cell with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown.</td><td>The markers and their labels.</td></tr><tr><td>Visual, such as HTML</td><td>Fill the cell with its background color.</td><td>Color swatches and their labels.</td></tr></tbody></table></div>
 <p>Never combine color markers and background fills.
 When you convert Markdown output to HTML, replace each marker with its background fill.</p>
 <p>Keep criterion sources, and any option hypotheses you show, close to the table.
@@ -476,7 +468,9 @@ When you show statuses, keep exploration status and build status separate from t
 State whether the comparison is provisional or complete.
 A complete comparison does not prove that every required outcome passed.</p>
 <p>Before you make visual output without the bundled script, read <a href="#visual-output">the visual rules</a>.</p>
-<p>Use one instruction per sentence.
+<p>Say each fact once, in the section that the layout gives it.
+Leave out lines that only say that nothing applies, such as no weights or no left-out criteria.
+Use one instruction per sentence.
 Limit instructions to 20 words and descriptions to 25 words.
 Use periods, commas, colons, or parentheses instead of em dashes.
 Preserve necessary precision, exact quotations, identifiers, and uncertainty.
@@ -489,6 +483,7 @@ State skipped checks and material risks.</p>
 <h2 id="keep-a-decision-log">Keep a decision log</h2>
 <p>Save each decision matrix that you make in a project folder to the project&#39;s decision log.
 Keep a decision without a project folder, such as a personal choice, in the answer only.
+For a logged decision, give the decision and the next action in the reply, with links to the decision file and its page. Do not repeat the matrix.
 Use the project&#39;s existing decisions folder, if it has one. Otherwise, use <code>docs/decisions/</code>.</p>
 <p>Save each decision in its own file, named <code>NNN-short-title.md</code>.
 Number the files in order: 001, 002, and so on.
@@ -497,15 +492,16 @@ Use this layout for each decision file, in this order:</p>
 <li>The number and title as a heading, such as <code># 001. Speech-out voice</code>.</li>
 <li>The date and status, such as <code>Date: 2026-11-10 · Status: Provisional</code>.</li>
 <li>The decision question, in one sentence. The log index shows this sentence as the description.</li>
-<li><code>## Decision</code>: start with the recommended or selected option and the main reason. Then give the accepted trade-off, the next action, and what could change the decision.</li>
+<li><code>## Decision</code>: four paragraphs of one sentence each: the recommended or selected option and the main reason, then <code>Trade-off:</code>, <code>Next:</code>, and <code>Reconsider:</code>.</li>
 <li><code>## Matrix</code>: the color key, the matrix, and the criteria that you left out. Then explain the rating scale and any weights in a <code>### Rating scale</code> subsection.</li>
 <li><code>## Criteria</code>: the intended outcome, the shared task, and each criterion with its source.</li>
-<li><code>## Options</code>: the baseline, then each option with its link, description, hypothesis, falsifier, and status. Then the options that you ruled out.</li>
-<li><code>## Evidence</code>: the evidence limits, and the checks that you ran and did not run.</li>
-<li><code>## References</code>: each page that the decision links to, with its title, link, and the date that you read it.</li>
+<li><code>## Options</code>: the baseline and the options that you ruled out. When you test the options, add the hypothesis, falsifier, and status of each.</li>
+<li><code>## Evidence</code>: the evidence limits, then the checks that you ran and did not run, one line each. When the next action is an experiment, put its plan in a <code>### Next experiment</code> subsection.</li>
+<li><code>## References</code>: one list item for each page that the decision cites or links to. Give its ID, a link with the page&#39;s own title as the text, and the publisher, such as <code>E1. [Lease offers](https://example.com/offers), Example Motors.</code> Give the read date once above the list, or in each item when the dates differ. Do not write a bare address.</li>
 <li><code>## Revisions</code>, when the decision has revisions.</li>
 </ol>
-<p>When you change a decision file that has another layout, change it to this layout.</p>
+<p>When you change a decision file that has another layout, change it to this layout.
+Also change its cells and references to the rules in this skill.</p>
 <p>Use Provisional, Complete, or Locked as the status.
 Set the status to Locked only when the user chooses an option.
 Then remove <strong>Recommended</strong>, and put <strong>Selected</strong> at the top of the selected option&#39;s header.
@@ -513,14 +509,14 @@ Add a revision entry with the date, the user&#39;s words, and your earlier recom
 Change a Locked decision only when the user reopens it.</p>
 <p>When new evidence changes a decision, update its file. Do not make a new file.
 Add a <code>## Revisions</code> section at the end of the file, with the newest revision first.
-For each revision, give the date, the new evidence, and what changed.</p>
+For each revision, give the date and the new evidence or the user&#39;s words. Then give what changed, in three short bullets or fewer.
+Preserve earlier decisions and contradictory evidence.
+Do not remove compared options merely because they performed poorly.</p>
 <p>After each change to the log, run the bundled script. Give the full path of the script and of the decisions folder:</p>
 <p><code>python3 &lt;skill folder&gt;/scripts/render_html.py &lt;project&gt;/docs/decisions</code></p>
 <p>The script writes an HTML page beside each decision file, and an index as <code>README.md</code> and <code>index.html</code>.
-The index shows the description, outcome, status, and date of each decision.
-The script gives a note for each file that does not use the layout.
+The script gives a note for each file that does not use the layout, the cell order, or reference links.
 The pages follow &quot;Present the matrix&quot; and <a href="#visual-output">the visual rules</a>, and link to their Markdown files.
-Each page follows the reader&#39;s light or dark system setting, and has a switch for System, Light, and Dark.
 Make all HTML versions of a decision matrix with this script.
 Do not edit the files that the script writes.
 When the user asks for HTML of a matrix outside the log, add the matrix to the log first.
@@ -549,19 +545,58 @@ Keep descriptions aligned with their option columns.</p>
 <h3 id="visual-output-layout-and-color">Layout and color</h3>
 <p>Show previews only when they represent the compared variants.
 Keep text readable at narrow widths.
+Show the key fact of each cell on its own line, in regular weight.
+Show the basis and the evidence IDs below it, in smaller, fainter text.
+Link each evidence ID to its reference.
+Show the <code>## Evidence</code> and <code>## References</code> sections in smaller gray text.
 Use black text on light surfaces and responsive font sizes.
 Use clear traffic-light colors.
 Use green for Supported, yellow for Partial, and red for Not supported.
 Keep color fills distinct from the page background.
 Show a color key above the matrix.
-Use text labels alongside any rating colors.
 Keep Unknown gray or uncolored.
 Use yellow for Simulated with an explicit provisional label.
 Do not represent missing evidence as an observed middle outcome.
 Use a border as an optional secondary marker for the recommended column.
-Colors and layout do not establish evidence quality.</p></article><article class="example" aria-label="Fictional worked example"><h2 id="example">Worked example</h2>
+Colors and layout do not establish evidence quality.</p></article><article class="example" aria-label="Experiment rules"><h2 id="experiments">Experiments</h2>
+<p>These rules apply when you test or build options to compare them.
+An experiment compares options on a shared task.</p>
+<h3 id="experiments-options-in-an-experiment">Options in an experiment</h3>
+<p>For each option, also record:</p>
+<ul>
+<li>A hypothesis that explains why the approach could address the problem.</li>
+<li>A falsifier: an observation that would weaken that hypothesis.</li>
+<li>Its build status (built, unbuilt, or unknown), only when the option is something to build.</li>
+<li>A local artifact or preview link for each built variant, when available.</li>
+<li>Its exploration status and supporting evidence.</li>
+</ul>
+<p>Use exploration status Observed, Researched, Simulated, Ruled out, or Untested.
+Use Researched when cited sources describe the option, but nobody observed it on the shared task.
+Use Ruled out only when evidence establishes a constraint violation or weakens the hypothesis enough to reject it.
+An unbuilt option can still have useful research or simulation evidence.</p>
+<h3 id="experiments-before-an-experiment">Before an experiment</h3>
+<p>Save its plan.
+If you cannot write files, put the plan in the answer.
+Give each part of the plan one line:</p>
+<ul>
+<li>The question and method.</li>
+<li>The baseline and included options.</li>
+<li>The shared task, inputs, and measures.</li>
+<li>Measures that require actual human observations.</li>
+<li>The decision rule, including an inconclusive outcome.</li>
+<li>The resource limit and stopping condition.</li>
+</ul>
+<p>Use the same task and measures for comparable tests.
+Preserve inspectable variants when implementation affects the result.</p>
+<h3 id="experiments-after-an-experiment">After an experiment</h3>
+<p>Report every planned measure, including unknown results.
+Apply the saved decision rule to the observed evidence.
+Classify the result as supports, challenges, or inconclusive.
+Update the affected ratings before presenting the revised recommendation.
+Link each revision to its predecessor, new evidence, and reason for change.</p></article><article class="example" aria-label="Fictional worked example"><h2 id="example">Worked example</h2>
 <p>This example is fictional. Its evidence labels represent supplied records, not sources to cite in real decisions.
-Real matrices must link to actual evidence.</p>
+Real matrices must link to actual evidence.
+This example shows the reasoning, not the layout of a decision file.</p>
 <h3 id="example-supplied-request-and-evidence">Supplied request and evidence</h3>
 <p>User request U1: &quot;The tool must run offline and cost no more than $5 per month. I want fewer corrections.&quot;</p>
 <p>The user supplied no options. The agent proposed alternatives from the goal and current workflow before collecting the evidence below.</p>
@@ -606,8 +641,7 @@ This assumption remains revisable. It does not create a new user requirement.</p
 <p>Scale: Supported means evidence meets the criterion. Not supported means evidence shows a failure.
 Unknown means the outcome lacks evidence. Simulated means a model supplied the judgment.</p>
 <p class="rating-legend">Color key: <strong>Green</strong>: Supported. <strong>Yellow</strong>: Partial or Simulated. <strong>Red</strong>: Not supported. <strong>Gray</strong>: Unknown.</p>
-<p>Recommendation action: Test B against baseline A. The recommendation remains provisional.</p>
-<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Criterion</th><th class="option-header">A. Current form <details class="desc" open><summary><span class="text">Edit values directly in the existing form.</span><span class="closed">Description</span></summary></details></th><th class="option-header"><span class="chip">Recommended</span><br>B. Guided prototype <details class="desc" open><summary><span class="text">Follow guided prompts to correct one value at a time.</span><span class="closed">Description</span></summary></details></th><th class="option-header">C. Hosted assistant <details class="desc" open><summary><span class="text">Ask an online assistant to correct a value.</span><span class="closed">Description</span></summary></details></th></tr></thead><tbody><tr><td>1. Offline task (Required)</td><td data-rating="positive">Supported. The browser completed the task offline. E1.</td><td data-rating="positive">Supported. The browser completed the same task offline. E2.</td><td data-rating="negative">Not supported. The service requires a network connection. E4.</td></tr><tr><td>2. Monthly cost (Required)</td><td data-rating="positive">Supported. $0 per month. E1.</td><td data-rating="positive">Supported. $2 per month. E2.</td><td data-rating="negative">Not supported. $8 exceeds the $5 limit. E4.</td></tr><tr><td>3. Fewer corrections</td><td data-rating="unknown">Unknown. No human baseline exists.</td><td data-rating="simulated">Simulated. The model predicted improvement. The actual human outcome remains unknown. E3.</td><td data-rating="unknown">Unknown. No person tested this option.</td></tr></tbody></table></div>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Criterion</th><th class="option-header">A. Current form <details class="desc" open><summary><span class="text">Edit values directly in the existing form.</span><span class="closed">Description</span></summary></details></th><th class="option-header"><span class="chip">Recommended</span><br>B. Guided prototype <details class="desc" open><summary><span class="text">Follow guided prompts to correct one value at a time.</span><span class="closed">Description</span></summary></details></th><th class="option-header">C. Hosted assistant <details class="desc" open><summary><span class="text">Ask an online assistant to correct a value.</span><span class="closed">Description</span></summary></details></th></tr></thead><tbody><tr><td>1. Offline task (Required)</td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the task offline. E1.</span></td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the same task offline. E2.</span></td><td data-rating="negative"><span class="sr">Not supported: </span><span class="v">Needs a network</span><span class="ctx">The service requires a network connection. E4.</span></td></tr><tr><td>2. Monthly cost (Required)</td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">$0 per month</span><span class="ctx">E1.</span></td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">$2 per month</span><span class="ctx">E2.</span></td><td data-rating="negative"><span class="sr">Not supported: </span><span class="v">$8 per month</span><span class="ctx">Over the $5 limit. E4.</span></td></tr><tr><td>3. Fewer corrections</td><td data-rating="unknown"><span class="sr">Unknown: </span><span class="v">No human baseline</span><span class="ctx">Nobody measured corrections in the current form.</span></td><td data-rating="simulated"><span class="sr">Partial or Simulated: </span><span class="v">Simulated: fewer corrections</span><span class="ctx">A model predicted it, but no person tested it. E3.</span></td><td data-rating="unknown"><span class="sr">Unknown: </span><span class="v">Not tested</span><span class="ctx">No person tested this option.</span></td></tr></tbody></table></div>
 <p>There is no total score.
 A favorable prediction cannot compensate for a failed required constraint.
 Exploration evidence for an option does not establish every outcome for that option.</p>
@@ -627,7 +661,7 @@ A later decision must retain this record and explain any changed recommendation.
 Risk: Simulated improvement may not transfer to actual use.</p></article></div></div>
 </details>
 </main>
-<footer><span>Decision Matrix, version 1.4.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
+<footer><span>Decision Matrix, version 1.5.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
 </div>
 <script>
 // Open the full skill when a link or the address points into it.
