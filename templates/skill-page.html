@@ -66,7 +66,7 @@ h1 span { white-space: nowrap; }
 .specimen { margin: 0 0 clamp(56px, 8vw, 104px); }
 .sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: clamp(16px, 2.6vw, 30px); }
 .sheet-q { margin: 0 0 4px; font-size: clamp(18px, 2vw, 22px); font-weight: 650; letter-spacing: -.01em; }
-.key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 14px; font-size: 14px; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; font-size: 14px; }
 .sw { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 3px; border: 1px solid var(--sw-line); }
 .table-scroll { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; text-align: left; }
@@ -84,15 +84,12 @@ td .ctx { display: block; margin-top: 6px; font-size: .86em; line-height: 1.45; 
 .matrix .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 .chip { display: inline-block; margin-bottom: 4px; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: 12px; font-weight: 700; line-height: 1.6; }
 .chip.selected { background: var(--chip-ink); color: var(--chip); }
-details.desc { margin-top: 6px; font-weight: 400; font-size: 13px; }
-details.desc summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; gap: 6px; }
-details.desc[open] summary { align-items: flex-start; }
-details.desc summary::-webkit-details-marker { display: none; }
-details.desc summary::before { content: "\25B8"; flex: none; font-size: 1.25em; line-height: 1.28; }
-details.desc[open] summary::before { content: "\25BE"; }
-details.desc[open] .closed, details.desc:not([open]) .text { display: none; }
-details.desc .text { padding-left: 8px; border-left: 2px solid var(--line); }
-details.desc summary:hover { color: var(--accent); }
+th .desc { display: block; margin-top: 4px; font-size: 13px; font-weight: 400; line-height: 1.45; color: var(--muted); }
+/* The chip sits centered in a tab above its column, so that all option titles align. */
+table:is(.matrix, .option-table) tr.flags > * { border: 0; background: none; padding: 0 14px; }
+table:is(.matrix, .option-table) tr.flags > .rec { border: 2px solid var(--accent); border-bottom: 0; padding: 6px 14px 4px; text-align: center; }
+tr.flags .chip { margin: 0; }
+.full .option-table .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 .pin { display: inline-grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 12px; font-weight: 700; line-height: 1; }
 .pin.on-cell, .pin.on-head { position: absolute; top: 10px; right: 10px; }
 .pin.on-cell { background: var(--rated-ink); color: #fff; }
@@ -232,8 +229,8 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <figure class="specimen" aria-labelledby="specimen-title">
 <div class="sheet">
 <p class="sheet-q" id="specimen-title">Name the question that the sample output answers.</p>
+<div class="table-scroll" role="region" aria-label="Sample output" tabindex="0"><table class="matrix"><colgroup><col class="criterion"><col><col><col></colgroup><thead><tr class="flags"><td></td><td></td><th scope="col" class="rec"><span class="pin on-head" aria-hidden="true">1</span><span class="chip">Recommended</span></th><td></td></tr><tr><th scope="col">Criterion</th><th scope="col">A. Current form<span class="desc">Edit values directly in the existing form.</span></th><th scope="col" class="rec">B. Guided prototype<span class="desc">Guided prompts correct one value at a time.</span></th><th scope="col">C. Hosted assistant<span class="desc">An online assistant corrects the value for you.</span></th></tr></thead><tbody><tr><th scope="row">1. Offline task <em>(Required)</em></th><td data-r="pos" style="--i:0">Supported. Finished the task offline.</td><td data-r="pos" class="rec" style="--i:1">Supported. Finished the same task offline.</td><td data-r="neg" style="--i:2"><span class="pin on-cell" aria-hidden="true">2</span>Not supported. Needs a network connection.</td></tr><tr><th scope="row">2. Monthly cost <em>(Required)</em></th><td data-r="pos" style="--i:3">Supported. $0 per month.</td><td data-r="pos" class="rec" style="--i:4">Supported. $2 per month.</td><td data-r="neg" style="--i:5">Not supported. $8 is over the $5 limit.</td></tr><tr><th scope="row">3. Fewer corrections</th><td data-r="unk" style="--i:6">Unknown. No person has tested it.</td><td data-r="mix" class="rec" style="--i:7">Simulated. A model predicts fewer corrections.</td><td data-r="unk" style="--i:8">Unknown. No person tested this option.</td></tr></tbody></table></div>
 <p class="key" aria-label="Color key"><span><i class="sw" data-r="pos"></i>Supported</span><span><i class="sw" data-r="mix"></i>Partial or Simulated</span><span><i class="sw" data-r="neg"></i>Not supported</span><span><i class="sw" data-r="unk"></i>Unknown</span></p>
-<div class="table-scroll" role="region" aria-label="Sample output" tabindex="0"><table class="matrix"><colgroup><col class="criterion"><col><col><col></colgroup><thead><tr><th scope="col">Criterion</th><th scope="col">A. Current form<details class="desc" open><summary><span class="text">Edit values directly in the existing form.</span><span class="closed">Description</span></summary></details></th><th scope="col" class="rec"><span class="pin on-head" aria-hidden="true">1</span><span class="chip">Recommended</span><br>B. Guided prototype<details class="desc" open><summary><span class="text">Guided prompts correct one value at a time.</span><span class="closed">Description</span></summary></details></th><th scope="col">C. Hosted assistant<details class="desc" open><summary><span class="text">An online assistant corrects the value for you.</span><span class="closed">Description</span></summary></details></th></tr></thead><tbody><tr><th scope="row">1. Offline task <em>(Required)</em></th><td data-r="pos" style="--i:0">Supported. Finished the task offline.</td><td data-r="pos" class="rec" style="--i:1">Supported. Finished the same task offline.</td><td data-r="neg" style="--i:2"><span class="pin on-cell" aria-hidden="true">2</span>Not supported. Needs a network connection.</td></tr><tr><th scope="row">2. Monthly cost <em>(Required)</em></th><td data-r="pos" style="--i:3">Supported. $0 per month.</td><td data-r="pos" class="rec" style="--i:4">Supported. $2 per month.</td><td data-r="neg" style="--i:5">Not supported. $8 is over the $5 limit.</td></tr><tr><th scope="row">3. Fewer corrections</th><td data-r="unk" style="--i:6">Unknown. No person has tested it.</td><td data-r="mix" class="rec" style="--i:7">Simulated. A model predicts fewer corrections.</td><td data-r="unk" style="--i:8">Unknown. No person tested this option.</td></tr></tbody></table></div>
 </div>
 <figcaption>
 <ol class="notes">

@@ -63,6 +63,7 @@ templates/
 - Run each test agent in a new folder outside this repo, such as a scratch folder with `git init`. An agent that starts in this repo can read the skill files without loading the skill.
 - Give the test folder a neutral name. A folder named "baseline" made an agent skip the skill.
 - Check the agent's transcript for a call to the skill. A result without that call does not test the skill.
+- Let the test agent read the skill folder. An agent that cannot open the reference files does not test their rules.
 - A test agent can get a copy of `SKILL.md` that is older than your latest edit. Check which rules the agent followed.
 - Keep test output in `.local/`. Git ignores that folder.
 - After a change to a bundled script, run its self-test, such as `python3 skills/decision-matrix/scripts/render_html.py --self-test`.

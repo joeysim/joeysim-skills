@@ -2,7 +2,7 @@
 name: decision-matrix
 description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, log, lock, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # Decision Matrix
@@ -104,7 +104,8 @@ Two to four options usually fit one view. Retain more options when the decision 
 
 For each option, record:
 
-- A stable identifier, title, and brief description of what the option is and how it works.
+- A stable identifier and a title.
+- A description, only when a reader cannot tell what the option is from its title. See "Present the matrix".
 - A link to its main page, such as its home page, documentation, repository, or model card.
 
 When you test or build options, also record a hypothesis, a falsifier, and a status for each one, as in [the experiment rules](references/experiments.md).
@@ -201,9 +202,12 @@ Use only **Recommended** or **Selected** as the chip text.
 Keep bold text as the fallback for plain Markdown.
 Keep the option letter and title in that header.
 Keep provisional recommendations explicitly provisional.
-Place each description inside its option header, beneath the title.
-Explain what each option is and how it works in eight words or fewer.
-If collapsible content is unavailable, show the sentence in italic text within the option header.
+Give an option a description only when a reader cannot tell what the option is from its title.
+A well-known product, brand, or place needs none, such as `Tesla Model 3` or `Lisbon`.
+A label for an approach, or a niche name, needs one, such as `Hybrid` or `Phonon 31M`.
+A description says what the option is and how it works, in eight words or fewer.
+Put the facts that set options apart, such as a trim or a fuel type, in the cells.
+Put it in italic text beneath the title, inside the option header.
 Keep each criterion label to four words or fewer, such as `Lease per month`. Give its terms with its source.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
@@ -227,7 +231,7 @@ Give only links that you opened or that a cited source gives. Do not guess an ad
 Link local files with paths relative to the output file.
 Show each rating's color in one way only. The output format sets the way:
 
-| Output | Rating cell | Color key above the matrix |
+| Output | Rating cell | Color key below the matrix |
 | --- | --- | --- |
 | Plain Markdown | Start the cell with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown. | The markers and their labels. |
 | Visual, such as HTML | Fill the cell with its background color. | Color swatches and their labels. |
@@ -271,8 +275,8 @@ Use this layout for each decision file, in this order:
 1. The number and title as a heading, such as `# 001. Speech-out voice`.
 2. The date and status, such as `Date: 2026-11-10 · Status: Provisional`.
 3. The decision question, in one sentence. The log index shows this sentence as the description.
-4. `## Decision`: four paragraphs of one sentence each: the recommended or selected option and the main reason, then `Trade-off:`, `Next:`, and `Reconsider:`.
-5. `## Matrix`: the color key, the matrix, and the criteria that you left out. Then explain the rating scale and any weights in a `### Rating scale` subsection.
+4. `## Recommendation`, or `## Decision` when the status is Locked: four paragraphs of one sentence each: the recommended or selected option and the main reason, then `Trade-off:`, `Next:`, and `Reconsider:`.
+5. `## Matrix`: the matrix, the color key, and the criteria that you left out. Then explain the rating scale and any weights in a `### Rating scale` subsection.
 6. `## Criteria`: the intended outcome, the shared task, and each criterion with its source.
 7. `## Options`: the baseline and the options that you ruled out. When you test the options, add the hypothesis, falsifier, and status of each.
 8. `## Evidence`: the evidence limits, then the checks that you ran and did not run, one line each. When the next action is an experiment, put its plan in a `### Next experiment` subsection.
@@ -285,6 +289,7 @@ Also change its cells and references to the rules in this skill.
 Use Provisional, Complete, or Locked as the status.
 Set the status to Locked only when the user chooses an option.
 Then remove **Recommended**, and put **Selected** at the top of the selected option's header.
+Rename `## Recommendation` to `## Decision`.
 Add a revision entry with the date, the user's words, and your earlier recommendation.
 Change a Locked decision only when the user reopens it.
 

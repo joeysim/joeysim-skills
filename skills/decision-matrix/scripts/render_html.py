@@ -22,6 +22,8 @@ MARK_CLASS = {"\U0001F7E2": "pos", "\U0001F7E1": "mix", "\U0001F534": "neg", "�
 KEY_LABEL = {"pos": "Supported", "mix": "Partial or Simulated", "neg": "Not supported", "unk": "Unknown"}
 # "Not supported" comes before "Supported", so the longer label matches first.
 RATINGS = [("Not supported", "neg"), ("Supported", "pos"), ("Partial", "mix"), ("Simulated", "mix"), ("Unknown", "unk")]
+# A key line in the Markdown, with or without "Color key:", such as "🟢 Supported · 🟡 Partial". The script puts its own key after the matrix.
+KEY_LINE = re.compile(r"\**Color key\b.*|(?:" + MARK.pattern + r"[A-Za-z ()]+[.,;:|/·•\s-]*)+", re.S)
 REF_ITEM = re.compile(r"(E\d+)([.:])\s+(.*)")  # a list item that starts with an evidence ID, such as "E2. [Title](link)"
 
 CSS = """
@@ -31,6 +33,7 @@ CSS = """
   --head: light-dark(#efeee9, #22252d); --muted: light-dark(#4b4b47, #b3b8c4); --panel: light-dark(#f0efea, #1d2028); --accent: light-dark(#2448d8, #8ea6ff);
   --chip: light-dark(#dfe6ff, #263264); --chip-ink: light-dark(#1b2f8a, #cdd7ff); --sw-line: light-dark(rgba(0,0,0,.25), rgba(255,255,255,.3));
   --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #111;
+  --hl: light-dark(#fff0a3, #4d3e00); --hl-flash: light-dark(#ffe066, #6b5600); /* the reference that an evidence link opens */
   --ctx-ink: rgb(0 0 0 / .63); /* faint text in the fill's own hue. It keeps 4.5:1 contrast on every rating fill. */ }
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
@@ -77,7 +80,11 @@ section.secondary { color: var(--muted); font-size: .9em; }
 section.secondary h2 { font-size: 1.25em; }
 section.secondary li { margin: .2em 0; padding: 0 4px; }
 a.ref-id { color: inherit; text-decoration: none; font-variant-numeric: tabular-nums; }
-li:has(> a.ref-id:target) { background: var(--panel); border-radius: 4px; }
+/* The reference that an evidence link opens: a yellow flash with a glow, which fades to a yellow tint. */
+a.ref-id { scroll-margin-top: 30vh; }
+li:has(> a.ref-id:target) { background: var(--hl); box-shadow: 0 0 0 5px var(--hl); border-radius: 3px; animation: hl 1.2s ease-out; }
+@keyframes hl { 0%, 20% { background: var(--hl-flash); box-shadow: 0 0 0 5px var(--hl-flash), 0 0 18px 8px var(--mix); } }
+@media (prefers-reduced-motion: reduce) { li:has(> a.ref-id:target) { animation: none; } }
 .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 .chip { display: inline-block; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: .8em; font-weight: 600; }
 .chip.selected { background: var(--chip-ink); color: var(--chip); } /* the inverse of .chip */
@@ -85,14 +92,12 @@ li:has(> a.ref-id:target) { background: var(--panel); border-radius: 4px; }
 .nowrap { white-space: nowrap; }
 .sw { display: inline-block; width: .85em; height: .85em; margin-right: 6px; vertical-align: -1px; border-radius: 3px; border: 1px solid var(--sw-line); }
 .sw.r-pos { background: var(--pos); } .sw.r-mix { background: var(--mix); } .sw.r-neg { background: var(--neg); } .sw.r-unk { background: var(--unk); }
-details.desc { margin-top: 6px; font-weight: 400; font-size: .9em; }
-details.desc summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; gap: 6px; }
-details.desc[open] summary { align-items: flex-start; }
-details.desc summary::-webkit-details-marker { display: none; }
-details.desc summary::before { content: "\\25B8"; flex: none; font-size: 1.25em; line-height: 1.28; }
-details.desc[open] summary::before { content: "\\25BE"; }
-details.desc[open] .closed, details.desc:not([open]) .text { display: none; }
-details.desc .text { padding-left: 8px; border-left: 2px solid var(--line); }
+/* An option header: the title in the text color with a dotted link line, then the description in smaller gray text. */
+table.matrix th a { color: inherit; text-decoration-style: dotted; text-underline-offset: 3px; }
+th .desc { display: block; margin-top: 4px; font-size: .86em; font-weight: 400; line-height: 1.45; color: var(--muted); }
+/* The chip sits centered in a tab above its column, so that all option titles align. */
+tr.flags > * { border: 0; background: none; padding: 0 10px; }
+tr.flags > .rec { border: 2px solid var(--accent); border-bottom: 0; padding: 4px 10px 2px; text-align: center; }
 .theme { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
 .theme[hidden] { display: none; }
 .theme button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
@@ -131,10 +136,14 @@ showTheme();
 </script>"""
 
 # Headings whose sections get their own style: the Decision callout, and the rating scale in muted, smaller text.
-SECTIONS = {(2, "decision"): "decision", (3, "rating-scale"): "scale", (2, "evidence"): "secondary", (2, "references"): "secondary"}
+SECTIONS = {(2, "decision"): "decision", (2, "recommendation"): "decision", (3, "rating-scale"): "scale", (2, "evidence"): "secondary", (2, "references"): "secondary"}
 
 KEY = ('<p class="key" aria-label="Color key">' + "".join(
     f'<span><span class="sw r-{c}" aria-hidden="true"></span>{KEY_LABEL[c]}</span>' for c in ("pos", "mix", "neg", "unk")) + "</p>")
+
+
+# A Locked status: the user chose an option.
+LOCKED = re.compile(r"^Date:.*\bStatus:\s*Locked\b", re.M)
 
 
 def slug(text):
@@ -146,15 +155,22 @@ def swatch(match):
     return f'<span class="sw r-{c}" role="img" aria-label="{KEY_LABEL[c]}"></span>'
 
 
+# A link to a page outside the log opens in a new tab, so that the reader keeps the decision open.
+NEW_TAB = ' target="_blank" rel="noopener"'
+
+
 def link(match):
     text, target = match.group(1), html.unescape(match.group(2))
     name, _, anchor = target.partition("#")
     # Only links to files in the log change to their HTML pages. Other links stay as written.
+    tab = ""
     if name == "README.md":
         target = "index.html" + ("#" + anchor if anchor else "")
     elif DECISION.match(name):
         target = name[:-3] + ".html" + ("#" + anchor if anchor else "")
-    return f'<a href="{html.escape(target)}">{text}</a>'
+    elif name:
+        tab = NEW_TAB
+    return f'<a href="{html.escape(target)}"{tab}>{text}</a>'
 
 
 def inline(text):
@@ -166,7 +182,7 @@ def inline(text):
         s = html.escape(part)
         s = re.sub(r"&lt;br\s*/?&gt;", "<br>", s)
         s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", link, s)
-        s = re.sub(r'(?<![">\w/])https?://[^\s<]*[^\s<.,;:)]', lambda m: f'<a href="{m[0]}">{m[0]}</a>', s)  # a bare address
+        s = re.sub(r'(?<![">\w/])https?://[^\s<]*[^\s<.,;:)]', lambda m: f'<a href="{m[0]}"{NEW_TAB}>{m[0]}</a>', s)  # a bare address
         s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
         s = re.sub(r"(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])", r"<em>\1</em>", s)
         out.append(MARK.sub(swatch, s))
@@ -223,10 +239,7 @@ def split_row(row):
 def header_cell(cell):
     s = inline(cell).replace("<strong>Recommended</strong>", '<span class="chip">Recommended</span>')
     s = s.replace("<strong>Selected</strong>", '<span class="chip selected">Selected</span>')
-    # The sentence sits in the summary, beside its arrow, so it adds no line and the whole sentence is the control.
-    return re.sub(r"<em>(.+?)</em>", lambda m: (
-        f'<details class="desc" open><summary><span class="text">{m.group(1)}</span>'
-        '<span class="closed">Description</span></summary></details>'), s)
+    return re.sub(r"<em>(.+?)</em>", r'<span class="desc">\1</span>', s)
 
 
 def outcome(md):
@@ -247,8 +260,12 @@ def notes(md):
     matrix = md.find("\n## Matrix")
     table = md.find("\n|", matrix) if matrix >= 0 else -1
     first_two = re.findall(r"^## (.+?)\s*$", md, re.M)[:2]
-    if not (description(md) and first_two == ["Decision", "Matrix"] and 0 <= table < md.find("\n### Rating scale")):
+    want = "Decision" if LOCKED.search(md) else "Recommendation"
+    if not (description(md) and first_two[1:] == ["Matrix"] and first_two[0] in ("Decision", "Recommendation")
+            and 0 <= table < md.find("\n### Rating scale")):
         out.append("does not use the decision file layout. Change it to that layout")
+    elif first_two[0] != want:
+        out.append(f"has the heading ## {first_two[0]}, which does not match its status. Change it to ## {want}")
     if re.search(r"^\|.*\|\s*(?:" + MARK.pattern + r")?(?:Not supported|Supported|Partial|Simulated|Unknown)\.", md, re.M):
         out.append("has rating cells that start with a rating word. Start each cell with its key fact")
     refs = re.search(r"^## References\s*$(.*?)(?=^## |\Z)", md, re.M | re.S)
@@ -269,7 +286,8 @@ def long_cell(text):
 def description(md):
     """Return the sentence on the line after the Date line, or an empty string."""
     m = re.search(r"^Date:.*\n+((?:(?![#|]|Color key)[^\n]+\n?)+)", md, re.M)
-    return " ".join(m.group(1).split()) if m else ""
+    text = " ".join(m.group(1).split()) if m else ""
+    return "" if KEY_LINE.fullmatch(text) else text
 
 
 def table(rows):
@@ -287,7 +305,14 @@ def table(rows):
            f'<table{" class=matrix" if matrix else ""}{f" style=--n:{len(head) - 1}" if matrix else ""}>']
     if matrix:
         out.append('<colgroup><col class="criterion">' + "<col>" * (len(head) - 1) + "</colgroup>")
-    out.append("<thead><tr>" + "".join(f"<th{cls(i)}>{header_cell(c)}</th>" for i, c in enumerate(head)) + "</tr></thead><tbody>")
+    heads = [header_cell(c) for c in head]
+    out.append("<thead>")
+    if matrix and rec is not None:
+        # The chip moves to a row above the titles, so that it does not push its title down.
+        chip = re.search(r'<span class="chip[^"]*">[^<]+</span>', heads[rec])[0]
+        heads[rec] = re.sub(r"^\s*(<br>\s*)?", "", heads[rec].replace(chip, "", 1))
+        out.append('<tr class="flags">' + "".join(f"<th{cls(i)}>{chip}</th>" if i == rec else "<td></td>" for i in range(len(head))) + "</tr>")
+    out.append("<tr>" + "".join(f"<th{cls(i)}>{h}</th>" for i, h in enumerate(heads)) + "</tr></thead><tbody>")
     for row, kinds in zip(body, rated):
         tds = []
         for i, (c, kind) in enumerate(zip(row, kinds)):
@@ -322,6 +347,8 @@ def render(md):
             if name := SECTIONS.get((n, slug(text))):
                 out.append(f'<section class="{name}">')
                 section = n
+                if name == "decision":  # The status names the callout: the user's choice, or the agent's advice.
+                    text = "Decision" if LOCKED.search(md) else "Recommendation"
             out.append(f'<h{n} id="{slug(text)}">{text}</h{n}>')
             key_shown = key_shown and n > 2
             i += 1
@@ -330,10 +357,10 @@ def render(md):
             while j < len(lines) and lines[j].lstrip().startswith("|"):
                 j += 1
             rendered, matrix = table(lines[i:j])
+            out.append(rendered)
             if matrix and not key_shown:
                 out.append(KEY)
                 key_shown = True
-            out.append(rendered)
             i = j
         elif re.match(r"^\s*([-*_])(\s*\1){2,}\s*$", line):
             out.append("<hr>")
@@ -362,9 +389,8 @@ def render(md):
                 para.append(lines[i].strip())
                 i += 1
             text = " ".join(para)
-            if re.match(r"\**Color key", text):
-                out.append(KEY)
-                key_shown = True
+            if KEY_LINE.fullmatch(text):
+                pass  # the key follows the matrix
             elif text.startswith("Date:"):
                 out.append(f'<p class="meta">{inline(text)}</p>')
             elif out and out[-1].startswith('<p class="meta">'):
@@ -447,7 +473,7 @@ Date: 2026-11-10 · Status: Provisional
 
 Which voice speaks the answers?
 
-## Decision
+## Recommendation
 
 **Recommended: test A.** See [the next decision](002-next.md) and [notes](../notes.md).
 
@@ -483,6 +509,8 @@ OLD_STYLE = """# 002. Next
 
 Date: 2026-11-11 · Status: Complete
 
+\U0001F7E2 Supported · \U0001F7E1 Partial · \U0001F534 Not supported
+
 | Criterion | A. One |
 | --- | --- |
 | 1. Cost | \U0001F7E2 Supported. $5. E1. |
@@ -508,7 +536,10 @@ def self_test():
         out = (log / "001-pick-a-voice.html").read_text(encoding="utf-8")
         assert '<p class="lead">Which voice speaks the answers?</p>' in out, "the description follows the Date line"
         assert out.index('<section class="decision">') < out.index("</section>") < out.index('id="matrix"'), "Decision callout"
-        assert '<summary><span class="text">Fast local model.</span>' in out, "the description sits beside its arrow"
+        assert '<section class="decision">\n<h2 id="recommendation">Recommendation</h2>' in out, "an open decision gives a recommendation"
+        assert '<span class="desc">Fast local model.</span>' in out and "<details" not in out, "a plain description"
+        assert '<tr class="flags"><td></td><th class="rec"><span class="chip">Recommended</span></th><td></td></tr>' in out, "the chip tab"
+        assert '<th class="rec">A. <a href="https://example.com/alpha" target="_blank" rel="noopener">Alpha</a>' in out, "the title starts its header"
         assert out.index("<table") < out.index('<section class="scale">') < out.index('id="criteria"'), "scale below the matrix"
         assert out.count("<section") == out.count("</section>") == 4
         assert out.count('<section class="secondary">') == 2, "Evidence and References are secondary"
@@ -522,20 +553,20 @@ def self_test():
         assert '<span class="v">Apache-2.0</span><span class="ctx">Permissive. <a class="ev" href="#e1">E1</a>.</span>' in out, "key fact, then context"
         assert '<span class="v">Not measured</span></td>' in out, "a cell with no context"
         assert '<p>One check ran. <a class="ev" href="#e2">E2</a>.</p>' in out, "an ID in the text links to its reference"
-        assert '<li><a class="ref-id" id="e1" href="#e1">E1</a>. <a href="https://example.com/alpha/license">Alpha license</a>' in out
-        assert 'href="https://example.com/beta?a=1&amp;b=2">Beta terms</a>' in out, "a title link is not linked twice"
+        assert '<li><a class="ref-id" id="e1" href="#e1">E1</a>. <a href="https://example.com/alpha/license" target="_blank" rel="noopener">Alpha license</a>' in out
+        assert 'href="https://example.com/beta?a=1&amp;b=2" target="_blank" rel="noopener">Beta terms</a>' in out, "a title link is not linked twice"
         assert not MARK.search(out), "a color marker is left in the HTML"
-        assert out.count('class="key"') == 1 and out.index('class="key"') < out.index("<table"), "one key above the matrix"
-        assert '<span class="chip">Recommended</span>' in out and out.count("<details") == 2
+        assert out.count('class="key"') == 1 and out.index('class="key"') > out.index("</table>"), "one key below the matrix"
         assert 'class="rec"' in out or 'r-pos rec' in out, "recommended column marker"
-        assert 'href="002-next.html"' in out and 'href="../notes.md"' in out, "log links change, other links stay"
+        assert 'href="002-next.html">' in out and 'href="../notes.md" target="_blank"' in out, "log links stay in the tab, other links open a new one"
         assert 'aria-label="Unknown"' in out, "a marker outside a rating cell becomes a labeled swatch"
         readme = (log / "README.md").read_text(encoding="utf-8")
         assert ("| 001 | Pick a voice | Which voice speaks the answers? | **Recommended** A. Alpha | Provisional | 2026-11-10 | "
                 "[Markdown](001-pick-a-voice.md) · [HTML](001-pick-a-voice.html) |") in readme, readme
         assert "| 002 | Next |  |  | Complete | 2026-11-11 |" in readme, readme
         old = (log / "002-next.html").read_text(encoding="utf-8")
-        assert '<a href="https://example.com/terms">https://example.com/terms</a>. Read' in old, "a bare address becomes a link"
+        assert '<a href="https://example.com/terms" target="_blank" rel="noopener">https://example.com/terms</a>. Read' in old, "a bare address becomes a link"
+        assert old.count('class="key"') == 1 and "<p><span class=\"sw" not in old, "a key line without Color key gives way to the key"
         assert '<span class="sr">Supported: </span>Supported. $5. <a class="ev" href="#e1">E1</a>.' in old, "an older cell keeps its text"
         build(log)  # A second run overwrites its own files.
         locked = SAMPLE.replace("001. Pick a voice", "003. Locked voice").replace("Status: Provisional", "Status: Locked")
@@ -543,6 +574,9 @@ def self_test():
         build(log)
         out = (log / "003-locked.html").read_text(encoding="utf-8")
         assert '<span class="chip selected">Selected</span>' in out and 'class="chip"' not in out, "Selected replaces Recommended"
+        assert '<section class="decision">\n<h2 id="decision">Decision</h2>' in out, "a Locked decision gives the decision"
+        assert any("Change it to ## Decision" in n for n in notes(locked)), "a heading that does not match the status gets a note"
+        assert notes(locked.replace("## Recommendation", "## Decision")) == [], "a Locked file with ## Decision follows the layout"
         assert "| 003 | Locked voice | Which voice speaks the answers? | **Selected** A. Alpha | Locked |" in (log / "README.md").read_text(encoding="utf-8")
         assert '<span class="chip selected">Selected</span> A. Alpha' in (log / "index.html").read_text(encoding="utf-8")
         for bad, why in ((locked, "Locked"), (SAMPLE.replace("**Recommended**", "**Selected**"), "not Locked")):
