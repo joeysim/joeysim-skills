@@ -59,6 +59,17 @@ templates/
 5. Make a page for the skill. Follow the "Webpages" section of `README.md`.
 6. Commit the skill and its page. Then tag the commit, as in "Versions".
 
+## Rename a skill
+
+Keep the old name working as a redirect. Then old requests still work, so the new name keeps the version history with a MINOR change.
+
+1. Move `skills/<old>` to `skills/<new>`. Change the `name` field and the title. Increase the MINOR part of the version.
+2. Put a redirect skill in `skills/<old>`, and increase the MINOR part of its version too. Its description names only the old name, so that it does not compete with the new skill. Its body tells the agent to use the new skill, or to install it. Set `internal: true` under `metadata`, so that `npx skills add` does not install it with the other skills.
+3. Move `pages/<old>/index.html` to `pages/<new>/`. Change the names, the install commands, the ZIP links, and the version.
+4. Put a redirect page in `pages/<old>/index.html`. It does not use the template. The Pages workflow builds `pages/<old>` from the redirect skill.
+5. Update the README table, the README page addresses, and the sheet in `pages/index.html`.
+6. After the push, tag both skills. Link the new folder into your agents, and keep the old links on the redirect skill.
+
 ## Test a skill change
 
 - Run each test agent in a new folder outside this repo, such as a scratch folder with `git init`. An agent that starts in this repo can read the skill files without loading the skill.
@@ -99,7 +110,7 @@ Increase one part of the version for each change to the skill folder:
 
 | Change | Part | Examples |
 |--------|------|----------|
-| Users must change how they use the skill, or output that they rely on changes. | MAJOR | Rename the skill. Remove a capability. Change the output format. Make the skill trigger in fewer situations. |
+| Users must change how they use the skill, or output that they rely on changes. | MAJOR | Rename the skill without a redirect. Remove a capability. Change the output format. Make the skill trigger in fewer situations. |
 | The skill does something new or different, and old requests still work. | MINOR | Add or change a rule. Add a reference file. Make the skill trigger in more situations. |
 | The behavior stays the same. | PATCH | Fix wording, a typo, or an example. |
 

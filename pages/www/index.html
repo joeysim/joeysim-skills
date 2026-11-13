@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try { const t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}</script>
+<meta name="description" content="A skill for coding agents. Say that you lost the plot, and your agent maps the session: the goal, the open loops, and one next step.">
+<title>Where Were We: get the map of a long agent session</title>
+<style>
+/* Each color has a light and a dark value. The system setting picks one, unless the reader picks a theme (data-theme on <html>). */
+:root { color-scheme: light dark;
+  --paper: light-dark(#faf9f6, #121419); --sheet: light-dark(#fff, #1a1d24); --ink: light-dark(#14171f, #e9ebf0); --muted: light-dark(#4d5260, #a6acba);
+  --line: light-dark(#dcdbd4, #2e323c); --head: light-dark(#f1f0eb, #22252d); --code: light-dark(#eeede8, #262a33);
+  --accent: light-dark(#2448d8, #8ea6ff); --button: light-dark(#2448d8, #3a5bff); --button-hover: light-dark(#3a5cf0, #5573ff);
+  --chip: light-dark(#dfe6ff, #263264); --chip-ink: light-dark(#1b2f8a, #cdd7ff);
+  --cmd: light-dark(#14171f, #0c0e13); --panel: light-dark(#14171f, #1a1d24); --edge: light-dark(transparent, #2e323c);
+  --note-bg: light-dark(#fbf3d9, #2c2615); --note-line: #b88d24; --sw-line: light-dark(rgba(0,0,0,.22), rgba(255,255,255,.3));
+  --pos: light-dark(#b6e3a3, #a3d690); --mix: light-dark(#ffe066, #f2d457); --neg: light-dark(#f5a4a4, #ec9595); --unk: light-dark(#e0e0e0, #cfd1d6); --rated-ink: #14171f;
+  --ctx-ink: rgb(0 0 0 / .63); /* faint text in the fill's own hue. It keeps 4.5:1 contrast on every rating fill. */ }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+* { box-sizing: border-box; }
+html { scroll-padding-top: 24px; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-variant-numeric: tabular-nums; }
+a { color: inherit; text-underline-offset: .2em; }
+a:hover { color: var(--accent); }
+a:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86em; background: var(--code); padding: 2px 6px; border-radius: 4px; }
+pre { margin: 0; overflow-x: auto; font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.skip { position: absolute; left: 16px; top: -90px; padding: 10px 18px; background: var(--sheet); z-index: 10; }
+.skip:focus { top: 16px; }
+.shell { max-width: 1240px; margin: auto; padding: 0 clamp(18px, 4.5vw, 56px); }
+
+.topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 0; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 650; }
+.symbol { display: grid; grid-template-columns: repeat(2, 8px); gap: 3px; }
+.symbol i { width: 8px; height: 8px; border-radius: 2px; background: var(--pos); }
+.symbol i:nth-child(2) { background: var(--mix); } .symbol i:nth-child(3) { background: var(--unk); } .symbol i:nth-child(4) { background: var(--accent); }
+.links { display: flex; gap: 22px; font-size: 15px; }
+.links a { text-decoration: none; padding: 10px 0; }
+.topline-end { display: flex; align-items: center; gap: 24px; }
+.theme { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; }
+.theme[hidden] { display: none; }
+.theme button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.theme button:hover { color: var(--ink); }
+.theme button[aria-pressed="true"] { background: var(--head); color: var(--ink); }
+.theme svg { width: 18px; height: 18px; }
+
+.hero { padding: clamp(24px, 3.6vw, 48px) 0 clamp(28px, 3.4vw, 40px); }
+.hero-copy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px 56px; align-items: start; margin-top: clamp(22px, 2.8vw, 36px); }
+h1 { margin: 0; font-size: clamp(40px, 5.6vw, 80px); line-height: .96; letter-spacing: -.05em; font-weight: 700; }
+h1 span { white-space: nowrap; }
+.lead { max-width: 36rem; margin: 0; font-size: clamp(18px, 1.6vw, 20px); line-height: 1.5; color: var(--muted); }
+.command { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; max-width: 34rem; margin: 0 0 16px; padding: 8px 8px 8px 16px; border-radius: 10px; background: var(--cmd); border: 1px solid var(--edge); color: #fff; }
+.command code { flex: 1 1 15rem; min-width: 0; padding: 0; background: none; color: #fff; font-size: 14.5px; line-height: 1.5; }
+.command code span { white-space: nowrap; }
+.command code::before { content: "$ "; color: #8f97ab; }
+.command button { flex: none; min-width: 76px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 7px; background: var(--button); color: #fff; font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; }
+.command button:hover { background: var(--button-hover); }
+.command button:focus-visible { outline: 3px solid #9fb1ff; outline-offset: 2px; }
+.ask { margin: 0; font-size: 16px; }
+.ask code { white-space: nowrap; }
+.version { margin: 18px 0 0; font-size: 14px; color: var(--muted); }
+
+/* The site root: one sheet for each skill. */
+.catalog { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); gap: 24px; margin: 0 0 clamp(64px, 9vw, 120px); padding: 0; }
+
+.specimen { margin: 0 0 clamp(56px, 8vw, 104px); }
+.sheet { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: clamp(16px, 2.6vw, 30px); }
+.sheet-q { margin: 0 0 4px; font-size: clamp(18px, 2vw, 22px); font-weight: 650; letter-spacing: -.01em; }
+.sheet > p:last-child { margin-bottom: 0; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; font-size: 14px; }
+.sw { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 3px; border: 1px solid var(--sw-line); }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; text-align: left; }
+.matrix { table-layout: fixed; min-width: 700px; font-size: 14.5px; line-height: 1.5; }
+.matrix col.criterion { width: 22%; }
+.matrix th, .matrix td { position: relative; border: 1px solid var(--line); padding: 12px 14px; vertical-align: top; }
+.matrix thead th, .matrix tbody th { background: var(--head); font-weight: 650; }
+.matrix tbody th em { font-style: normal; font-weight: 400; color: var(--muted); }
+[data-r="pos"] { background: var(--pos); } [data-r="mix"] { background: var(--mix); } [data-r="neg"] { background: var(--neg); } [data-r="unk"] { background: var(--unk); }
+td[data-r], td[data-rating], .rating-legend strong { color: var(--rated-ink); }
+/* A rated cell: the key fact on its own line, then the basis and evidence IDs in smaller gray text. */
+td .v { display: block; }
+td .ctx { display: block; margin-top: 6px; font-size: .86em; line-height: 1.45; color: var(--ctx-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.matrix .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.chip { display: inline-block; margin-bottom: 4px; padding: 1px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); font-size: 12px; font-weight: 700; line-height: 1.6; }
+.chip.selected { background: var(--chip-ink); color: var(--chip); }
+th .desc { display: block; margin-top: 4px; font-size: 13px; font-weight: 400; line-height: 1.45; color: var(--muted); }
+/* The chip sits centered in a tab above its column, so that all option titles align. */
+table:is(.matrix, .option-table) tr.flags > * { border: 0; background: none; padding: 0 14px; }
+table:is(.matrix, .option-table) tr.flags > .rec { border: 2px solid var(--accent); border-bottom: 0; padding: 6px 14px 4px; text-align: center; }
+tr.flags .chip { margin: 0; }
+.full .option-table .rec { border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.pin { display: inline-grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 12px; font-weight: 700; line-height: 1; }
+.pin.on-cell, .pin.on-head { position: absolute; top: 10px; right: 10px; }
+.pin.on-cell { background: var(--rated-ink); color: #fff; }
+.matrix td:has(.pin), .matrix th:has(.pin) { padding-right: 40px; }
+.notes { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 28px; font-size: 15px; line-height: 1.5; }
+.notes li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: start; }
+.notes strong { display: block; margin-bottom: 2px; }
+.fine { margin: 18px 0 0; font-size: 13px; color: var(--muted); }
+
+h2 { margin: 0 0 18px; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; letter-spacing: -.035em; font-weight: 700; }
+.feature { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); align-items: center; margin-bottom: clamp(64px, 9vw, 120px); }
+.feature p { margin: 0 0 18px; max-width: 34rem; }
+.feature ul { margin: 0; padding-left: 20px; max-width: 34rem; }
+.feature li { margin-bottom: 8px; }
+.feature li::marker { color: var(--accent); }
+.shot-path { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.shot-path code { background: none; padding: 0; }
+.feature-table { font-size: 14.5px; min-width: 520px; }
+.feature-table th, .feature-table td { border: 1px solid var(--line); padding: 10px 12px; vertical-align: top; }
+.feature-table th { background: var(--head); font-weight: 650; }
+.row-name { display: block; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: .2em; }
+.row-note { display: block; color: var(--muted); font-size: 13.5px; }
+
+.steps { margin-bottom: clamp(64px, 9vw, 120px); }
+.steps ol { list-style: none; counter-reset: step; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; }
+.steps li { counter-increment: step; padding-top: 16px; border-top: 2px solid var(--ink); font-size: 15.5px; line-height: 1.5; }
+.steps li::before { content: counter(step); display: block; margin-bottom: 10px; font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -.04em; color: var(--accent); }
+.steps strong { display: block; margin-bottom: 4px; font-size: 17px; }
+.steps a { text-decoration: none; }
+.steps a:hover strong { text-decoration: underline; }
+
+.install { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(20px, 5vw, 72px); padding: clamp(28px, 4vw, 48px); margin-bottom: clamp(48px, 7vw, 88px); border-radius: 12px; background: var(--panel); border: 1px solid var(--edge); color: #fff; }
+.install h2 { margin: 0; }
+.install ol { margin: 0; padding-left: 22px; }
+.install li { margin-bottom: 14px; padding-left: 4px; }
+.install li::marker { font-weight: 700; color: #9fb1ff; }
+.install a { color: #fff; }
+.install code { background: rgba(255,255,255,.12); color: #fff; white-space: nowrap; }
+.install .command { margin: 10px 0 4px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.2); }
+.install .command code { background: none; white-space: normal; }
+.install .alt { margin: 18px 0 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.18); color: #c9cedb; font-size: 15px; }
+
+details.full { border-top: 2px solid var(--ink); margin-bottom: 40px; }
+details.full > summary { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 20px; padding: 26px 0; cursor: pointer; list-style: none; }
+details.full > summary::-webkit-details-marker { display: none; }
+details.full > summary::after { content: "Open"; grid-row: 1 / span 2; grid-column: 2; padding: 10px 18px; border: 1px solid var(--ink); border-radius: 8px; font-size: 15px; font-weight: 600; }
+details.full[open] > summary::after { content: "Close"; }
+.full-title { font-size: clamp(24px, 3vw, 32px); font-weight: 700; letter-spacing: -.025em; }
+.full-sub { color: var(--muted); }
+.full .layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 64px; padding: 24px 0 64px; }
+.full aside { position: sticky; top: 24px; align-self: start; }
+.full .eyebrow { margin: 0 0 12px; font-size: 14px; font-weight: 650; }
+.full nav ol { list-style: none; padding: 0; counter-reset: section; margin: 0; }
+.full nav li { counter-increment: section; }
+.full nav li a { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; text-decoration: none; font-size: 14px; line-height: 1.45; }
+.full nav li a::before { content: counter(section) "."; min-width: 1.4em; color: var(--muted); font-size: 13px; }
+.full .example-link { display: block; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; }
+.full .content { min-width: 0; max-width: 46rem; }
+.full .method > p:first-child { font-size: 19px; margin-top: 0; }
+.full h2 { font-size: clamp(23px, 2.6vw, 28px); letter-spacing: -.02em; line-height: 1.25; margin: 48px 0 18px; padding-top: 22px; border-top: 1px solid var(--line); }
+.full h3 { font-size: 20px; line-height: 1.3; letter-spacing: -.015em; margin: 30px 0 14px; }
+.full p { margin: 0 0 18px; }
+.full .content ul, .full .content ol { padding-left: 23px; margin: 0 0 22px; }
+.full .content li { padding-left: 5px; margin-bottom: 7px; }
+.full .content li::marker { color: var(--accent); }
+.full .table-scroll { margin: 22px 0; border: 1px solid var(--line); border-radius: 6px; background: var(--sheet); }
+.full pre { margin: 22px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--sheet); }
+.full table { font-size: 14px; line-height: 1.55; }
+.full .option-table { table-layout: fixed; min-width: 760px; }
+.full .option-table th:first-child { width: 160px; }
+.full th { background: var(--head); font-weight: 650; }
+.full th, .full td { padding: 12px 14px; vertical-align: top; min-width: 110px; }
+.full tr:not(:last-child) > *, .full th { border-bottom: 1px solid var(--line); }
+.full th:not(:last-child), .full td:not(:last-child) { border-right: 1px solid var(--line); }
+td[data-rating="positive"] { background: var(--pos); } td[data-rating="negative"] { background: var(--neg); }
+td[data-rating="mixed"], td[data-rating="simulated"] { background: var(--mix); } td[data-rating="unknown"] { background: var(--unk); }
+.rating-legend { line-height: 2; }
+.rating-legend strong { padding: 3px 7px; border-radius: 4px; }
+.rating-legend strong:nth-of-type(1) { background: var(--pos); } .rating-legend strong:nth-of-type(2) { background: var(--mix); }
+.rating-legend strong:nth-of-type(3) { background: var(--neg); } .rating-legend strong:nth-of-type(4) { background: var(--unk); }
+.full .example { margin-top: 64px; padding-top: 8px; border-top: 3px solid var(--ink); }
+.full .example h2 { border: 0; margin-top: 10px; font-size: 34px; }
+.full .example > p:first-of-type { padding: 14px 18px; border-left: 3px solid var(--note-line); background: var(--note-bg); }
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding: 24px 0 36px; border-top: 1px solid var(--line); font-size: 14px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .matrix td[data-r] { animation: fill .45s ease-out both; animation-delay: calc(var(--i) * 70ms + 250ms); }
+  @keyframes fill { from { background-color: var(--sheet); } }
+}
+@media (max-width: 1000px) {
+  .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .feature, .install { grid-template-columns: minmax(0, 1fr); }
+  .full .layout { grid-template-columns: 180px minmax(0, 1fr); gap: 36px; }
+}
+@media (max-width: 860px) { .hero-copy { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  .notes, .steps ol { grid-template-columns: 1fr; }
+  .steps ol { gap: 22px; }
+  .steps li { display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 10px; }
+  .steps li::before { grid-row: span 2; margin: 0; font-size: 32px; }
+  .full .layout { grid-template-columns: 1fr; gap: 24px; }
+  .full aside { position: static; }
+  .full nav ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .full nav li a { min-height: 44px; }
+  .links { gap: 16px; }
+  .topline { flex-wrap: wrap; row-gap: 4px; }
+  .topline-end { display: contents; }
+  .theme { order: 2; }
+  .links { order: 3; width: 100%; }
+}
+@media print {
+  body { background: #fff; font-size: 11pt; }
+  .topline, .command, .install, .skip, footer { display: none; }
+  :root { color-scheme: light; }
+  details.full > summary::after { display: none; }
+  .table-scroll { overflow: visible; }
+  pre { overflow: visible; white-space: pre-wrap; }
+  .matrix, .feature-table, .full .option-table { min-width: 0; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#top">Skip to the content</a>
+<div class="shell">
+<header class="topline"><a class="brand" href="../"><span class="symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>joeysim-skills</a><div class="topline-end"><nav class="links" aria-label="Site"><a href="#install">Install</a><a href="#skill">Full skill</a><a href="https://github.com/joeysim/joeysim-skills">GitHub</a></nav><div class="theme" role="group" aria-label="Color theme" hidden><button type="button" data-theme-choice="system" aria-label="System theme" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button><button type="button" data-theme-choice="light" aria-label="Light theme" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg></button><button type="button" data-theme-choice="dark" aria-label="Dark theme" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button></div></div></header>
+<main id="top">
+<section class="hero" aria-labelledby="title">
+<h1 id="title"><span>Lost the plot?</span> <span>Get the map.</span></h1>
+<div class="hero-copy"><p class="lead">Where Were We is a skill for coding agents. After hours of side tasks, ask "where were we?" or say "I lost the plot". Your agent reads the full session and the git state. You get the goal, a map of the open loops, and one next step.</p>
+<div class="get"><div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill www</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill www">Copy</button></div>
+<p class="ask">Then ask your agent: <code>Where were we?</code></p>
+<p class="version">Version 1.1.0, formerly I Lost the Plot. Made for Claude Code, where a script reads the session transcript. In Codex and other agents, the skill uses the conversation context. No Node.js? <a href="www.zip" download>Download the ZIP</a>.</p></div></div>
+</section>
+<figure class="specimen" aria-labelledby="specimen-title">
+<div class="sheet">
+<p class="sheet-q" id="specimen-title">You: "I lost the plot."</p>
+<p>You set out to "stop the 429 storms" on the API gateway before Friday.<br>Right now the Redis counters are half done, and one test still fails.</p>
+<pre role="region" aria-label="Example thread map" tabindex="0">Rate limits for the API gateway
+├─ ✓ Token bucket middleware
+├─ ▶ Redis counters                      ← you are here
+│  └─ ○ 1  Fix the flaky counter test    fails 1 run in 5, cause is a guess
+├─ ? 2  Limits per tenant or per key?    say "2 tenant" or "2 key"
+├─ ○ 3  Write docs for the new headers   you said "later" at 13:40
+├─ ✗ Limits in nginx
+└─ ○ 4  Commit four changed files        branch rate-limit, last commit 13:55
+
+▶ now   ○ open   ? needs you   ✓ done   ✗ dropped</pre>
+<p>Next: finish the Redis counters, because loop 1 is probably the same bug.<br>Say "go" to start that, a number to pick a different loop, or "drop 3" to close a loop.</p>
+</div>
+<figcaption>
+<ol class="notes">
+<li><span class="pin" aria-hidden="true">▶</span><span><strong>You are here.</strong> One line marks the work that was in progress at your last prompt.</span></li>
+<li><span class="pin" aria-hidden="true">○</span><span><strong>Each open loop is an action.</strong> The name starts with a verb. The note gives the evidence. A loop sits below the thread that caused it.</span></li>
+<li><span class="pin" aria-hidden="true">?</span><span><strong>Questions wait for you.</strong> The note gives the replies that answer the question.</span></li>
+<li><span class="pin" aria-hidden="true">✓</span><span><strong>Done work takes one line.</strong> Finished and dropped work stays on the map, with no note.</span></li>
+</ol>
+<p class="fine">This sample is fictional.</p>
+</figcaption>
+</figure>
+<section class="feature" aria-labelledby="feature-title">
+<div>
+<h2 id="feature-title">Answer in one word.</h2>
+<p>The plot ends with one recommended step. Until you reply, your agent only reads. It does not edit files, run tests, or continue a task.</p>
+<ul>
+<li>Each reply is a normal prompt. The skill keeps no state file.</li>
+<li>The numbers change with each plot. Thus your agent starts its answer with the name of the loop.</li>
+<li>"drop" changes nothing in your files. The next plot shows the loop as dropped.</li>
+</ul>
+</div>
+<div>
+<div class="sheet"><div class="table-scroll" role="region" aria-label="Replies to the plot" tabindex="0"><table class="feature-table"><thead><tr><th>Reply</th><th>What your agent does</th></tr></thead><tbody><tr><td><code>go</code></td><td>Does the step from the "Next:" line.</td></tr><tr><td><code>3</code></td><td>Continues loop 3. First it tells what is left.</td></tr><tr><td><code>2 key</code></td><td>Uses your answer for question 2. Then it continues the work that waited for it.</td></tr><tr><td><code>drop 3</code></td><td>Marks loop 3 as dropped. No edits, no reverts, no deletes.</td></tr><tr><td><code>more</code></td><td>Shows the older loops as a second map.</td></tr></tbody></table></div></div>
+</div>
+</section>
+<section class="steps" aria-labelledby="steps-title">
+<h2 id="steps-title">How your agent finds the plot</h2>
+<ol>
+<li><a href="#get-the-evidence"><strong>Read the session</strong></a>A bundled script reads the transcript on disk. It also finds the prompts that context compaction removed.</li>
+<li><a href="#get-the-evidence"><strong>Read the workspace</strong></a>The same script gives the git state: the branch, the changed files, the stashes, and the new commits.</li>
+<li><a href="#find-the-threads"><strong>Find the threads</strong></a>Each line of work gets one status. The agent looks for the loops that you forget first.</li>
+<li><a href="#show-the-plot"><strong>Show the plot</strong></a>Two sentences, one map, and one next step, in 30 lines or fewer.</li>
+<li><a href="#act-on-the-reply"><strong>Act on your reply</strong></a>"go", a number, an answer, "drop", or "more".</li>
+</ol>
+</section>
+<section class="install" id="install" aria-labelledby="install-title">
+<h2 id="install-title">Install</h2>
+<div>
+<ol>
+<li>Run this in your project folder:<div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill www</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill www">Copy</button></div></li>
+<li>To add the skill for your user account instead, so that every project has it, add <code>-g</code>.</li>
+<li>In a long session, ask your agent: <code>Where were we?</code> Or say <code>I lost the plot.</code></li>
+<li>Claude Code asks before it runs the bundled script. The script only reads: the session transcript and the git state.</li>
+</ol>
+<p class="alt">No Node.js? <a href="www.zip" download>Download the ZIP</a>, and move the <code>www</code> folder into <code>~/.claude/skills/</code> for Claude Code, or into <code>~/.agents/skills/</code> for Codex and other agents.</p>
+</div>
+</section>
+<details class="full" id="skill">
+<summary><span class="full-title">Read the full skill</span><span class="full-sub">The complete instructions that your agent follows, and an example.</span></summary>
+<div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#get-the-evidence">Get the evidence</a></li><li><a href="#find-the-threads">Find the threads</a></li><li><a href="#show-the-plot">Show the plot</a></li><li><a href="#act-on-the-reply">Act on the reply</a></li></ol><a class="example-link" href="#example">Example</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions">
+<p>The user lost track of this session.
+Show where the session was headed, which threads are open, and the next step.</p>
+<p>The user's words are about the full session, not about your last answer. Do not explain the last answer again.</p>
+<p>Only read. Do not edit files, run tests, or continue a task until the user replies to the plot.</p>
+<h2 id="get-the-evidence">1. Get the evidence</h2>
+<p>Run the digest script from the user's working folder:</p>
+<p><code>python3 &lt;skill folder&gt;/scripts/session_digest.py</code></p>
+<p>The script prints each user prompt with its time, and the end of each agent turn.
+It reads the session transcript on disk. Thus it also shows the prompts that context compaction removed.
+It also prints the git state: the branch, the changed files, the stashes, and the commits since the session start. Do not run git again.
+Read the full output. Do not cut it with <code>head</code> or <code>tail</code>. The script keeps the output short.
+When the script cannot run or finds no transcript, use the conversation context and run <code>git status --short --branch</code>.</p>
+<p>The script cannot see the task list, background tasks, or subagents. Check those too, when available.</p>
+<h2 id="find-the-threads">2. Find the threads</h2>
+<p>A thread is one line of work: a request, a question, a problem, or a side idea.
+Read the digest from the first prompt to the last. Give each thread one status:</p>
+<div class="table-scroll" role="region" aria-label="Thread statuses" tabindex="0"><table><thead><tr><th>Mark</th><th>Status</th><th>Meaning</th></tr></thead><tbody><tr><td><code>▶</code></td><td>now</td><td>The work that was in progress at the last prompt.</td></tr><tr><td><code>○</code></td><td>open</td><td>Requested or started, and not finished.</td></tr><tr><td><code>?</code></td><td>needs you</td><td>Waits for an answer or a decision from the user.</td></tr><tr><td><code>✓</code></td><td>done</td><td>Finished, with evidence in the session or in git.</td></tr><tr><td><code>✗</code></td><td>dropped</td><td>The user canceled it or replaced it.</td></tr></tbody></table></div>
+<p>Look for these open loops. The user forgets them first:</p>
+<ul>
+<li>A request that the user made in passing: "also", "later", "at some point", "remind me".</li>
+<li>A prompt that the user typed while the agent worked.</li>
+<li>A question from the agent that the user did not answer.</li>
+<li>A question from the user that the agent did not answer.</li>
+<li>A task that an interruption or a new request stopped.</li>
+<li>A step that the agent promised and did not do.</li>
+<li>A problem that the agent found and did not fix: a failing test, an error, an unverified claim.</li>
+<li>Work that is not committed, not pushed, or in a stash. A branch that is not merged.</li>
+</ul>
+<p>Use only what the session and the workspace show. Do not invent a thread.
+When only the agent's own words say "done", and git or a test result disagrees, mark the thread open.</p>
+<h2 id="show-the-plot">3. Show the plot</h2>
+<p>Print these four parts, in this order, and nothing else. Keep the answer to 30 lines or fewer.</p>
+<ol>
+<li>One sentence that starts with "You set out to". Use the user's own words where possible.</li>
+<li>One sentence that starts with "Right now". Tell where the work is.</li>
+<li>The thread map, in a code block. The map shows each thread and each open loop. Do not add a list of loops below it.</li>
+<li>One line that starts with "Next:", with one recommended step and the reason. Then the last line: <code>Say "go" to start that, a number to pick a different loop, or "drop 3" to close a loop.</code> Use a number from the map.</li>
+</ol>
+<p>The map is a tree:</p>
+<ul>
+<li>The first line is the session goal, with no mark. When the goal changed during the session, use the latest goal.</li>
+<li>The next level shows the threads of that goal, in the order that they started.</li>
+<li>Indent a thread below the thread that caused it: its parts, its side tasks, and its open loops.</li>
+<li>Put a loop at the top level only when no thread caused it.</li>
+<li>Show the earlier goals as one <code>✓</code> thread, such as <code>✓ Earlier: repo setup, 1.4.0, 1.5.0</code>. Put their open loops below it.</li>
+</ul>
+<p>Each line has a mark and a name. Some lines also have a note:</p>
+<div class="table-scroll" role="region" aria-label="Map lines" tabindex="0"><table><thead><tr><th>Mark</th><th>Name</th><th>Note</th></tr></thead><tbody><tr><td><code>○</code></td><td>A number, then the action that closes the loop. Start with a verb.</td><td>The state or the evidence: a time, a quote, a file, or a result.</td></tr><tr><td><code>?</code></td><td>A number, then the question.</td><td>The replies that answer it, such as <code>say "2 tenant" or "2 key"</code>.</td></tr><tr><td><code>▶</code></td><td>The work in progress.</td><td><code>← you are here</code></td></tr><tr><td><code>✓</code> or <code>✗</code></td><td>The work that is done or dropped.</td><td>No note.</td></tr></tbody></table></div>
+<ul>
+<li>Number the loops from 1, from the top of the map to the bottom.</li>
+<li>Use six words or fewer for a name, and eight words or fewer for a note.</li>
+<li>Align the notes in one column. Keep each line to 90 characters or fewer.</li>
+<li>Use <code>▶</code> one time at most.</li>
+<li>Show work that is not committed or not pushed as one <code>○</code> thread.</li>
+<li>Show seven loops at most. Keep the loops of the latest goal, then the most important older loops.</li>
+<li>When more loops exist, add one last line below the earlier goals: <code>○ + 4 older loops</code>, with the note <code>say "more"</code>.</li>
+<li>When the map has more than 15 lines, join the <code>✓</code> lines of one level into one line, such as <code>✓ 5 smaller fixes</code>.</li>
+<li>End the block with an empty line and the legend line.</li>
+</ul>
+<h2 id="act-on-the-reply">4. Act on the reply</h2>
+<div class="table-scroll" role="region" aria-label="Replies and actions" tabindex="0"><table><thead><tr><th>Reply</th><th>Action</th></tr></thead><tbody><tr><td>"go"</td><td>Do the step from the "Next:" line.</td></tr><tr><td>A number</td><td>Continue that loop. First tell what is left, in one or two sentences.</td></tr><tr><td>A number and an answer, such as "2 key"</td><td>Use the answer for that <code>?</code> loop. Then continue the work that waited for it.</td></tr><tr><td>"drop" and a number</td><td>Mark that loop as dropped. Change nothing: no edits, no reverts, no deletes.</td></tr><tr><td>"more"</td><td>Show the older loops as a map in the same format, with new numbers. Use one <code>✓</code> thread for each earlier goal, with its loops below it.</td></tr></tbody></table></div>
+<p>Start the answer with the name of the loop, such as "Loop 3, docs for the new headers:".
+The numbers change with each plot. The name keeps the transcript clear for the next plot.</p></article><article class="example" aria-label="Fictional example">
+<h2 id="example">Example</h2>
+<p>This example is fictional.</p>
+<p>You set out to "stop the 429 storms" on the API gateway before Friday.
+Right now the Redis counters are half done, and one test still fails.</p>
+<pre role="region" aria-label="Example thread map" tabindex="0">Rate limits for the API gateway
+├─ ✓ Token bucket middleware
+├─ ▶ Redis counters                      ← you are here
+│  └─ ○ 1  Fix the flaky counter test    fails 1 run in 5, cause is a guess
+├─ ? 2  Limits per tenant or per key?    say "2 tenant" or "2 key"
+├─ ○ 3  Write docs for the new headers   you said "later" at 13:40
+├─ ✗ Limits in nginx
+└─ ○ 4  Commit four changed files        branch rate-limit, last commit 13:55
+
+▶ now   ○ open   ? needs you   ✓ done   ✗ dropped</pre>
+<p>Next: finish the Redis counters, because loop 1 is probably the same bug.
+Say "go" to start that, a number to pick a different loop, or "drop 3" to close a loop.</p></article></div></div>
+</details>
+</main>
+<footer><span>Where Were We, version 1.1.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
+</div>
+<script>
+// Open the full skill when a link or the address points into it.
+function openTarget() {
+  const target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  const full = target && target.closest("details.full");
+  if (full && !full.open) { full.open = true; target.scrollIntoView(); }
+}
+addEventListener("hashchange", openTarget);
+openTarget();
+// Copy the install command. The command stays selectable when the clipboard is not available.
+document.querySelectorAll("[data-copy]").forEach(button => button.addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = "Copied"; }
+  catch { button.textContent = "Select it"; }
+  setTimeout(() => { button.textContent = "Copy"; }, 2000);
+}));
+// Theme switch. System follows the device setting. Light and Dark are saved in this browser.
+const themeGroup = document.querySelector(".theme");
+function showTheme() {
+  const current = document.documentElement.dataset.theme || "system";
+  themeGroup.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeChoice === current)));
+}
+themeGroup.addEventListener("click", event => {
+  const choice = event.target.closest("button")?.dataset.themeChoice;
+  if (!choice) return;
+  if (choice === "system") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = choice;
+  try { if (choice === "system") localStorage.removeItem("theme"); else localStorage.setItem("theme", choice); } catch {}
+  showTheme();
+});
+themeGroup.hidden = false;
+showTheme();
+</script>
+</body>
+</html>

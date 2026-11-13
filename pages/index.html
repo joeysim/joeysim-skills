@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>try { const t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch {}</script>
-<meta name="description" content="Agent skills for Claude Code, Codex, and other agents: Decision Matrix and I Lost the Plot.">
+<meta name="description" content="Agent skills for Claude Code, Codex, and other agents: Decision Matrix and Where Were We.">
 <title>joeysim-skills: agent skills for Claude Code, Codex, and other agents</title>
 <style>
 /* Each color has a light and a dark value. The system setting picks one, unless the reader picks a theme (data-theme on <html>). */
@@ -237,10 +237,10 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <p class="ask">Then ask your agent: <code>Create a decision matrix.</code></p>
 </li>
 <li class="sheet">
-<h3 class="sheet-q"><a href="i-lost-the-plot/">I Lost the Plot</a></h3>
-<p>After hours of side tasks, say that you lost the plot. Your agent reads the full session and the git state. You get the goal, a map of the open loops, and one next step.</p>
-<div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill i-lost-the-plot</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill i-lost-the-plot">Copy</button></div>
-<p class="ask">Then tell your agent: <code>I lost the plot.</code></p>
+<h3 class="sheet-q"><a href="www/">Where Were We</a></h3>
+<p>After hours of side tasks, ask "where were we?" or say that you lost the plot. Your agent reads the full session and the git state. You get the goal, a map of the open loops, and one next step.</p>
+<div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill www</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill www">Copy</button></div>
+<p class="ask">Then ask your agent: <code>Where were we?</code></p>
 </li>
 </ul>
 </section>
