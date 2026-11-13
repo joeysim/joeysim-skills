@@ -6,8 +6,8 @@ A collection of agent skills. Each skill is a folder with a `SKILL.md` file in t
 
 | Skill | Use it when |
 |-------|-------------|
-| [Decision Matrix](skills/decision-matrix/SKILL.md) | Compare options, evidence, trade-offs, and unknowns to choose the next action. Keep a decision log in Markdown and HTML. |
-| [I Lost the Plot](skills/i-lost-the-plot/SKILL.md) | Get a map of a long agent session when you lose track: the goal, the open loops, and the next step. |
+| [Decision Matrix](skills/decision-matrix/SKILL.md) | You need to make a decision that involves trade-offs between different options, or you want to capture decisions that you already made. |
+| [I Lost the Plot](skills/i-lost-the-plot/SKILL.md) | You lost track of a long agent session, and you want the goal, the open loops, and the next step. |
 
 ## Install
 
