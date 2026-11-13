@@ -13,6 +13,7 @@ skills/
     assets/       optional: templates and other files
     agents/       optional: agent metadata, such as openai.yaml for Codex
 pages/
+  index.html      the site root: a sheet for each skill
   <name>/
     index.html    required: the web page for the skill
 templates/
@@ -54,7 +55,7 @@ templates/
    ```
 
 3. Test the skill on a real task. Compare the result with the same task without the skill. The `superpowers:writing-skills` skill gives a full test process.
-4. Add a row for the skill to the table in `README.md`.
+4. Add a row for the skill to the table in `README.md`, and a sheet for it to `pages/index.html`.
 5. Make a page for the skill. Follow the "Webpages" section of `README.md`.
 6. Commit the skill and its page. Then tag the commit, as in "Versions".
 

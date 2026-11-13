@@ -73,4 +73,5 @@ For another skill, replace `decision-matrix` with its folder name.
 On each push to `main`, [the Pages workflow](.github/workflows/pages.yml) builds the downloads and publishes `pages/`.
 The Decision Matrix page is at https://joeysim.github.io/joeysim-skills/decision-matrix/.
 The I Lost the Plot page is at https://joeysim.github.io/joeysim-skills/i-lost-the-plot/.
+The site root, https://joeysim.github.io/joeysim-skills/, lists every skill. Its page is `pages/index.html`, with the same styles and script as the template.
 Git ignores generated downloads and local runtime files.
