@@ -223,7 +223,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <div class="hero-copy"><p class="lead">A skill for coding agents. Ask your agent to compare options, and it rates each one against the same criteria. Every rating cites its evidence. Unknowns stay unknown. You get one clear next step.</p>
 <div class="get"><div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill decision-matrix</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill decision-matrix">Copy</button></div>
 <p class="ask">Then ask your agent: <code>Create a decision matrix.</code></p>
-<p class="version">Version 1.6.0. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
+<p class="version">Version 1.6.1. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
 </section>
 <figure class="specimen" aria-labelledby="specimen-title">
 <div class="sheet">
@@ -282,31 +282,24 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <summary><span class="full-title">Read the full skill</span><span class="full-sub">The complete instructions that your agent follows, and a worked example.</span></summary>
 <div class="layout"><aside><nav aria-label="On this page"><p class="eyebrow">The method</p><ol><li><a href="#start-from-the-available-context">Start from the available context</a></li><li><a href="#frame-the-decision">Frame the decision</a></li><li><a href="#establish-shared-criteria">Establish shared criteria</a></li><li><a href="#define-credible-options">Define credible options</a></li><li><a href="#investigate-the-uncertainty">Investigate the uncertainty</a></li><li><a href="#rate-every-option">Rate every option</a></li><li><a href="#recommend-the-next-action">Recommend the next action</a></li><li><a href="#present-the-matrix">Present the matrix</a></li><li><a href="#keep-a-decision-log">Keep a decision log</a></li></ol><a class="example-link" href="#visual-output">Visual output rules</a><a class="example-link" href="#experiments">Experiment rules</a><a class="example-link" href="#example">Worked example</a></nav></aside><div class="content"><article class="method" id="method" aria-label="Complete skill instructions"><p>Build a comparison that explains the next useful action and what evidence could change it.
 This standalone method requires no specific application, service, or database.</p>
-<p>Use this method when alternatives could materially change the result.
+<p>Use this method when alternatives could materially change the result, even without an explicit request.
 For routine choices, give a direct answer unless the user requests a matrix.
-Keep generated files in the local workspace.
-External publication requires an explicit user request for that destination.</p>
+Keep generated files in the local workspace. Publish only to a destination that the user names.
+Stay within the current task and authority.
+A comparison or a recommendation alone does not authorize implementation, spending, a scope change, or more resources.</p>
 <h2 id="start-from-the-available-context">Start from the available context</h2>
-<p>The user does not need to supply options, criteria, or an invocation format.
-A request such as &quot;Create a decision matrix&quot; is sufficient when the conversation identifies the decision.
+<p>The user does not need to supply options, criteria, or a request format.
+&quot;Create a decision matrix&quot; is enough when the conversation identifies the decision.
 Infer the decision question, candidate options, and criteria from the user&#x27;s goal and available evidence.
 State material assumptions explicitly.
 If the decision subject is missing or ambiguous, ask one focused question about the goal.
-Do not require the user to invent options before proceeding.</p>
+Otherwise, ask only when a fact or preference that only the user has would materially change the next action.
+When an explicit assumption is enough, continue authorized, reversible work.</p>
 <p>When the user names options, compare only those options.
 When the named options exclude the current approach, add it as the no-change option.
 Mention another credible option in one line outside the matrix when it could change the decision.
 When the user names no options, generate credible alternatives.
 Keep option generation separate from evidence collection. A generated option has no observed results until evidence supports them.</p>
-<p>Apply this method when a consequential comparison helps the current task, even without an explicit skill request.
-The agent can use options already under consideration or generate them from context.
-Keep autonomous use within the existing task and authority.</p>
-<p>Example requests:</p>
-<ul>
-<li>&quot;Create a decision matrix.&quot; Use the decision already under discussion.</li>
-<li>&quot;Use $decision-matrix for this goal.&quot; Generate suitable options and criteria.</li>
-<li>&quot;Compare option A and option B with $decision-matrix.&quot; Use the supplied options.</li>
-</ul>
 <h2 id="frame-the-decision">Frame the decision</h2>
 <ol>
 <li>State the decision question and the intended outcome.</li>
@@ -315,11 +308,7 @@ Keep autonomous use within the existing task and authority.</p>
 <li>Record required capabilities, resource limits, available evidence, and material uncertainty.</li>
 </ol>
 <p>Separate the delivery format from the approach to the problem.
-For example, a website is a format, while guided steps and direct editing are different approaches.
-Use available context before requesting missing information.
-Ask about a preference only when its answer materially changes the next action.
-Continue authorized, reversible work when an explicit assumption is sufficient.
-A comparison request alone does not authorize implementation, spending, or publication.</p>
+For example, a website is a format, while guided steps and direct editing are different approaches.</p>
 <h2 id="establish-shared-criteria">Establish shared criteria</h2>
 <p>Use observable outcomes that distinguish useful options.
 Assign each criterion a stable identifier, a clear label, a required flag, and a source.
@@ -340,19 +329,14 @@ Record reasons for changed inferences or assumptions.</p>
 Consolidate overlapping criteria without losing distinct requirements.
 Record known priorities among optional criteria without inventing weights.
 Label inferred priorities as assumptions.</p>
-<p>Check whether an option meeting every criterion would justify proceeding.
-Investigate remaining objections for missing constraints, unclear criteria, or disputed evidence.
-Run this check yourself.
-Ask only when unavailable user information materially changes the decision.</p>
+<p>Check yourself whether an option that meets every criterion would justify proceeding.
+Investigate remaining objections for missing constraints, unclear criteria, or disputed evidence.</p>
 <h2 id="define-credible-options">Define credible options</h2>
 <p>Compare different mechanisms or explanations of the problem.
 When only one approach is apparent, consider its opposite or a smaller trial.
-Use these prompts only to generate credible alternatives.
 Do not invent a compromise or a fixed number of options.
-Include the current approach when it remains a credible option.
-Otherwise, explain its exclusion or use another justified baseline.
-For change decisions, consider a no-change or no-action option, including the benefits forgone by not acting.
-Use the current approach for this option when it already represents no change.
+Include the current approach as the no-change option when it remains credible. Otherwise, explain its exclusion.
+For a change decision, consider no action, including the benefits forgone by not acting.
 Use the fewest options and criteria that cover the decision.
 Use at most five criteria, unless the user names or asks for more.
 Two to four options usually fit one view. Retain more options when the decision requires them.</p>
@@ -380,15 +364,14 @@ When execution exceeds the request, provide the provisional matrix and the exper
 Do not run that experiment without the necessary authorization.</p>
 <h2 id="rate-every-option">Rate every option</h2>
 <p>Rate every option against every shared criterion exactly once.
-Explain the scale directly above or below the matrix.
 Use qualitative ratings unless measurements justify numbers.
-Define what each applicable rating means for each criterion.
+Below the matrix, define what each applicable rating means for each criterion.
 Binary constraints need no artificial middle rating.</p>
 <div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>Rating</th><th>Meaning</th></tr></thead><tbody><tr><td>Supported</td><td>Cited evidence supports the criterion within the stated limits.</td></tr><tr><td>Partial</td><td>Cited evidence supports only part of the criterion or includes material limitations.</td></tr><tr><td>Not supported</td><td>Cited evidence shows a failure against the criterion.</td></tr><tr><td>Unknown</td><td>The available evidence does not establish the outcome.</td></tr><tr><td>Simulated</td><td>A model simulation supplies a provisional judgment, not a human observation.</td></tr></tbody></table></div>
 <p>Adapt these labels when the task needs another clearly defined scale.
 Keep Unknown and Simulated explicit.
-Give each evidence reference an ID: E1, E2, and so on.
 Use local paths, source links, test records, or identifiable user input as evidence references.
+Give each evidence reference an ID: E1, E2, and so on.
 Record each observation&#x27;s method, date, and relevant scope.
 Explain the missing evidence for Unknown cells.
 Do not cite an assumption as proof of an unmeasured outcome.
@@ -396,53 +379,39 @@ Separate observations, interpretations, assumptions, and unknowns.
 Limit human evidence to the experience actually reported or observed.
 Browser checks and model simulations cannot establish human effort, preference, or general usability.</p>
 <p>Do not invent weights, measurements, or confidence percentages.
+Use weights only when the user supplies or accepts their meaning.
 If the user requests numeric scoring, define its anchors, direction, units, and evidence basis.
 Keep ordinal judgments distinct from measured quantities.
-Use weights only when the user supplies or accepts their meaning.
-Do not calculate a total by default.
-Never hide a failed required constraint inside an average.
-Do not select an option by counting favorable cells.
+Give a total only when the user asks for one.
+Never hide a failed required constraint inside an average, and do not select an option by counting favorable cells.
 An unknown required outcome remains unresolved, even when other ratings are favorable.</p>
 <h2 id="recommend-the-next-action">Recommend the next action</h2>
-<p>Start with the recommendation and its main reason.
-Use the recommendation and its accepted trade-off as the report or matrix headline.
-Choose exactly one recommended option for the current decision.
-Specify whether to test, build, or retain that option.
+<p>Lead with the recommendation, its main reason, and the trade-off that it accepts. Use them as the report or matrix headline.
+Recommend exactly one option for the current decision, and say whether to test, build, or retain it.
 For other decision domains, use an equivalent concrete action.
 When evidence cannot support a final choice, recommend one provisional next action.
-Use other options as alternatives or test baselines without labeling them Recommended.
-State the main trade-off, material unknowns, and the condition for reconsideration.
-State which plausible assumptions or preferences could change the recommendation.
-Check that numerical trade-offs in the headline and recommendation match the matrix.
-Name the baseline, units, and relevant time period for each numerical comparison.
-Flag any unexplained differences before presenting those comparisons as established.
-Preserve documented disagreement about facts, priorities, or recommendations.
-Identify what evidence or user choice could resolve that disagreement.
-Do not infer consensus from silence.
-Preserve the distinction between the agent&#x27;s recommendation and the user&#x27;s actual selection.
-Recommendations do not authorize scope changes or override resource limits.</p>
+Use the other options as alternatives or test baselines.
+State the material unknowns and the condition for reconsideration, including assumptions or preferences that could change it.
+Check that the numbers in the headline and the recommendation match the matrix.
+Give the baseline, units, and time period for each numerical comparison. Flag unexplained differences before you present it as established.
+Preserve documented disagreement about facts, priorities, or recommendations, and say what evidence or user choice could resolve it.
+Do not infer consensus from silence.</p>
 <h2 id="present-the-matrix">Present the matrix</h2>
 <p>For a personal decision that is easy to reverse, keep the answer short.
 Give the recommendation, the criteria with sources, the matrix, what could change the answer, and the evidence.
 Leave out option hypotheses, statuses, and the experiment plan unless the user asks for them.</p>
 <p>Use Markdown unless the user requests another format or an existing destination requires one.
-Place criteria in rows and options in columns.
-Keep this orientation across matrices, including narrow layouts.
-Number criterion rows 1, 2, 3, and so on.
-Label option columns A, B, C, and so on.
-Keep these labels consistent within each decision and its supporting explanation.
-These labels do not replace stable identifiers.
-Place <strong>Recommended</strong> at the top of the recommended option&#39;s header, above its letter and title.
-Use only <strong>Recommended</strong> or <strong>Selected</strong> as the chip text.
-Keep bold text as the fallback for plain Markdown.
-Keep the option letter and title in that header.
-Keep provisional recommendations explicitly provisional.
+Put criteria in rows and options in columns in every matrix, also in narrow layouts.
+Number the criterion rows 1, 2, 3, and label the option columns A, B, C.
+Use the same labels in the explanation. They do not replace stable identifiers.
+Put <strong>Recommended</strong>, in bold, at the top of the recommended option&#x27;s header, above its letter and title.
+Put <strong>Selected</strong> there instead only when the user chose that option. Use no other chip text.
 Give an option a description only when a reader cannot tell what the option is from its title.
 A well-known product, brand, or place needs none, such as <code>Tesla Model 3</code> or <code>Lisbon</code>.
 A label for an approach, or a niche name, needs one, such as <code>Hybrid</code> or <code>Phonon 31M</code>.
 A description says what the option is and how it works, in eight words or fewer.
-Put the facts that set options apart, such as a trim or a fuel type, in the cells.
 Put it in italic text beneath the title, inside the option header.
+Put the facts that set options apart, such as a trim or a fuel type, in the cells.
 Keep each criterion label to four words or fewer, such as <code>Lease per month</code>. Give its terms with its source.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
@@ -460,14 +429,12 @@ For a Simulated rating, start the key fact with &quot;Simulated:&quot;.
 For an Unknown rating, make the missing evidence the key fact, such as <code>Not tested.</code>
 When the matrix has scores, add the score to the key fact, such as <code>0.29 s, score 5.</code>
 Link each tool, framework, model, service, or standard at its first mention.
-Link each option title in the matrix header to the option&#39;s main page.
-Open the option&#39;s main page before you link it.
+Link each option title in the matrix header to the option&#x27;s main page.
+Open the option&#x27;s main page before you link it.
 Give only links that you opened or that a cited source gives. Do not guess an address.
 Link local files with paths relative to the output file.
-Show each rating&#x27;s color in one way only. The output format sets the way:</p>
+Show each rating&#x27;s color in one way only, as the output format sets:</p>
 <div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table><thead><tr><th>Output</th><th>Rating cell</th><th>Color key below the matrix</th></tr></thead><tbody><tr><td>Plain Markdown</td><td>Start the cell with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown.</td><td>The markers and their labels.</td></tr><tr><td>Visual, such as HTML</td><td>Fill the cell with its background color.</td><td>Color swatches and their labels.</td></tr></tbody></table></div>
-<p>Never combine color markers and background fills.
-When you convert Markdown output to HTML, replace each marker with its background fill.</p>
 <p>Keep criterion sources, and any option hypotheses you show, close to the table.
 When you show statuses, keep exploration status and build status separate from the recommendation label.
 State whether the comparison is provisional or complete.
@@ -475,21 +442,18 @@ A complete comparison does not prove that every required outcome passed.</p>
 <p>Before you make visual output without the bundled script, read <a href="#visual-output">the visual rules</a>.</p>
 <p>Say each fact once, in the section that the layout gives it.
 Leave out lines that only say that nothing applies, such as no weights or no left-out criteria.
-Use one instruction per sentence.
-Limit instructions to 20 words and descriptions to 25 words.
+Write one instruction per sentence, in 20 words or fewer. Keep other sentences to 25 words or fewer.
 Use periods, commas, colons, or parentheses instead of em dashes.
-Preserve necessary precision, exact quotations, identifiers, and uncertainty.
-Explain any necessary length exception.</p>
+Preserve necessary precision, exact quotations, identifiers, and uncertainty.</p>
 <p>Read <a href="#example">the worked example</a> when distinguishing evidence, simulations, unknowns, or required constraints is difficult.</p>
-<p>Before delivery, check criterion coverage, source support, evidence limits, constraint failures, and recommendation consistency.
-Check that exactly one option header has a chip: <strong>Recommended</strong>, or <strong>Selected</strong> in a Locked decision.
-Check whether new results require revised ratings.
+<p>Before delivery, check criterion coverage, source support, evidence limits, constraint failures, recommendation consistency, and whether new results change ratings.
+Check that exactly one option header has a chip.
 State skipped checks and material risks.</p>
 <h2 id="keep-a-decision-log">Keep a decision log</h2>
-<p>Save each decision matrix that you make in a project folder to the project&#39;s decision log.
+<p>Save each decision matrix that you make in a project folder to the project&#x27;s decision log.
 Keep a decision without a project folder, such as a personal choice, in the answer only.
 For a logged decision, give the decision and the next action in the reply, with links to the decision file and its page. Do not repeat the matrix.
-Use the project&#39;s existing decisions folder, if it has one. Otherwise, use <code>docs/decisions/</code>.</p>
+Use the project&#x27;s existing decisions folder, if it has one. Otherwise, use <code>docs/decisions/</code>.</p>
 <p>Save each decision in its own file, named <code>NNN-short-title.md</code>.
 Number the files in order: 001, 002, and so on.
 Use this layout for each decision file, in this order:</p>
@@ -502,33 +466,29 @@ Use this layout for each decision file, in this order:</p>
 <li><code>## Criteria</code>: the intended outcome, the shared task, and each criterion with its source.</li>
 <li><code>## Options</code>: the baseline and the options that you ruled out. When you test the options, add the hypothesis, falsifier, and status of each.</li>
 <li><code>## Evidence</code>: the evidence limits, then the checks that you ran and did not run, one line each. When the next action is an experiment, put its plan in a <code>### Next experiment</code> subsection.</li>
-<li><code>## References</code>: one list item for each page that the decision cites or links to. Give its ID, a link with the page&#39;s own title as the text, and the publisher, such as <code>E1. [Lease offers](https://example.com/offers), Example Motors.</code> Give the read date once above the list, or in each item when the dates differ. Do not write a bare address.</li>
+<li><code>## References</code>: one list item for each page that the decision cites or links to. Give its ID, a link with the page&#x27;s own title as the text, and the publisher, such as <code>E1. [Lease offers](https://example.com/offers), Example Motors.</code> Give the read date once above the list, or in each item when the dates differ. Do not write a bare address.</li>
 <li><code>## Revisions</code>, when the decision has revisions.</li>
 </ol>
 <p>When you change a decision file that has another layout, change it to this layout.
 Also change its cells and references to the rules in this skill.</p>
 <p>Use Provisional, Complete, or Locked as the status.
 Set the status to Locked only when the user chooses an option.
-Then remove <strong>Recommended</strong>, and put <strong>Selected</strong> at the top of the selected option&#39;s header.
+Then remove <strong>Recommended</strong>, and put <strong>Selected</strong> at the top of the selected option&#x27;s header.
 Rename <code>## Recommendation</code> to <code>## Decision</code>.
-Add a revision entry with the date, the user&#39;s words, and your earlier recommendation.
+Add a revision entry with the date, the user&#x27;s words, and your earlier recommendation.
 Change a Locked decision only when the user reopens it.</p>
 <p>When new evidence changes a decision, update its file. Do not make a new file.
 Add a <code>## Revisions</code> section at the end of the file, with the newest revision first.
-For each revision, give the date and the new evidence or the user&#39;s words. Then give what changed, in three short bullets or fewer.
+For each revision, give the date and the new evidence or the user&#x27;s words. Then give what changed, in three short bullets or fewer.
 Preserve earlier decisions and contradictory evidence.
 Do not remove compared options merely because they performed poorly.</p>
 <p>After each change to the log, run the bundled script. Give the full path of the script and of the decisions folder:</p>
 <p><code>python3 &lt;skill folder&gt;/scripts/render_html.py &lt;project&gt;/docs/decisions</code></p>
-<p>The script writes an HTML page beside each decision file, and an index as <code>README.md</code> and <code>index.html</code>.
-The script gives a note for each file that does not use the layout, the cell order, or reference links.
-The pages follow &quot;Present the matrix&quot; and <a href="#visual-output">the visual rules</a>, and link to their Markdown files.
-Make all HTML versions of a decision matrix with this script.
-Do not edit the files that the script writes.
+<p>It writes an HTML page beside each decision file, and an index as <code>README.md</code> and <code>index.html</code>.
+Make all HTML versions of a decision matrix with this script. Do not edit the files that it writes.
 When the user asks for HTML of a matrix outside the log, add the matrix to the log first.
 If the script stops because of a chip, correct the Markdown and run the script again.
-For any other stop, give its message to the user and ask how to continue.</p>
-</article><article class="example" aria-label="Visual output rules"><h2 id="visual-output">Visual output</h2>
+For any other stop, give its message to the user and ask how to continue.</p></article><article class="example" aria-label="Visual output rules"><h2 id="visual-output">Visual output</h2>
 <p>These rules apply to visual output, such as HTML.
 They add to the rules in &quot;Present the matrix&quot; in <code>SKILL.md</code>.
 The bundled <code>scripts/render_html.py</code> already follows them for the decision log.</p>
@@ -663,7 +623,7 @@ A later decision must retain this record and explain any changed recommendation.
 Risk: Simulated improvement may not transfer to actual use.</p></article></div></div>
 </details>
 </main>
-<footer><span>Decision Matrix, version 1.6.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
+<footer><span>Decision Matrix, version 1.6.1. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
 </div>
 <script>
 // Open the full skill when a link or the address points into it.

@@ -2,7 +2,7 @@
 name: decision-matrix
 description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, log, lock, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 
 # Decision Matrix
@@ -10,35 +10,27 @@ metadata:
 Build a comparison that explains the next useful action and what evidence could change it.
 This standalone method requires no specific application, service, or database.
 
-Use this method when alternatives could materially change the result.
+Use this method when alternatives could materially change the result, even without an explicit request.
 For routine choices, give a direct answer unless the user requests a matrix.
-Keep generated files in the local workspace.
-External publication requires an explicit user request for that destination.
+Keep generated files in the local workspace. Publish only to a destination that the user names.
+Stay within the current task and authority.
+A comparison or a recommendation alone does not authorize implementation, spending, a scope change, or more resources.
 
 ## Start from the available context
 
-The user does not need to supply options, criteria, or an invocation format.
-A request such as "Create a decision matrix" is sufficient when the conversation identifies the decision.
+The user does not need to supply options, criteria, or a request format.
+"Create a decision matrix" is enough when the conversation identifies the decision.
 Infer the decision question, candidate options, and criteria from the user's goal and available evidence.
 State material assumptions explicitly.
 If the decision subject is missing or ambiguous, ask one focused question about the goal.
-Do not require the user to invent options before proceeding.
+Otherwise, ask only when a fact or preference that only the user has would materially change the next action.
+When an explicit assumption is enough, continue authorized, reversible work.
 
 When the user names options, compare only those options.
 When the named options exclude the current approach, add it as the no-change option.
 Mention another credible option in one line outside the matrix when it could change the decision.
 When the user names no options, generate credible alternatives.
 Keep option generation separate from evidence collection. A generated option has no observed results until evidence supports them.
-
-Apply this method when a consequential comparison helps the current task, even without an explicit skill request.
-The agent can use options already under consideration or generate them from context.
-Keep autonomous use within the existing task and authority.
-
-Example requests:
-
-- "Create a decision matrix." Use the decision already under discussion.
-- "Use $decision-matrix for this goal." Generate suitable options and criteria.
-- "Compare option A and option B with $decision-matrix." Use the supplied options.
 
 ## Frame the decision
 
@@ -49,10 +41,6 @@ Example requests:
 
 Separate the delivery format from the approach to the problem.
 For example, a website is a format, while guided steps and direct editing are different approaches.
-Use available context before requesting missing information.
-Ask about a preference only when its answer materially changes the next action.
-Continue authorized, reversible work when an explicit assumption is sufficient.
-A comparison request alone does not authorize implementation, spending, or publication.
 
 ## Establish shared criteria
 
@@ -83,21 +71,16 @@ Consolidate overlapping criteria without losing distinct requirements.
 Record known priorities among optional criteria without inventing weights.
 Label inferred priorities as assumptions.
 
-Check whether an option meeting every criterion would justify proceeding.
+Check yourself whether an option that meets every criterion would justify proceeding.
 Investigate remaining objections for missing constraints, unclear criteria, or disputed evidence.
-Run this check yourself.
-Ask only when unavailable user information materially changes the decision.
 
 ## Define credible options
 
 Compare different mechanisms or explanations of the problem.
 When only one approach is apparent, consider its opposite or a smaller trial.
-Use these prompts only to generate credible alternatives.
 Do not invent a compromise or a fixed number of options.
-Include the current approach when it remains a credible option.
-Otherwise, explain its exclusion or use another justified baseline.
-For change decisions, consider a no-change or no-action option, including the benefits forgone by not acting.
-Use the current approach for this option when it already represents no change.
+Include the current approach as the no-change option when it remains credible. Otherwise, explain its exclusion.
+For a change decision, consider no action, including the benefits forgone by not acting.
 Use the fewest options and criteria that cover the decision.
 Use at most five criteria, unless the user names or asks for more.
 Two to four options usually fit one view. Retain more options when the decision requires them.
@@ -131,9 +114,8 @@ Do not run that experiment without the necessary authorization.
 ## Rate every option
 
 Rate every option against every shared criterion exactly once.
-Explain the scale directly above or below the matrix.
 Use qualitative ratings unless measurements justify numbers.
-Define what each applicable rating means for each criterion.
+Below the matrix, define what each applicable rating means for each criterion.
 Binary constraints need no artificial middle rating.
 
 | Rating | Meaning |
@@ -156,33 +138,25 @@ Limit human evidence to the experience actually reported or observed.
 Browser checks and model simulations cannot establish human effort, preference, or general usability.
 
 Do not invent weights, measurements, or confidence percentages.
+Use weights only when the user supplies or accepts their meaning.
 If the user requests numeric scoring, define its anchors, direction, units, and evidence basis.
 Keep ordinal judgments distinct from measured quantities.
-Use weights only when the user supplies or accepts their meaning.
-Do not calculate a total by default.
-Never hide a failed required constraint inside an average.
-Do not select an option by counting favorable cells.
+Give a total only when the user asks for one.
+Never hide a failed required constraint inside an average, and do not select an option by counting favorable cells.
 An unknown required outcome remains unresolved, even when other ratings are favorable.
 
 ## Recommend the next action
 
-Start with the recommendation and its main reason.
-Use the recommendation and its accepted trade-off as the report or matrix headline.
-Choose exactly one recommended option for the current decision.
-Specify whether to test, build, or retain that option.
+Lead with the recommendation, its main reason, and the trade-off that it accepts. Use them as the report or matrix headline.
+Recommend exactly one option for the current decision, and say whether to test, build, or retain it.
 For other decision domains, use an equivalent concrete action.
 When evidence cannot support a final choice, recommend one provisional next action.
-Use other options as alternatives or test baselines without labeling them Recommended.
-State the main trade-off, material unknowns, and the condition for reconsideration.
-State which plausible assumptions or preferences could change the recommendation.
-Check that numerical trade-offs in the headline and recommendation match the matrix.
-Name the baseline, units, and relevant time period for each numerical comparison.
-Flag any unexplained differences before presenting those comparisons as established.
-Preserve documented disagreement about facts, priorities, or recommendations.
-Identify what evidence or user choice could resolve that disagreement.
+Use the other options as alternatives or test baselines.
+State the material unknowns and the condition for reconsideration, including assumptions or preferences that could change it.
+Check that the numbers in the headline and the recommendation match the matrix.
+Give the baseline, units, and time period for each numerical comparison. Flag unexplained differences before you present it as established.
+Preserve documented disagreement about facts, priorities, or recommendations, and say what evidence or user choice could resolve it.
 Do not infer consensus from silence.
-Preserve the distinction between the agent's recommendation and the user's actual selection.
-Recommendations do not authorize scope changes or override resource limits.
 
 ## Present the matrix
 
@@ -191,23 +165,17 @@ Give the recommendation, the criteria with sources, the matrix, what could chang
 Leave out option hypotheses, statuses, and the experiment plan unless the user asks for them.
 
 Use Markdown unless the user requests another format or an existing destination requires one.
-Place criteria in rows and options in columns.
-Keep this orientation across matrices, including narrow layouts.
-Number criterion rows 1, 2, 3, and so on.
-Label option columns A, B, C, and so on.
-Keep these labels consistent within each decision and its supporting explanation.
-These labels do not replace stable identifiers.
-Place **Recommended** at the top of the recommended option's header, above its letter and title.
-Use only **Recommended** or **Selected** as the chip text.
-Keep bold text as the fallback for plain Markdown.
-Keep the option letter and title in that header.
-Keep provisional recommendations explicitly provisional.
+Put criteria in rows and options in columns in every matrix, also in narrow layouts.
+Number the criterion rows 1, 2, 3, and label the option columns A, B, C.
+Use the same labels in the explanation. They do not replace stable identifiers.
+Put **Recommended**, in bold, at the top of the recommended option's header, above its letter and title.
+Put **Selected** there instead only when the user chose that option. Use no other chip text.
 Give an option a description only when a reader cannot tell what the option is from its title.
 A well-known product, brand, or place needs none, such as `Tesla Model 3` or `Lisbon`.
 A label for an approach, or a niche name, needs one, such as `Hybrid` or `Phonon 31M`.
 A description says what the option is and how it works, in eight words or fewer.
-Put the facts that set options apart, such as a trim or a fuel type, in the cells.
 Put it in italic text beneath the title, inside the option header.
+Put the facts that set options apart, such as a trim or a fuel type, in the cells.
 Keep each criterion label to four words or fewer, such as `Lease per month`. Give its terms with its source.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
@@ -229,15 +197,12 @@ Link each option title in the matrix header to the option's main page.
 Open the option's main page before you link it.
 Give only links that you opened or that a cited source gives. Do not guess an address.
 Link local files with paths relative to the output file.
-Show each rating's color in one way only. The output format sets the way:
+Show each rating's color in one way only, as the output format sets:
 
 | Output | Rating cell | Color key below the matrix |
 | --- | --- | --- |
 | Plain Markdown | Start the cell with its marker: 🟢 Supported, 🟡 Partial or Simulated, 🔴 Not supported, ⚪ Unknown. | The markers and their labels. |
 | Visual, such as HTML | Fill the cell with its background color. | Color swatches and their labels. |
-
-Never combine color markers and background fills.
-When you convert Markdown output to HTML, replace each marker with its background fill.
 
 Keep criterion sources, and any option hypotheses you show, close to the table.
 When you show statuses, keep exploration status and build status separate from the recommendation label.
@@ -248,17 +213,14 @@ Before you make visual output without the bundled script, read [the visual rules
 
 Say each fact once, in the section that the layout gives it.
 Leave out lines that only say that nothing applies, such as no weights or no left-out criteria.
-Use one instruction per sentence.
-Limit instructions to 20 words and descriptions to 25 words.
+Write one instruction per sentence, in 20 words or fewer. Keep other sentences to 25 words or fewer.
 Use periods, commas, colons, or parentheses instead of em dashes.
 Preserve necessary precision, exact quotations, identifiers, and uncertainty.
-Explain any necessary length exception.
 
 Read [the worked example](references/worked-example.md) when distinguishing evidence, simulations, unknowns, or required constraints is difficult.
 
-Before delivery, check criterion coverage, source support, evidence limits, constraint failures, and recommendation consistency.
-Check that exactly one option header has a chip: **Recommended**, or **Selected** in a Locked decision.
-Check whether new results require revised ratings.
+Before delivery, check criterion coverage, source support, evidence limits, constraint failures, recommendation consistency, and whether new results change ratings.
+Check that exactly one option header has a chip.
 State skipped checks and material risks.
 
 ## Keep a decision log
@@ -305,11 +267,8 @@ After each change to the log, run the bundled script. Give the full path of the 
 python3 <skill folder>/scripts/render_html.py <project>/docs/decisions
 ```
 
-The script writes an HTML page beside each decision file, and an index as `README.md` and `index.html`.
-The script gives a note for each file that does not use the layout, the cell order, or reference links.
-The pages follow "Present the matrix" and [the visual rules](references/visual-output.md), and link to their Markdown files.
-Make all HTML versions of a decision matrix with this script.
-Do not edit the files that the script writes.
+It writes an HTML page beside each decision file, and an index as `README.md` and `index.html`.
+Make all HTML versions of a decision matrix with this script. Do not edit the files that it writes.
 When the user asks for HTML of a matrix outside the log, add the matrix to the log first.
 If the script stops because of a chip, correct the Markdown and run the script again.
 For any other stop, give its message to the user and ask how to continue.
