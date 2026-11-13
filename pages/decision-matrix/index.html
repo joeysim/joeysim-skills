@@ -226,7 +226,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <div class="hero-copy"><p class="lead">Decision Matrix is a skill for coding agents. Ask your agent to compare options, and it rates each one against the same criteria. Every rating cites its evidence. Unknowns stay unknown. You get one clear next step.</p>
 <div class="get"><div class="command"><code><span>npx skills add</span> <span>joeysim/joeysim-skills</span> <span>--skill decision-matrix</span></code><button type="button" aria-live="polite" data-copy="npx skills add joeysim/joeysim-skills --skill decision-matrix">Copy</button></div>
 <p class="ask">Then ask your agent: <code>Create a decision matrix.</code></p>
-<p class="version">Version 1.6.1. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
+<p class="version">Version 1.7.0. Works in Claude Code, Codex, and other agents that read Agent Skills. No Node.js? <a href="decision-matrix.zip" download>Download the ZIP</a>.</p></div></div>
 </section>
 <figure class="specimen" aria-labelledby="specimen-title">
 <div class="sheet">
@@ -314,6 +314,8 @@ Keep option generation separate from evidence collection. A generated option has
 For example, a website is a format, while guided steps and direct editing are different approaches.</p>
 <h2 id="establish-shared-criteria">Establish shared criteria</h2>
 <p>Use observable outcomes that distinguish useful options.
+Give each criterion one measure. Split a criterion that joins two outcomes.
+Check that each criterion can separate the options. When every option would get the same cell, make the criterion sharper.
 Assign each criterion a stable identifier, a clear label, a required flag, and a source.
 Express ambiguous criteria as answerable questions.
 For example, replace &quot;Speed&quot; with &quot;Can this meet the agreed deadline?&quot;
@@ -341,7 +343,8 @@ Do not invent a compromise or a fixed number of options.
 Include the current approach as the no-change option when it remains credible. Otherwise, explain its exclusion.
 For a change decision, consider no action, including the benefits forgone by not acting.
 Use the fewest options and criteria that cover the decision.
-Use at most five criteria, unless the user names or asks for more.
+Use at most five criteria, unless the user names more criteria for this matrix or asks for more.
+A requirement from earlier in the conversation is an input to the criteria. It does not raise this limit.
 Two to four options usually fit one view. Retain more options when the decision requires them.</p>
 <p>For each option, record:</p>
 <ul>
@@ -412,18 +415,22 @@ Put <strong>Selected</strong> there instead only when the user chose that option
 Give an option a description only when a reader cannot tell what the option is from its title.
 A well-known product, brand, or place needs none, such as <code>Tesla Model 3</code> or <code>Lisbon</code>.
 A label for an approach, or a niche name, needs one, such as <code>Hybrid</code> or <code>Phonon 31M</code>.
-A description says what the option is and how it works, in eight words or fewer.
+A description says what the option is and how it works, in eight plain words or fewer.
 Put it in italic text beneath the title, inside the option header.
 Put the facts that set options apart, such as a trim or a fuel type, in the cells.
-Keep each criterion label to four words or fewer, such as <code>Lease per month</code>. Give its terms with its source.
+Name each criterion after its measure or its capability, in the user's words, such as <code>Lease per month</code> or <code>Works offline</code>.
+Keep the label to four words or fewer. Give its terms with its source.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
 Mention each left-out criterion in one line below the matrix.
+Write the matrix in plain words, for a reader who did not see the analysis.
+Call each thing by its common name, or by the name that the user gave it. Do not use a name that you made up during the analysis.
+Give each option a title that says what it is.
 Write each rating cell in this order:</p>
 <ol>
 <li>The color marker, in Markdown only.</li>
-<li>The key fact, in four words or fewer, as the first sentence: the number or phrase that the criterion asks about, such as <code>$42,640.</code> or <code>IIHS Top Safety Pick.</code></li>
-<li>The basis or the main limit, in one short sentence. Put calculations and other details in <code>## Evidence</code>.</li>
+<li>The key fact, in four words or fewer, as the first sentence. It answers the criterion directly: a number with its unit, yes or no, or a plain phrase, such as <code>$42,640.</code>, <code>Yes, but slow.</code>, or <code>IIHS Top Safety Pick.</code></li>
+<li>The reason or the main limit, in one short sentence with one idea and everyday words. Put calculations and other details in <code>## Evidence</code>.</li>
 <li>The evidence IDs, such as E2, E3.</li>
 </ol>
 <p>Do not write the rating word, such as Supported or Partial, in the cell. The color shows the rating.
@@ -626,7 +633,7 @@ A later decision must retain this record and explain any changed recommendation.
 Risk: Simulated improvement may not transfer to actual use.</p></article></div></div>
 </details>
 </main>
-<footer><span>Decision Matrix, version 1.6.1. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
+<footer><span>Decision Matrix, version 1.7.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
 </div>
 <script>
 // Open the full skill when a link or the address points into it.

@@ -2,7 +2,7 @@
 name: decision-matrix
 description: Use when a user requests a decision matrix, consequential comparison, scorecard, or trade-off analysis, with or without named options. Also use when a user asks to convert, restyle, export, log, lock, or revisit an existing decision matrix, such as an HTML version of each decision.
 metadata:
-  version: "1.6.1"
+  version: "1.7.0"
 ---
 
 # Decision Matrix
@@ -45,6 +45,8 @@ For example, a website is a format, while guided steps and direct editing are di
 ## Establish shared criteria
 
 Use observable outcomes that distinguish useful options.
+Give each criterion one measure. Split a criterion that joins two outcomes.
+Check that each criterion can separate the options. When every option would get the same cell, make the criterion sharper.
 Assign each criterion a stable identifier, a clear label, a required flag, and a source.
 Express ambiguous criteria as answerable questions.
 For example, replace "Speed" with "Can this meet the agreed deadline?"
@@ -82,7 +84,8 @@ Do not invent a compromise or a fixed number of options.
 Include the current approach as the no-change option when it remains credible. Otherwise, explain its exclusion.
 For a change decision, consider no action, including the benefits forgone by not acting.
 Use the fewest options and criteria that cover the decision.
-Use at most five criteria, unless the user names or asks for more.
+Use at most five criteria, unless the user names more criteria for this matrix or asks for more.
+A requirement from earlier in the conversation is an input to the criteria. It does not raise this limit.
 Two to four options usually fit one view. Retain more options when the decision requires them.
 
 For each option, record:
@@ -173,18 +176,22 @@ Put **Selected** there instead only when the user chose that option. Use no othe
 Give an option a description only when a reader cannot tell what the option is from its title.
 A well-known product, brand, or place needs none, such as `Tesla Model 3` or `Lisbon`.
 A label for an approach, or a niche name, needs one, such as `Hybrid` or `Phonon 31M`.
-A description says what the option is and how it works, in eight words or fewer.
+A description says what the option is and how it works, in eight plain words or fewer.
 Put it in italic text beneath the title, inside the option header.
 Put the facts that set options apart, such as a trim or a fuel type, in the cells.
-Keep each criterion label to four words or fewer, such as `Lease per month`. Give its terms with its source.
+Name each criterion after its measure or its capability, in the user's words, such as `Lease per month` or `Works offline`.
+Keep the label to four words or fewer. Give its terms with its source.
 Mark required criteria beside their labels.
 Leave out a criterion row that every option passes equally, unless the user stated that criterion.
 Mention each left-out criterion in one line below the matrix.
+Write the matrix in plain words, for a reader who did not see the analysis.
+Call each thing by its common name, or by the name that the user gave it. Do not use a name that you made up during the analysis.
+Give each option a title that says what it is.
 Write each rating cell in this order:
 
 1. The color marker, in Markdown only.
-2. The key fact, in four words or fewer, as the first sentence: the number or phrase that the criterion asks about, such as `$42,640.` or `IIHS Top Safety Pick.`
-3. The basis or the main limit, in one short sentence. Put calculations and other details in `## Evidence`.
+2. The key fact, in four words or fewer, as the first sentence. It answers the criterion directly: a number with its unit, yes or no, or a plain phrase, such as `$42,640.`, `Yes, but slow.`, or `IIHS Top Safety Pick.`
+3. The reason or the main limit, in one short sentence with one idea and everyday words. Put calculations and other details in `## Evidence`.
 4. The evidence IDs, such as E2, E3.
 
 Do not write the rating word, such as Supported or Partial, in the cell. The color shows the rating.
