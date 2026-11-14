@@ -18,8 +18,14 @@ pages/
   llms.txt        the skill list for AI agents
   sitemap.xml     the page list for search engines
   favicon.svg     the site icon: the four squares of the brand
+  og.png          the social preview image of the site root
   <name>/
     index.html    required: the web page for the skill
+    og.png        the social preview image of the skill page
+cards/
+  <name>.html     the source of pages/<name>/og.png; index.html is the root card
+  card.css        the styles of the cards
+  render.sh       makes each og.png from its card
 templates/
   skill-page.html the starting point for a new page
 ```
@@ -36,6 +42,7 @@ templates/
 - When you change a skill, update `pages/<name>/index.html` to match. Put every line of `SKILL.md` in the page's full skill section.
 - Show the skill's version in the page's hero and footer, and in the page's JSON-LD.
 - Keep the styles and the script of each page the same as in `templates/skill-page.html`. When you change one, change the template and every page.
+- When you change the headline or the sample of a page, change its card in `cards/` to match. Then run `sh cards/render.sh` from the repo root.
 - The decision-log pages get their styles and theme switch from `skills/decision-matrix/scripts/render_html.py`. When you change the theme colors or the switch, change that script too.
 
 ## Add a skill
@@ -61,6 +68,7 @@ templates/
 3. Test the skill on a real task. Compare the result with the same task without the skill. The `superpowers:writing-skills` skill gives a full test process.
 4. Add a row for the skill to the table in `README.md`, and a sheet for it to `pages/index.html`. Add the skill to `pages/llms.txt` and `pages/sitemap.xml`.
 5. Make a page for the skill. Follow the "Webpages" section of `README.md`.
+   Make a card for it in `cards/`, and run `sh cards/render.sh`. Set the `og:image` alt text to tell what the card shows.
 6. Commit the skill and its page. Then tag the commit, as in "Versions".
 
 ## Rename a skill
