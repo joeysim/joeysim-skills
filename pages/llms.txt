@@ -1,0 +1,21 @@
+# joeysim-skills
+
+> Agent skills in the Agent Skills format (https://agentskills.io/specification) for Claude Code, Codex, and other coding agents. Each skill is a folder with a SKILL.md file.
+
+Install every skill in the current project: `npx skills add joeysim/joeysim-skills`. Add `-g` to install them for your user account. Add `--skill <name>` to install one skill.
+
+## Skills
+
+- [Decision Matrix](https://joeysim.github.io/joeysim-skills/decision-matrix/skill/SKILL.md): Rates each option against the same criteria, cites evidence for each rating, and recommends one next step. Install with `npx skills add joeysim/joeysim-skills --skill decision-matrix`.
+- [Where Were We (www)](https://joeysim.github.io/joeysim-skills/www/skill/SKILL.md): Maps a long agent session: the goal, the open loops, and one next step. Install with `npx skills add joeysim/joeysim-skills --skill www`.
+
+## Pages
+
+- [Decision Matrix page](https://joeysim.github.io/joeysim-skills/decision-matrix/): Sample output, the full skill, and the changelog.
+- [Where Were We page](https://joeysim.github.io/joeysim-skills/www/): Sample output and the full skill.
+
+## Optional
+
+- [Source on GitHub](https://github.com/joeysim/joeysim-skills)
+- [Decision Matrix ZIP](https://joeysim.github.io/joeysim-skills/decision-matrix/decision-matrix.zip)
+- [Where Were We ZIP](https://joeysim.github.io/joeysim-skills/www/www.zip)

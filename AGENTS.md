@@ -15,6 +15,9 @@ skills/
     agents/       optional: agent metadata, such as openai.yaml for Codex
 pages/
   index.html      the site root: a sheet for each skill
+  llms.txt        the skill list for AI agents
+  sitemap.xml     the page list for search engines
+  favicon.svg     the site icon: the four squares of the brand
   <name>/
     index.html    required: the web page for the skill
 templates/
@@ -31,7 +34,7 @@ templates/
 - Run bundled scripts through their interpreter, such as `python3 scripts/tool.py`. Some installers remove the executable bit.
 - When you change a file in a skill folder, increase the skill's version in the same commit. Follow the rules in "Versions".
 - When you change a skill, update `pages/<name>/index.html` to match. Put every line of `SKILL.md` in the page's full skill section.
-- Show the skill's version in the page's hero and footer.
+- Show the skill's version in the page's hero and footer, and in the page's JSON-LD.
 - Keep the styles and the script of each page the same as in `templates/skill-page.html`. When you change one, change the template and every page.
 - The decision-log pages get their styles and theme switch from `skills/decision-matrix/scripts/render_html.py`. When you change the theme colors or the switch, change that script too.
 
@@ -56,7 +59,7 @@ templates/
    ```
 
 3. Test the skill on a real task. Compare the result with the same task without the skill. The `superpowers:writing-skills` skill gives a full test process.
-4. Add a row for the skill to the table in `README.md`, and a sheet for it to `pages/index.html`.
+4. Add a row for the skill to the table in `README.md`, and a sheet for it to `pages/index.html`. Add the skill to `pages/llms.txt` and `pages/sitemap.xml`.
 5. Make a page for the skill. Follow the "Webpages" section of `README.md`.
 6. Commit the skill and its page. Then tag the commit, as in "Versions".
 
@@ -68,7 +71,7 @@ Keep the old name working as a redirect. Then old requests still work, so the ne
 2. Put a redirect skill in `skills/<old>`, and increase the MINOR part of its version too. Its description names only the old name, so that it does not compete with the new skill. Its body tells the agent to use the new skill, or to install it. Set `internal: true` under `metadata`, so that `npx skills add` does not install it with the other skills.
 3. Move `pages/<old>/index.html` to `pages/<new>/`. Change the names, the install commands, the ZIP links, and the version.
 4. Put a redirect page in `pages/<old>/index.html`. It does not use the template. The Pages workflow builds `pages/<old>` from the redirect skill.
-5. Update the README table, the README page addresses, and the sheet in `pages/index.html`.
+5. Update the README table, the README page addresses, the sheet in `pages/index.html`, `pages/llms.txt`, and `pages/sitemap.xml`.
 6. After the push, tag both skills. Link the new folder into your agents, and keep the old links on the redirect skill.
 
 ## Test a skill change
