@@ -8,6 +8,7 @@ This repo holds agent skills in the [Agent Skills](https://agentskills.io/specif
 skills/
   <name>/
     SKILL.md      required
+    CHANGELOG.md  the changes in each version
     references/   optional: long reference text that SKILL.md links to
     scripts/      optional: helper scripts
     assets/       optional: templates and other files
@@ -125,3 +126,18 @@ git push origin decision-matrix/v1.1.0
 ```
 
 Do not move or delete a tag after you push it.
+
+### Changelog
+
+In the same commit as a new version, add an entry to the top of the skill's `CHANGELOG.md`.
+Write the entry for a user of the skill, not for a maintainer:
+
+- Start the entry with `## <version>`. Write one to three lines below it, as bullets.
+- Tell what changes for the user, such as `Each cell starts with a direct answer.` Leave out how it changed.
+- Write each line as one short, plain sentence in the present tense.
+- Give only the changes that a user notices. Leave out file paths, script details, tests, and small fixes.
+- For a PATCH with no change in behavior, write one line, such as `The instructions are shorter. The rules are the same.`
+
+Put every line of `CHANGELOG.md` in the changelog section of the skill's page.
+The section is a `<details class="full" id="changelog">` below the full skill, with an `<h3 id="v1-7-0">` for each version.
+The footer links to it with `<a href="#changelog">Changelog</a>`.

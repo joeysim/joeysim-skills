@@ -84,7 +84,10 @@ Do not invent a compromise or a fixed number of options.
 Include the current approach as the no-change option when it remains credible. Otherwise, explain its exclusion.
 For a change decision, consider no action, including the benefits forgone by not acting.
 Use the fewest options and criteria that cover the decision.
-Use at most five criteria, unless the user names more criteria for this matrix or asks for more.
+Use at most five criteria.
+Use more only when the user asks for the added criteria by name.
+The user can ask in the request for the matrix, or in a reply such as "Add cost and speed."
+Do not join two criteria to stay within the limit.
 A requirement from earlier in the conversation is an input to the criteria. It does not raise this limit.
 Two to four options usually fit one view. Retain more options when the decision requires them.
 
@@ -164,7 +167,7 @@ Do not infer consensus from silence.
 ## Present the matrix
 
 For a personal decision that is easy to reverse, keep the answer short.
-Give the recommendation, the criteria with sources, the matrix, what could change the answer, and the evidence.
+Give the recommendation, the criteria with their sources and required flags, the matrix, what could change the answer, and the evidence.
 Leave out option hypotheses, statuses, and the experiment plan unless the user asks for them.
 
 Use Markdown unless the user requests another format or an existing destination requires one.
@@ -173,24 +176,26 @@ Number the criterion rows 1, 2, 3, and label the option columns A, B, C.
 Use the same labels in the explanation. They do not replace stable identifiers.
 Put **Recommended**, in bold, at the top of the recommended option's header, above its letter and title.
 Put **Selected** there instead only when the user chose that option. Use no other chip text.
-Give an option a description only when a reader cannot tell what the option is from its title.
+Give each option a title that says what it is. Add a description only when a reader cannot tell what the option is from its title.
 A well-known product, brand, or place needs none, such as `Tesla Model 3` or `Lisbon`.
 A label for an approach, or a niche name, needs one, such as `Hybrid` or `Phonon 31M`.
 A description says what the option is and how it works, in eight plain words or fewer.
+Do not repeat the title in the description. Give only facts that the title does not give.
 Put it in italic text beneath the title, inside the option header.
 Put the facts that set options apart, such as a trim or a fuel type, in the cells.
-Name each criterion after its measure or its capability, in the user's words, such as `Lease per month` or `Works offline`.
+Name each criterion after its measure or its capability. Use the user's words, such as `Lease per month` or `Works offline`.
 Keep the label to four words or fewer. Give its terms with its source.
-Mark required criteria beside their labels.
-Leave out a criterion row that every option passes equally, unless the user stated that criterion.
-Mention each left-out criterion in one line below the matrix.
+Do not mark required criteria in the matrix. Give the required flag with each criterion's source.
+Leave out a criterion row that every option passes equally, unless the user asked for that criterion.
+Below the matrix, list each left-out criterion that could change the choice.
+Give its result for all options, such as `Works offline: not tested.` Do not say why you left it out.
+Give a result that nobody tested as `not tested`, not as a pass.
 Write the matrix in plain words, for a reader who did not see the analysis.
 Call each thing by its common name, or by the name that the user gave it. Do not use a name that you made up during the analysis.
-Give each option a title that says what it is.
 Write each rating cell in this order:
 
 1. The color marker, in Markdown only.
-2. The key fact, in four words or fewer, as the first sentence. It answers the criterion directly: a number with its unit, yes or no, or a plain phrase, such as `$42,640.`, `Yes, but slow.`, or `IIHS Top Safety Pick.`
+2. The key fact, in four words or fewer, as the first sentence. It answers the criterion directly. Use a number with its unit, yes or no, or a plain phrase, such as `$42,640.`, `Yes, but slow.`, or `IIHS Top Safety Pick.`
 3. The reason or the main limit, in one short sentence with one idea and everyday words. Put calculations and other details in `## Evidence`.
 4. The evidence IDs, such as E2, E3.
 
@@ -245,8 +250,8 @@ Use this layout for each decision file, in this order:
 2. The date and status, such as `Date: 2026-11-10 · Status: Provisional`.
 3. The decision question, in one sentence. The log index shows this sentence as the description.
 4. `## Recommendation`, or `## Decision` when the status is Locked: four paragraphs of one sentence each: the recommended or selected option and the main reason, then `Trade-off:`, `Next:`, and `Reconsider:`.
-5. `## Matrix`: the matrix, the color key, and the criteria that you left out. Then explain the rating scale and any weights in a `### Rating scale` subsection.
-6. `## Criteria`: the intended outcome, the shared task, and each criterion with its source.
+5. `## Matrix`: the matrix, the color key, and the left-out criteria that could change the choice. Then explain the rating scale and any weights in a `### Rating scale` subsection.
+6. `## Criteria`: the intended outcome, the shared task, and each criterion with its source and its required flag.
 7. `## Options`: the baseline and the options that you ruled out. When you test the options, add the hypothesis, falsifier, and status of each.
 8. `## Evidence`: the evidence limits, then the checks that you ran and did not run, one line each. When the next action is an experiment, put its plan in a `### Next experiment` subsection.
 9. `## References`: one list item for each page that the decision cites or links to. Give its ID, a link with the page's own title as the text, and the publisher, such as `E1. [Lease offers](https://example.com/offers), Example Motors.` Give the read date once above the list, or in each item when the dates differ. Do not write a bare address.

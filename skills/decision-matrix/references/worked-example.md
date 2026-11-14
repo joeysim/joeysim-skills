@@ -61,7 +61,7 @@ Option A keeps the current workflow unchanged.
 
 | Detail | A. Current form | B. Guided prototype | C. Hosted assistant |
 | --- | --- | --- | --- |
-| Description | Edit values directly in the existing form. | Follow guided prompts to correct one value at a time. | Ask an online assistant to correct a value. |
+| Description | Edit values directly in the existing form. | Guided prompts correct one value at a time. | Ask an online assistant to correct a value. |
 | Hypothesis | Direct access limits unnecessary interaction. | Sequential prompts reduce correction errors. | Natural language helps people identify the intended correction. |
 | What would weaken it? | People repeatedly correct the wrong field. | People make as many corrections as with the current form. | People repeatedly correct the assistant's interpretation. |
 | Build and exploration status | Built. Observed technical behavior, E1. | Built. Observed technical behavior, E2. Simulated human benefit, E3. | Unbuilt locally. Ruled out by documented constraints, E4. |
@@ -71,10 +71,10 @@ Option A keeps the current workflow unchanged.
 Scale: Supported means evidence meets the criterion. Not supported means evidence shows a failure.
 Unknown means the outcome lacks evidence. Simulated means a model supplied the judgment.
 
-| Criterion | A. Current form *Edit values directly in the existing form.* | **Recommended** B. Guided prototype *Follow guided prompts to correct one value at a time.* | C. Hosted assistant *Ask an online assistant to correct a value.* |
+| Criterion | A. Current form *Edit values directly in the existing form.* | **Recommended** B. Guided prototype *Guided prompts correct one value at a time.* | C. Hosted assistant *Ask an online assistant to correct a value.* |
 | --- | --- | --- | --- |
-| 1. Offline task (Required) | 🟢 Works offline. The browser completed the task offline. E1. | 🟢 Works offline. The browser completed the same task offline. E2. | 🔴 Needs a network. The service requires a network connection. E4. |
-| 2. Monthly cost (Required) | 🟢 $0 per month. E1. | 🟢 $2 per month. E2. | 🔴 $8 per month. Over the $5 limit. E4. |
+| 1. Runs offline | 🟢 Works offline. The browser completed the task offline. E1. | 🟢 Works offline. The browser completed the same task offline. E2. | 🔴 Needs a network. The service requires a network connection. E4. |
+| 2. Monthly cost | 🟢 $0 per month. E1. | 🟢 $2 per month. E2. | 🔴 $8 per month. Over the $5 limit. E4. |
 | 3. Fewer corrections | ⚪ No human baseline. Nobody measured corrections in the current form. | 🟡 Simulated: fewer corrections. A model predicted it, but no person tested it. E3. | ⚪ Not tested. No person tested this option. |
 
 Color key: 🟢 Supported. 🟡 Partial or Simulated. 🔴 Not supported. ⚪ Unknown.

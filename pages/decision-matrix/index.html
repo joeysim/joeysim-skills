@@ -231,7 +231,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14
 <figure class="specimen" aria-labelledby="specimen-title">
 <div class="sheet">
 <p class="sheet-q" id="specimen-title">Which approach merits the next test?</p>
-<div class="table-scroll" role="region" aria-label="Example decision matrix" tabindex="0"><table class="matrix"><colgroup><col class="criterion"><col><col><col></colgroup><thead><tr class="flags"><td></td><td></td><th scope="col" class="rec"><span class="pin on-head" aria-hidden="true">1</span><span class="chip">Recommended</span></th><td></td></tr><tr><th scope="col">Criterion</th><th scope="col">A. Current form<span class="desc">Edit values directly in the existing form.</span></th><th scope="col" class="rec">B. Guided prototype<span class="desc">Guided prompts correct one value at a time.</span></th><th scope="col">C. Hosted assistant<span class="desc">An online assistant corrects the value for you.</span></th></tr></thead><tbody><tr><th scope="row">1. Offline task <em>(Required)</em></th><td data-r="pos" style="--i:0"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the task offline. E1.</span></td><td data-r="pos" class="rec" style="--i:1"><span class="pin on-cell" aria-hidden="true">4</span><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the same task offline. E2.</span></td><td data-r="neg" style="--i:2"><span class="pin on-cell" aria-hidden="true">2</span><span class="sr">Not supported: </span><span class="v">Needs a network</span><span class="ctx">The service requires a network connection. E4.</span></td></tr><tr><th scope="row">2. Monthly cost <em>(Required)</em></th><td data-r="pos" style="--i:3"><span class="sr">Supported: </span><span class="v">$0 per month</span><span class="ctx">E1.</span></td><td data-r="pos" class="rec" style="--i:4"><span class="sr">Supported: </span><span class="v">$2 per month</span><span class="ctx">E2.</span></td><td data-r="neg" style="--i:5"><span class="sr">Not supported: </span><span class="v">$8 per month</span><span class="ctx">Over the $5 limit. E4.</span></td></tr><tr><th scope="row">3. Fewer corrections</th><td data-r="unk" style="--i:6"><span class="pin on-cell" aria-hidden="true">3</span><span class="sr">Unknown: </span><span class="v">No human baseline</span><span class="ctx">Nobody measured corrections in the current form.</span></td><td data-r="mix" class="rec" style="--i:7"><span class="sr">Partial or Simulated: </span><span class="v">Simulated: fewer corrections</span><span class="ctx">A model predicted it, but no person tested it. E3.</span></td><td data-r="unk" style="--i:8"><span class="sr">Unknown: </span><span class="v">Not tested</span><span class="ctx">No person tested this option.</span></td></tr></tbody></table></div>
+<div class="table-scroll" role="region" aria-label="Example decision matrix" tabindex="0"><table class="matrix"><colgroup><col class="criterion"><col><col><col></colgroup><thead><tr class="flags"><td></td><td></td><th scope="col" class="rec"><span class="pin on-head" aria-hidden="true">1</span><span class="chip">Recommended</span></th><td></td></tr><tr><th scope="col">Criterion</th><th scope="col">A. Current form<span class="desc">Edit values directly in the existing form.</span></th><th scope="col" class="rec">B. Guided prototype<span class="desc">Guided prompts correct one value at a time.</span></th><th scope="col">C. Hosted assistant<span class="desc">An online assistant corrects the value for you.</span></th></tr></thead><tbody><tr><th scope="row">1. Runs offline</th><td data-r="pos" style="--i:0"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the task offline. E1.</span></td><td data-r="pos" class="rec" style="--i:1"><span class="pin on-cell" aria-hidden="true">4</span><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the same task offline. E2.</span></td><td data-r="neg" style="--i:2"><span class="pin on-cell" aria-hidden="true">2</span><span class="sr">Not supported: </span><span class="v">Needs a network</span><span class="ctx">The service requires a network connection. E4.</span></td></tr><tr><th scope="row">2. Monthly cost</th><td data-r="pos" style="--i:3"><span class="sr">Supported: </span><span class="v">$0 per month</span><span class="ctx">E1.</span></td><td data-r="pos" class="rec" style="--i:4"><span class="sr">Supported: </span><span class="v">$2 per month</span><span class="ctx">E2.</span></td><td data-r="neg" style="--i:5"><span class="sr">Not supported: </span><span class="v">$8 per month</span><span class="ctx">Over the $5 limit. E4.</span></td></tr><tr><th scope="row">3. Fewer corrections</th><td data-r="unk" style="--i:6"><span class="pin on-cell" aria-hidden="true">3</span><span class="sr">Unknown: </span><span class="v">No human baseline</span><span class="ctx">Nobody measured corrections in the current form.</span></td><td data-r="mix" class="rec" style="--i:7"><span class="sr">Partial or Simulated: </span><span class="v">Simulated: fewer corrections</span><span class="ctx">A model predicted it, but no person tested it. E3.</span></td><td data-r="unk" style="--i:8"><span class="sr">Unknown: </span><span class="v">Not tested</span><span class="ctx">No person tested this option.</span></td></tr></tbody></table></div>
 <p class="key" aria-label="Color key"><span><i class="sw" data-r="pos"></i>Supported</span><span><i class="sw" data-r="mix"></i>Partial or Simulated</span><span><i class="sw" data-r="neg"></i>Not supported</span><span><i class="sw" data-r="unk"></i>Unknown</span></p>
 </div>
 <figcaption>
@@ -343,7 +343,10 @@ Do not invent a compromise or a fixed number of options.
 Include the current approach as the no-change option when it remains credible. Otherwise, explain its exclusion.
 For a change decision, consider no action, including the benefits forgone by not acting.
 Use the fewest options and criteria that cover the decision.
-Use at most five criteria, unless the user names more criteria for this matrix or asks for more.
+Use at most five criteria.
+Use more only when the user asks for the added criteria by name.
+The user can ask in the request for the matrix, or in a reply such as &quot;Add cost and speed.&quot;
+Do not join two criteria to stay within the limit.
 A requirement from earlier in the conversation is an input to the criteria. It does not raise this limit.
 Two to four options usually fit one view. Retain more options when the decision requires them.</p>
 <p>For each option, record:</p>
@@ -404,7 +407,7 @@ Preserve documented disagreement about facts, priorities, or recommendations, an
 Do not infer consensus from silence.</p>
 <h2 id="present-the-matrix">Present the matrix</h2>
 <p>For a personal decision that is easy to reverse, keep the answer short.
-Give the recommendation, the criteria with sources, the matrix, what could change the answer, and the evidence.
+Give the recommendation, the criteria with their sources and required flags, the matrix, what could change the answer, and the evidence.
 Leave out option hypotheses, statuses, and the experiment plan unless the user asks for them.</p>
 <p>Use Markdown unless the user requests another format or an existing destination requires one.
 Put criteria in rows and options in columns in every matrix, also in narrow layouts.
@@ -412,24 +415,26 @@ Number the criterion rows 1, 2, 3, and label the option columns A, B, C.
 Use the same labels in the explanation. They do not replace stable identifiers.
 Put <strong>Recommended</strong>, in bold, at the top of the recommended option&#x27;s header, above its letter and title.
 Put <strong>Selected</strong> there instead only when the user chose that option. Use no other chip text.
-Give an option a description only when a reader cannot tell what the option is from its title.
+Give each option a title that says what it is. Add a description only when a reader cannot tell what the option is from its title.
 A well-known product, brand, or place needs none, such as <code>Tesla Model 3</code> or <code>Lisbon</code>.
 A label for an approach, or a niche name, needs one, such as <code>Hybrid</code> or <code>Phonon 31M</code>.
 A description says what the option is and how it works, in eight plain words or fewer.
+Do not repeat the title in the description. Give only facts that the title does not give.
 Put it in italic text beneath the title, inside the option header.
 Put the facts that set options apart, such as a trim or a fuel type, in the cells.
-Name each criterion after its measure or its capability, in the user's words, such as <code>Lease per month</code> or <code>Works offline</code>.
+Name each criterion after its measure or its capability. Use the user's words, such as <code>Lease per month</code> or <code>Works offline</code>.
 Keep the label to four words or fewer. Give its terms with its source.
-Mark required criteria beside their labels.
-Leave out a criterion row that every option passes equally, unless the user stated that criterion.
-Mention each left-out criterion in one line below the matrix.
+Do not mark required criteria in the matrix. Give the required flag with each criterion's source.
+Leave out a criterion row that every option passes equally, unless the user asked for that criterion.
+Below the matrix, list each left-out criterion that could change the choice.
+Give its result for all options, such as <code>Works offline: not tested.</code> Do not say why you left it out.
+Give a result that nobody tested as <code>not tested</code>, not as a pass.
 Write the matrix in plain words, for a reader who did not see the analysis.
 Call each thing by its common name, or by the name that the user gave it. Do not use a name that you made up during the analysis.
-Give each option a title that says what it is.
 Write each rating cell in this order:</p>
 <ol>
 <li>The color marker, in Markdown only.</li>
-<li>The key fact, in four words or fewer, as the first sentence. It answers the criterion directly: a number with its unit, yes or no, or a plain phrase, such as <code>$42,640.</code>, <code>Yes, but slow.</code>, or <code>IIHS Top Safety Pick.</code></li>
+<li>The key fact, in four words or fewer, as the first sentence. It answers the criterion directly. Use a number with its unit, yes or no, or a plain phrase, such as <code>$42,640.</code>, <code>Yes, but slow.</code>, or <code>IIHS Top Safety Pick.</code></li>
 <li>The reason or the main limit, in one short sentence with one idea and everyday words. Put calculations and other details in <code>## Evidence</code>.</li>
 <li>The evidence IDs, such as E2, E3.</li>
 </ol>
@@ -472,8 +477,8 @@ Use this layout for each decision file, in this order:</p>
 <li>The date and status, such as <code>Date: 2026-11-10 · Status: Provisional</code>.</li>
 <li>The decision question, in one sentence. The log index shows this sentence as the description.</li>
 <li><code>## Recommendation</code>, or <code>## Decision</code> when the status is Locked: four paragraphs of one sentence each: the recommended or selected option and the main reason, then <code>Trade-off:</code>, <code>Next:</code>, and <code>Reconsider:</code>.</li>
-<li><code>## Matrix</code>: the matrix, the color key, and the criteria that you left out. Then explain the rating scale and any weights in a <code>### Rating scale</code> subsection.</li>
-<li><code>## Criteria</code>: the intended outcome, the shared task, and each criterion with its source.</li>
+<li><code>## Matrix</code>: the matrix, the color key, and the left-out criteria that could change the choice. Then explain the rating scale and any weights in a <code>### Rating scale</code> subsection.</li>
+<li><code>## Criteria</code>: the intended outcome, the shared task, and each criterion with its source and its required flag.</li>
 <li><code>## Options</code>: the baseline and the options that you ruled out. When you test the options, add the hypothesis, falsifier, and status of each.</li>
 <li><code>## Evidence</code>: the evidence limits, then the checks that you ran and did not run, one line each. When the next action is an experiment, put its plan in a <code>### Next experiment</code> subsection.</li>
 <li><code>## References</code>: one list item for each page that the decision cites or links to. Give its ID, a link with the page&#x27;s own title as the text, and the publisher, such as <code>E1. [Lease offers](https://example.com/offers), Example Motors.</code> Give the read date once above the list, or in each item when the dates differ. Do not write a bare address.</li>
@@ -608,11 +613,11 @@ The comparison rule includes successful completion. Human evidence for that outc
 This assumption remains revisable. It does not create a new user requirement.</p>
 <h3 id="example-options">Options</h3>
 <p>Option A keeps the current workflow unchanged.</p>
-<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Detail</th><th>A. Current form</th><th>B. Guided prototype</th><th>C. Hosted assistant</th></tr></thead><tbody><tr><td>Description</td><td>Edit values directly in the existing form.</td><td>Follow guided prompts to correct one value at a time.</td><td>Ask an online assistant to correct a value.</td></tr><tr><td>Hypothesis</td><td>Direct access limits unnecessary interaction.</td><td>Sequential prompts reduce correction errors.</td><td>Natural language helps people identify the intended correction.</td></tr><tr><td>What would weaken it?</td><td>People repeatedly correct the wrong field.</td><td>People make as many corrections as with the current form.</td><td>People repeatedly correct the assistant&#x27;s interpretation.</td></tr><tr><td>Build and exploration status</td><td>Built. Observed technical behavior, E1.</td><td>Built. Observed technical behavior, E2. Simulated human benefit, E3.</td><td>Unbuilt locally. Ruled out by documented constraints, E4.</td></tr></tbody></table></div>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr><th>Detail</th><th>A. Current form</th><th>B. Guided prototype</th><th>C. Hosted assistant</th></tr></thead><tbody><tr><td>Description</td><td>Edit values directly in the existing form.</td><td>Guided prompts correct one value at a time.</td><td>Ask an online assistant to correct a value.</td></tr><tr><td>Hypothesis</td><td>Direct access limits unnecessary interaction.</td><td>Sequential prompts reduce correction errors.</td><td>Natural language helps people identify the intended correction.</td></tr><tr><td>What would weaken it?</td><td>People repeatedly correct the wrong field.</td><td>People make as many corrections as with the current form.</td><td>People repeatedly correct the assistant&#x27;s interpretation.</td></tr><tr><td>Build and exploration status</td><td>Built. Observed technical behavior, E1.</td><td>Built. Observed technical behavior, E2. Simulated human benefit, E3.</td><td>Unbuilt locally. Ruled out by documented constraints, E4.</td></tr></tbody></table></div>
 <h3 id="example-matrix">Matrix</h3>
 <p>Scale: Supported means evidence meets the criterion. Not supported means evidence shows a failure.
 Unknown means the outcome lacks evidence. Simulated means a model supplied the judgment.</p>
-<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr class="flags"><td></td><td></td><th class="rec"><span class="chip">Recommended</span></th><td></td></tr><tr><th>Criterion</th><th class="option-header">A. Current form <span class="desc">Edit values directly in the existing form.</span></th><th class="option-header rec">B. Guided prototype <span class="desc">Follow guided prompts to correct one value at a time.</span></th><th class="option-header">C. Hosted assistant <span class="desc">Ask an online assistant to correct a value.</span></th></tr></thead><tbody><tr><td>1. Offline task (Required)</td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the task offline. E1.</span></td><td data-rating="positive" class="rec"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the same task offline. E2.</span></td><td data-rating="negative"><span class="sr">Not supported: </span><span class="v">Needs a network</span><span class="ctx">The service requires a network connection. E4.</span></td></tr><tr><td>2. Monthly cost (Required)</td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">$0 per month</span><span class="ctx">E1.</span></td><td data-rating="positive" class="rec"><span class="sr">Supported: </span><span class="v">$2 per month</span><span class="ctx">E2.</span></td><td data-rating="negative"><span class="sr">Not supported: </span><span class="v">$8 per month</span><span class="ctx">Over the $5 limit. E4.</span></td></tr><tr><td>3. Fewer corrections</td><td data-rating="unknown"><span class="sr">Unknown: </span><span class="v">No human baseline</span><span class="ctx">Nobody measured corrections in the current form.</span></td><td data-rating="simulated" class="rec"><span class="sr">Partial or Simulated: </span><span class="v">Simulated: fewer corrections</span><span class="ctx">A model predicted it, but no person tested it. E3.</span></td><td data-rating="unknown"><span class="sr">Unknown: </span><span class="v">Not tested</span><span class="ctx">No person tested this option.</span></td></tr></tbody></table></div>
+<div class="table-scroll" role="region" aria-label="Comparison table" tabindex="0"><table class="option-table"><thead><tr class="flags"><td></td><td></td><th class="rec"><span class="chip">Recommended</span></th><td></td></tr><tr><th>Criterion</th><th class="option-header">A. Current form <span class="desc">Edit values directly in the existing form.</span></th><th class="option-header rec">B. Guided prototype <span class="desc">Guided prompts correct one value at a time.</span></th><th class="option-header">C. Hosted assistant <span class="desc">Ask an online assistant to correct a value.</span></th></tr></thead><tbody><tr><td>1. Runs offline</td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the task offline. E1.</span></td><td data-rating="positive" class="rec"><span class="sr">Supported: </span><span class="v">Works offline</span><span class="ctx">The browser completed the same task offline. E2.</span></td><td data-rating="negative"><span class="sr">Not supported: </span><span class="v">Needs a network</span><span class="ctx">The service requires a network connection. E4.</span></td></tr><tr><td>2. Monthly cost</td><td data-rating="positive"><span class="sr">Supported: </span><span class="v">$0 per month</span><span class="ctx">E1.</span></td><td data-rating="positive" class="rec"><span class="sr">Supported: </span><span class="v">$2 per month</span><span class="ctx">E2.</span></td><td data-rating="negative"><span class="sr">Not supported: </span><span class="v">$8 per month</span><span class="ctx">Over the $5 limit. E4.</span></td></tr><tr><td>3. Fewer corrections</td><td data-rating="unknown"><span class="sr">Unknown: </span><span class="v">No human baseline</span><span class="ctx">Nobody measured corrections in the current form.</span></td><td data-rating="simulated" class="rec"><span class="sr">Partial or Simulated: </span><span class="v">Simulated: fewer corrections</span><span class="ctx">A model predicted it, but no person tested it. E3.</span></td><td data-rating="unknown"><span class="sr">Unknown: </span><span class="v">Not tested</span><span class="ctx">No person tested this option.</span></td></tr></tbody></table></div>
 <p class="rating-legend">Color key: <strong>Green</strong>: Supported. <strong>Yellow</strong>: Partial or Simulated. <strong>Red</strong>: Not supported. <strong>Gray</strong>: Unknown.</p>
 <p>There is no total score.
 A favorable prediction cannot compensate for a failed required constraint.
@@ -632,8 +637,51 @@ A later decision must retain this record and explain any changed recommendation.
 <p>Skipped checks: No human sessions or production cost checks occurred in this fictional example.
 Risk: Simulated improvement may not transfer to actual use.</p></article></div></div>
 </details>
+<details class="full" id="changelog">
+<summary><span class="full-title">Changelog</span><span class="full-sub">What changed in each version.</span></summary>
+<div class="content">
+<h3 id="v1-7-0">1.7.0</h3>
+<ul>
+<li>A matrix has at most five criteria, unless you ask for more.</li>
+<li>Each cell starts with a direct answer.</li>
+<li>The criteria left out of the matrix are listed below it.</li>
+</ul>
+<h3 id="v1-6-1">1.6.1</h3>
+<ul>
+<li>The instructions are shorter. The rules are the same.</li>
+</ul>
+<h3 id="v1-6-0">1.6.0</h3>
+<ul>
+<li>Option headers are calmer, and the color key is below the matrix.</li>
+</ul>
+<h3 id="v1-5-0">1.5.0</h3>
+<ul>
+<li>Cells are shorter: a key fact, then one short sentence.</li>
+</ul>
+<h3 id="v1-4-0">1.4.0</h3>
+<ul>
+<li>The skill stays complete after context compaction.</li>
+</ul>
+<h3 id="v1-3-0">1.3.0</h3>
+<ul>
+<li>Decision-log pages have light and dark themes.</li>
+</ul>
+<h3 id="v1-2-0">1.2.0</h3>
+<ul>
+<li>Each decision file starts with the decision.</li>
+</ul>
+<h3 id="v1-1-0">1.1.0</h3>
+<ul>
+<li>New: a decision log, with an HTML page for each decision.</li>
+</ul>
+<h3 id="v1-0-0">1.0.0</h3>
+<ul>
+<li>The first version.</li>
+</ul>
+</div>
+</details>
 </main>
-<footer><span>Decision Matrix, version 1.7.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#top">Back to the top</a></footer>
+<footer><span>Decision Matrix, version 1.7.0. MIT license.</span><a href="skill/SKILL.md" download>Download SKILL.md</a><a href="#changelog">Changelog</a><a href="#top">Back to the top</a></footer>
 </div>
 <script>
 // Open the full skill when a link or the address points into it.
